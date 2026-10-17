@@ -47,7 +47,7 @@ The app reads legacy Unity containers, serialized objects and packed game tables
 
 ## Development and AI transparency
 
-AI played a substantial role in development, including analyzing legacy formats and behavior, implementing code and troubleshooting issues. **Rodrigo Sigrist ([rsigristc](https://github.com/rsigristc))** directs the project, integrates changes, tests builds on hardware and works through the resulting issues. OpenAI Codex has been used extensively for technical assistance.
+AI played a substantial role in development, including analyzing legacy formats and behavior, implementing code and troubleshooting issues. I directed the project, integrate changes, tests builds on hardware and works through the resulting issues. OpenAI Codex has been used extensively for technical assistance.
 
 This is a combination of human direction, testing and persistence with substantial AI assistance. It is not a claim that the implementation is flawless or independently certified. The source is published so others can inspect it, report problems and contribute improvements.
 
