@@ -1,0 +1,30 @@
+OpenFusion:Pocket
+=================
+
+The MIT license in LICENSE applies to original contributions made for this
+project. It does not grant rights to third-party source material, reconstructed
+legacy-client material, game assets, trademarks, bitmap-font data or artwork.
+Existing upstream notices and licenses remain applicable to their material.
+
+KnownGameVersions.cs contains version catalog data adapted from
+OpenFusionProject/OpenFusionLauncher and retains the full MIT notice:
+Copyright (c) 2020-2025 OpenFusion Contributors.
+
+The compact LZMA decoder is based on the LZMA SDK algorithm, placed in the
+public domain by Igor Pavlov. Unity, URP, Newtonsoft.Json and build-tool
+components retain their respective licenses and notices.
+
+Assets/Resources/OpenFusion contains embedded resources extracted or adapted
+from the legacy game/client: UI images and metadata, icons, portraits,
+launcher artwork, help images, sky resources and bitmap-font atlases/data.
+No copyright ownership or open-source relicensing of those resources is
+asserted. The original game and its intellectual property belong to Cartoon
+Network and their respective rights holders. Downloaded game-content bundles
+remain outside this repository and under their original rights and terms.
+
+Legacy format and behavioral reconstruction is credited to its original
+creators and the community's research and preservation work. Attribution is
+not a substitute for any permissions required by a rights holder.
+
+This unofficial project is not endorsed by Cartoon Network, OpenFusion,
+Retrobution, Unity Technologies or OpenAI. See CREDITS.md for attribution.

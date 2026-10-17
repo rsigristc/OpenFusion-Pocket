@@ -1,0 +1,6172 @@
+{
+ "Custom/RimEmissiveColoredTransparentTextureShaderNoScroll": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Transparency",
+     "Range"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_Emission",
+     "Range"
+    ],
+    [
+     "_RimPower",
+     "Range"
+    ],
+    [
+     "_RimIntensity",
+     "Range"
+    ],
+    [
+     "_RimColor",
+     "Color"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "OUTLINE"
+   ],
+   "combiners": [
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "Custom/SkinnedToonShading_blendSrcalphaInvsrcalpha_Rim": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_EmissionStrength",
+     "Float"
+    ],
+    [
+     "_RimPower",
+     "Float"
+    ],
+    [
+     "_RimIntensity",
+     "Float"
+    ],
+    [
+     "_RimColor",
+     "Color"
+    ],
+    [
+     "_OverlayColor1",
+     "Color"
+    ],
+    [
+     "_OverlayTex1",
+     "2D"
+    ],
+    [
+     "_Overlay1ScrollSpeed",
+     "Vector"
+    ],
+    [
+     "_OverlayColor2",
+     "Color"
+    ],
+    [
+     "_OverlayTex2",
+     "2D"
+    ],
+    [
+     "_Overlay2ScrollSpeed",
+     "Vector"
+    ],
+    [
+     "_UseOverlays",
+     "Range"
+    ],
+    [
+     "_Transparency",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  },
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Front",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_EmissionStrength",
+     "Float"
+    ],
+    [
+     "_RimPower",
+     "Float"
+    ],
+    [
+     "_RimIntensity",
+     "Float"
+    ],
+    [
+     "_RimColor",
+     "Color"
+    ],
+    [
+     "_OverlayColor1",
+     "Color"
+    ],
+    [
+     "_OverlayTex1",
+     "2D"
+    ],
+    [
+     "_Overlay1ScrollSpeed",
+     "Vector"
+    ],
+    [
+     "_OverlayColor2",
+     "Color"
+    ],
+    [
+     "_OverlayTex2",
+     "2D"
+    ],
+    [
+     "_Overlay2ScrollSpeed",
+     "Vector"
+    ],
+    [
+     "_UseOverlays",
+     "Range"
+    ],
+    [
+     "_Transparency",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 1
+  }
+ ],
+ "Custom/SkinnedToonShading_blendSrcalphaInvsrcalpha_RimMatcap": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Float"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_EmissionStrength",
+     "Float"
+    ],
+    [
+     "_RimPower",
+     "Float"
+    ],
+    [
+     "_RimIntensity",
+     "Float"
+    ],
+    [
+     "_RimColor",
+     "Color"
+    ],
+    [
+     "_MaskTex",
+     "2D"
+    ],
+    [
+     "_EmissionIntensity",
+     "Float"
+    ],
+    [
+     "_MatCapStrength",
+     "Float"
+    ],
+    [
+     "_MatCapBlendMode",
+     "Float"
+    ],
+    [
+     "_Transparency",
+     "Float"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  }
+ ],
+ "Custom/SkinnedToonShading_blendSrcalphaInvsrcalpha_Rim_transparent": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent+3",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_EmissionStrength",
+     "Float"
+    ],
+    [
+     "_RimPower",
+     "Float"
+    ],
+    [
+     "_RimIntensity",
+     "Float"
+    ],
+    [
+     "_RimColor",
+     "Color"
+    ],
+    [
+     "_OverlayColor1",
+     "Color"
+    ],
+    [
+     "_OverlayTex1",
+     "2D"
+    ],
+    [
+     "_Overlay1ScrollSpeed",
+     "Vector"
+    ],
+    [
+     "_OverlayColor2",
+     "Color"
+    ],
+    [
+     "_OverlayTex2",
+     "2D"
+    ],
+    [
+     "_Overlay2ScrollSpeed",
+     "Vector"
+    ],
+    [
+     "_UseOverlays",
+     "Range"
+    ],
+    [
+     "_Transparency",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/DualScrollingAdditive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color1",
+     "Color"
+    ],
+    [
+     "_ScrollX1",
+     "Float"
+    ],
+    [
+     "_ScrollY1",
+     "Float"
+    ],
+    [
+     "_MainTex2",
+     "2D"
+    ],
+    [
+     "_Color2",
+     "Color"
+    ],
+    [
+     "_ScrollX2",
+     "Float"
+    ],
+    [
+     "_ScrollY2",
+     "Float"
+    ],
+    [
+     "_EmissionStrength",
+     "Float"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_MasterOpacity",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 1
+  }
+ ],
+ "Custom/VFX/PolarScrolling": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_ScrollSpeedU",
+     "Float"
+    ],
+    [
+     "_ScrollSpeedV",
+     "Float"
+    ],
+    [
+     "_CenterX",
+     "Float"
+    ],
+    [
+     "_CenterY",
+     "Float"
+    ],
+    [
+     "_RadialScale",
+     "Float"
+    ],
+    [
+     "_AngularScale",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/PolarScrolling_Additive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_ScrollSpeedU",
+     "Float"
+    ],
+    [
+     "_ScrollSpeedV",
+     "Float"
+    ],
+    [
+     "_CenterX",
+     "Float"
+    ],
+    [
+     "_CenterY",
+     "Float"
+    ],
+    [
+     "_RadialScale",
+     "Float"
+    ],
+    [
+     "_AngularScale",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/RotatingFlipbook": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Columns",
+     "Float"
+    ],
+    [
+     "_Rows",
+     "Float"
+    ],
+    [
+     "_AnimationSpeed",
+     "Float"
+    ],
+    [
+     "_RotationSpeed",
+     "Float"
+    ],
+    [
+     "_CenterX",
+     "Float"
+    ],
+    [
+     "_CenterY",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/RotatingFlipbook_Additive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Columns",
+     "Float"
+    ],
+    [
+     "_Rows",
+     "Float"
+    ],
+    [
+     "_AnimationSpeed",
+     "Float"
+    ],
+    [
+     "_RotationSpeed",
+     "Float"
+    ],
+    [
+     "_CenterX",
+     "Float"
+    ],
+    [
+     "_CenterY",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/ScrollDistort_wMask_Gradient": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_MainTex2",
+     "2D"
+    ],
+    [
+     "_NoiseTex",
+     "2D"
+    ],
+    [
+     "_MaskTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Color2",
+     "Color"
+    ],
+    [
+     "_BlendMode",
+     "Float"
+    ],
+    [
+     "_DistortionStrength",
+     "Float"
+    ],
+    [
+     "_NoiseScrollU",
+     "Float"
+    ],
+    [
+     "_NoiseScrollV",
+     "Float"
+    ],
+    [
+     "_NoiseScale",
+     "Float"
+    ],
+    [
+     "_MainScrollU",
+     "Float"
+    ],
+    [
+     "_MainScrollV",
+     "Float"
+    ],
+    [
+     "_Main2ScrollU",
+     "Float"
+    ],
+    [
+     "_Main2ScrollV",
+     "Float"
+    ],
+    [
+     "_MaskScrollU",
+     "Float"
+    ],
+    [
+     "_MaskScrollV",
+     "Float"
+    ],
+    [
+     "_GradientRotation",
+     "Float"
+    ],
+    [
+     "_GradientTopIntensity",
+     "Float"
+    ],
+    [
+     "_GradientBottomIntensity",
+     "Float"
+    ],
+    [
+     "_GradientTopPower",
+     "Float"
+    ],
+    [
+     "_GradientBottomPower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/ScrollDistort_wMask_Gradient_Additive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_MainTex2",
+     "2D"
+    ],
+    [
+     "_NoiseTex",
+     "2D"
+    ],
+    [
+     "_MaskTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Color2",
+     "Color"
+    ],
+    [
+     "_BlendMode",
+     "Float"
+    ],
+    [
+     "_DistortionStrength",
+     "Float"
+    ],
+    [
+     "_NoiseScrollU",
+     "Float"
+    ],
+    [
+     "_NoiseScrollV",
+     "Float"
+    ],
+    [
+     "_NoiseScale",
+     "Float"
+    ],
+    [
+     "_MainScrollU",
+     "Float"
+    ],
+    [
+     "_MainScrollV",
+     "Float"
+    ],
+    [
+     "_Main2ScrollU",
+     "Float"
+    ],
+    [
+     "_Main2ScrollV",
+     "Float"
+    ],
+    [
+     "_MaskScrollU",
+     "Float"
+    ],
+    [
+     "_MaskScrollV",
+     "Float"
+    ],
+    [
+     "_GradientRotation",
+     "Float"
+    ],
+    [
+     "_GradientTopIntensity",
+     "Float"
+    ],
+    [
+     "_GradientBottomIntensity",
+     "Float"
+    ],
+    [
+     "_GradientTopPower",
+     "Float"
+    ],
+    [
+     "_GradientBottomPower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/ScrollDistort_wMask_Vignette": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_MainTex2",
+     "2D"
+    ],
+    [
+     "_NoiseTex",
+     "2D"
+    ],
+    [
+     "_MaskTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Color2",
+     "Color"
+    ],
+    [
+     "_BlendMode",
+     "Float"
+    ],
+    [
+     "_DistortionStrength",
+     "Float"
+    ],
+    [
+     "_NoiseScrollU",
+     "Float"
+    ],
+    [
+     "_NoiseScrollV",
+     "Float"
+    ],
+    [
+     "_NoiseScale",
+     "Float"
+    ],
+    [
+     "_MainScrollU",
+     "Float"
+    ],
+    [
+     "_MainScrollV",
+     "Float"
+    ],
+    [
+     "_Main2ScrollU",
+     "Float"
+    ],
+    [
+     "_Main2ScrollV",
+     "Float"
+    ],
+    [
+     "_MaskScrollU",
+     "Float"
+    ],
+    [
+     "_MaskScrollV",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/ScrollDistort_wMask_Vignette_Additive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_MainTex2",
+     "2D"
+    ],
+    [
+     "_NoiseTex",
+     "2D"
+    ],
+    [
+     "_MaskTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_Color2",
+     "Color"
+    ],
+    [
+     "_BlendMode",
+     "Float"
+    ],
+    [
+     "_DistortionStrength",
+     "Float"
+    ],
+    [
+     "_NoiseScrollU",
+     "Float"
+    ],
+    [
+     "_NoiseScrollV",
+     "Float"
+    ],
+    [
+     "_NoiseScale",
+     "Float"
+    ],
+    [
+     "_MainScrollU",
+     "Float"
+    ],
+    [
+     "_MainScrollV",
+     "Float"
+    ],
+    [
+     "_Main2ScrollU",
+     "Float"
+    ],
+    [
+     "_Main2ScrollV",
+     "Float"
+    ],
+    [
+     "_MaskScrollU",
+     "Float"
+    ],
+    [
+     "_MaskScrollV",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/TextureRotate": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_RotationSpeed",
+     "Float"
+    ],
+    [
+     "_CenterX",
+     "Float"
+    ],
+    [
+     "_CenterY",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/TextureRotate_Additive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_RotationSpeed",
+     "Float"
+    ],
+    [
+     "_CenterX",
+     "Float"
+    ],
+    [
+     "_CenterY",
+     "Float"
+    ],
+    [
+     "_VignetteIntensity",
+     "Float"
+    ],
+    [
+     "_VignettePower",
+     "Float"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "Custom/VFX/Unique/HologramSolid_Additive": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MaskTex",
+     "2D"
+    ],
+    [
+     "_ColorA",
+     "Color"
+    ],
+    [
+     "_ColorB",
+     "Color"
+    ],
+    [
+     "_MasterOpacity",
+     "Float"
+    ],
+    [
+     "_BaseOpacity",
+     "Float"
+    ],
+    [
+     "_MaskAlphaOpacity",
+     "Float"
+    ],
+    [
+     "_OverlayRColor",
+     "Color"
+    ],
+    [
+     "_OverlayROpacity",
+     "Float"
+    ],
+    [
+     "_OverlayGColor",
+     "Color"
+    ],
+    [
+     "_OverlayGOpacity",
+     "Float"
+    ],
+    [
+     "_OverlayBColor",
+     "Color"
+    ],
+    [
+     "_OverlayBOpacity",
+     "Float"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OVERLAYS"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "MiniMapRender": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_DecalTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture, texture",
+    "previous, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "RetroLit": [
+  {
+   "state": {
+    "cull": "Off",
+    "zwrite": "On",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 3,
+   "passNames": [
+    "ShadowCaster",
+    "ShadowCollector"
+   ],
+   "combiners": [
+    "texture * primary DOUBLE, texture * primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_FatFactor",
+     "Range"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": true,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_FatFactor",
+     "Range"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": true,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "Skin_FusionEffect_blendSrcalphaInvsrcalpha_tutorial": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_Speed",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [
+    "texture * primary DOUBLE",
+    "texture + previous, previous",
+    "texture + previous, previous"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 1
+  }
+ ],
+ "SkinnedFusionMatterLightDir_blendSrcalphaInvsrcalpha": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_FusionTint",
+     "Color"
+    ],
+    [
+     "_BubblesTint",
+     "Color"
+    ],
+    [
+     "_ElectricityTint",
+     "Color"
+    ],
+    [
+     "_RimColor",
+     "Color"
+    ],
+    [
+     "_ShadowStrength",
+     "Float"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Float"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 2
+  }
+ ],
+ "SkinnedToonShading_blendSrcalphaInvsrcalpha": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_RimPower",
+     "Float"
+    ],
+    [
+     "_RimIntensity",
+     "Float"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "primary",
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  }
+ ],
+ "SkinnedToonShading_blendSrcalphaInvsrcalpha_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "texture * constant DOUBLE, texture",
+    "texture * previous, previous",
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha_cullOff",
+   "subshaders": 1
+  }
+ ],
+ "SkinnedToonShading_blendSrcalphaInvsrcalpha e1": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "texture * constant DOUBLE",
+    "texture * previous",
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  },
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "texture * constant DOUBLE",
+    "texture * previous",
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  }
+ ],
+ "SkinnedToonShading_blendSrcalphaInvsrcalphaflipped": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "texture * constant DOUBLE",
+    "texture * previous",
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 1
+  }
+ ],
+ "ToonShading_blendSrcalphaInvsrcalpha": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Back",
+    "zwrite": "On",
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_OutlineColor",
+     "Color"
+    ],
+    [
+     "_Outline",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [
+    "BASE",
+    "OUTLINE"
+   ],
+   "combiners": [
+    "texture * constant DOUBLE",
+    "texture * previous",
+    "primary"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Skin_DirLight_AmbLight_blendSrcalphaInvsrcalpha",
+   "subshaders": 2
+  }
+ ],
+ "ffWater": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent+2",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_WaveScale",
+     "Range"
+    ],
+    [
+     "_ReflDistort",
+     "Range"
+    ],
+    [
+     "_RefrDistort",
+     "Range"
+    ],
+    [
+     "_Fresnel",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ],
+    [
+     "_ReflectiveColor",
+     "2D"
+    ],
+    [
+     "_ReflectiveColorCube",
+     "Cube"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_ReflectionTex",
+     "2D"
+    ],
+    [
+     "_RefractionTex",
+     "2D"
+    ]
+   ],
+   "passes": 0,
+   "passNames": [],
+   "combiners": [],
+   "hasVertexProgram": true,
+   "fallback": null,
+   "subshaders": 0
+  }
+ ],
+ "fusionStar": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "zwrite": "Off",
+    "queue": "Geometry-1000",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "normal": [
+  {
+   "state": {
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1
+  }
+ ],
+ "normal_blendOneOne": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendOneOneTest": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  }
+ ],
+ "normal_blendOneOneTest_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  }
+ ],
+ "normal_blendOneOneTest_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": true,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendOneOne_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendOneOne_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendOneOne_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendOneOne_zwriteOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "zwrite": "Off",
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendOneOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendOneOne_zwriteOff_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendOneOne_zwriteOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "zwrite": "Off",
+    "queue": "Transparent+11",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalphaTest": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "zwrite": "Off",
+    "alphatest": [
+     "GEqual",
+     "0.9"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture",
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalphaTest_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "GEqual",
+     "0.9"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture",
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "GEqual",
+     "0.9"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture",
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalphaTest_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "GEqual",
+     "0.9"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture",
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": true
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalphaTest_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "zwrite": "Off",
+    "alphatest": [
+     "GEqual",
+     "0.9"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture",
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": true
+   },
+   "nameMismatch": {
+    "zwrite": [
+     true,
+     false
+    ]
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalphaTest_zwriteOff": [
+  {
+   "state": {
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "src": [
+     "SrcAlpha",
+     "One"
+    ],
+    "dst": [
+     "OneMinusSrcAlpha",
+     "Zero"
+    ]
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalphaTest_zwriteOff_cullOff": [
+  {
+   "state": {
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent-100",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "src": [
+     "SrcAlpha",
+     "One"
+    ],
+    "dst": [
+     "OneMinusSrcAlpha",
+     "Zero"
+    ]
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha_zwriteOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrcalpha_zwriteOff_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaInvsrccolor": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcColor"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcColor",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOneTest": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOneTest_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne_zwriteOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne_zwriteOff_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture * primary"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaOne_zwriteOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture * primary"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_blendSrcalphaZero": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "Zero"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "Zero",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrccolorInvsrcalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcColor",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcColor",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_blendSrccolorOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcColor",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+10",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE , texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_glow_blendOneOne_zwriteOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "queue": "Transparent+1",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant lerp (texture) previous",
+    "texture * previous , texture*primary"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": true
+   },
+   "nameMismatch": {
+    "cull": [
+     "Back",
+     "Off"
+    ]
+   }
+  }
+ ],
+ "normal_glow_blendSrcalphaInvsrcalpha": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant lerp (texture) previous",
+    "texture * previous , texture*primary"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": true,
+    "cull": "Back",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_glow_blendSrcalphaInvsrcalphaTest_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant lerp (texture) previous",
+    "texture * previous , texture*primary"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": false
+   }
+  }
+ ],
+ "normal_glow_blendSrcalphaInvsrcalphaTest_cullOff_vertexColorAD": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "alphatest": [
+     "Greater",
+     "[_Cutoff]"
+    ],
+    "queue": "Transparent",
+    "lighting": true,
+    "colorMaterialAD": true
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant lerp (texture) previous",
+    "texture * previous , texture*primary"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 1,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": true,
+    "zwrite": true,
+    "cull": "Off",
+    "vertexColorAD": true
+   }
+  }
+ ],
+ "normal_transparentcutoutinfrontofWater": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "GEqual",
+     "0.9"
+    ],
+    "queue": "Transparent+1",
+    "lighting": true,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_Cutoff",
+     "Range"
+    ]
+   ],
+   "passes": 2,
+   "passNames": [],
+   "combiners": [
+    "texture * primary DOUBLE, texture",
+    "texture * primary DOUBLE, texture"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2
+  }
+ ],
+ "particle_blendDestalphaInvsrccolor_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "DstAlpha",
+     "OneMinusSrcColor"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "DstAlpha",
+    "dst": "OneMinusSrcColor",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendInvdestcolorOne_zwriteOff": [
+  {
+   "state": {
+    "blend": [
+     "OneMinusDstColor",
+     "One"
+    ],
+    "cull": "Back",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusDstColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Back",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendInvdestcolorOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "OneMinusDstColor",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusDstColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "OneMinusDstColor",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusDstColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "OneMinusDstColor",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusDstColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "OneMinusDstColor",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusDstColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendInvsrcalphaOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "OneMinusSrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusSrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  },
+  {
+   "state": {
+    "blend": [
+     "OneMinusSrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusSrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendInvsrccolorDestalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "OneMinusSrcColor",
+     "Dstalpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusSrcColor",
+    "dst": "DstAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "dst": [
+     "DstAlpha",
+     "Dstalpha"
+    ],
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendInvsrccolorInvsrccolor_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "OneMinusSrcColor",
+     "OneMinusSrcColor"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "OneMinusSrcColor",
+    "dst": "OneMinusSrcColor",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendOneInvsrccolor_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "OneMinusSrcColor"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "One",
+    "dst": "OneMinusSrcColor",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendOneOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "One",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "One",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrcalphaDestalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "DstAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "DstAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrcalphaInvsrcalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrcalphaInvsrccolor_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcColor"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "OneMinusSrcColor",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrcalphaOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrcalphaOne_zwriteOff_cullOff_charcreation": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrcalphaZero_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "Zero"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcAlpha",
+    "dst": "Zero",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrccolorInvsrcalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcColor",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcColor",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendSrccolorOne_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "SrcColor",
+     "One"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "SrcColor",
+    "dst": "One",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "particle_blendZeroInvsrcalpha_zwriteOff_cullOff": [
+  {
+   "state": {
+    "blend": [
+     "Zero",
+     "OneMinusSrcAlpha"
+    ],
+    "cull": "Off",
+    "zwrite": "Off",
+    "alphatest": [
+     "Greater",
+     ".01"
+    ],
+    "queue": "Transparent+3",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_TintColor",
+     "Color"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [],
+   "combiners": [
+    "constant * primary",
+    "texture * previous DOUBLE"
+   ],
+   "hasVertexProgram": false,
+   "fallback": null,
+   "subshaders": 2,
+   "nameParams": {
+    "src": "Zero",
+    "dst": "OneMinusSrcAlpha",
+    "alphatest": false,
+    "zwrite": false,
+    "cull": "Off",
+    "vertexColorAD": false
+   },
+   "nameMismatch": {
+    "alphatest": [
+     false,
+     true
+    ]
+   }
+  }
+ ],
+ "retro_diffuseFade": [
+  {
+   "state": {
+    "blend": [
+     "SrcAlpha",
+     "OneMinusSrcAlpha"
+    ],
+    "queue": "Transparent-100",
+    "lighting": false,
+    "colorMaterialAD": false
+   },
+   "props": [
+    [
+     "_Color",
+     "Color"
+    ],
+    [
+     "_SpecColor",
+     "Color"
+    ],
+    [
+     "_AmbColor",
+     "Color"
+    ],
+    [
+     "_Emission",
+     "Color"
+    ],
+    [
+     "_Shininess",
+     "Range"
+    ],
+    [
+     "_MainTex",
+     "2D"
+    ],
+    [
+     "_BumpMap",
+     "2D"
+    ],
+    [
+     "_ShaderMap",
+     "2D"
+    ],
+    [
+     "_SpecMap",
+     "2D"
+    ],
+    [
+     "_Speed",
+     "Range"
+    ]
+   ],
+   "passes": 1,
+   "passNames": [
+    "BASE"
+   ],
+   "combiners": [
+    "texture * primary DOUBLE",
+    "texture + previous, previous",
+    "texture + previous, previous"
+   ],
+   "hasVertexProgram": true,
+   "fallback": "Diffuse",
+   "subshaders": 1
+  }
+ ]
+}

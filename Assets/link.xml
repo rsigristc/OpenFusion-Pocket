@@ -1,0 +1,5 @@
+<linker>
+  <!-- IL2CPP recorta lo que no se referencia estáticamente. Newtonsoft deserializa por reflexión los modelos de la API (campos y clases internas). -->
+  <assembly fullname="Assembly-CSharp" preserve="all"/>
+  <assembly fullname="Newtonsoft.Json" preserve="all"/>
+</linker>

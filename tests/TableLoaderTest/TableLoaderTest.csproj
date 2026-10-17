@@ -1,0 +1,2 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><RestoreSources>/nonexistent</RestoreSources><AllowUnsafeBlocks>true</AllowUnsafeBlocks><NoWarn>CS0649;CS0219</NoWarn></PropertyGroup>
+<ItemGroup><Compile Include="../../Assets/Scripts/OpenFusion/Tables/**/*.cs;../../Assets/Scripts/OpenFusion/Unity25/*.cs;../../Assets/Scripts/OpenFusion/Convert/*.cs;../stubs/*.cs"/></ItemGroup></Project>

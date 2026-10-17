@@ -1,0 +1,2 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><Nullable>disable</Nullable></PropertyGroup>
+<ItemGroup><Compile Include="../../Assets/Scripts/OpenFusion/Net/PacketCrypto.cs;../../Assets/Scripts/OpenFusion/Net/FramedStream.cs"/></ItemGroup></Project>

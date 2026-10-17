@@ -1,0 +1,6122 @@
+{
+ "GUISkin#1": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/set_back.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/set_check.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/set_check2.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_horizontalSliderThumb.m_Normal.m_Background",
+    "texture": "Textures/setting_progressbar.png"
+   },
+   {
+    "field": "m_verticalSliderThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[4].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/graphics_tab_selected.png"
+   },
+   {
+    "field": "customStyles[5].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/graphics_tab.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/graphics_tab_over.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/gameUI_tab.png"
+   },
+   {
+    "field": "customStyles[7].m_Hover.m_Background",
+    "texture": "Textures/gameUI_tab_over.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/social_tab.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/social_tab_over.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/controls_tab.png"
+   },
+   {
+    "field": "customStyles[9].m_Hover.m_Background",
+    "texture": "Textures/controls_tab_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/controls_tab_selected.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/gameUI_tab_selected.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/social_tab_selected.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/setting_back2.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/setting_back4.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/setting_back3.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/setting_back5.png"
+   },
+   {
+    "field": "customStyles[20].m_Normal.m_Background",
+    "texture": "Textures/pulldown1.png"
+   },
+   {
+    "field": "customStyles[20].m_Hover.m_Background",
+    "texture": "Textures/pulldown2.png"
+   },
+   {
+    "field": "customStyles[21].m_Normal.m_Background",
+    "texture": "Textures/chat_box.png"
+   },
+   {
+    "field": "customStyles[22].m_Hover.m_Background",
+    "texture": "Textures/menuchat_sel_over.png"
+   },
+   {
+    "field": "customStyles[24].m_Normal.m_Background",
+    "texture": "Textures/color_box.png"
+   },
+   {
+    "field": "customStyles[26].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[26].m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[26].m_OnNormal.m_Background",
+    "texture": "Textures/awaiting_input.png"
+   },
+   {
+    "field": "customStyles[27].m_Normal.m_Background",
+    "texture": "Textures/ff-closebutton-normal.png"
+   },
+   {
+    "field": "customStyles[27].m_Hover.m_Background",
+    "texture": "Textures/ff-closebutton-hover.png"
+   },
+   {
+    "field": "customStyles[27].m_Active.m_Background",
+    "texture": "Textures/ff-closebutton-active.png"
+   },
+   {
+    "field": "customStyles[27].m_OnNormal.m_Background",
+    "texture": "Textures/awaiting_input.png"
+   },
+   {
+    "field": "customStyles[28].m_Normal.m_Background",
+    "texture": "Textures/setting_back2a.png"
+   },
+   {
+    "field": "customStyles[28].m_Hover.m_Background",
+    "texture": "Textures/ff-closebutton-hover.png"
+   },
+   {
+    "field": "customStyles[28].m_Active.m_Background",
+    "texture": "Textures/ff-closebutton-active.png"
+   },
+   {
+    "field": "customStyles[28].m_OnNormal.m_Background",
+    "texture": "Textures/awaiting_input.png"
+   }
+  ]
+ },
+ "GUISkin#2": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/itemslotback.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[1].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/trash.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/trashOver.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/trash.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/nanotab.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/nanotab.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/inventab.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/inventabover.png"
+   },
+   {
+    "field": "customStyles[4].m_Active.m_Background",
+    "texture": "Textures/inventab.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/nanoback.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/slotbox.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/slotbox.png"
+   },
+   {
+    "field": "customStyles[6].m_Active.m_Background",
+    "texture": "Textures/slotbox.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/slotboxempty.png"
+   },
+   {
+    "field": "customStyles[7].m_Hover.m_Background",
+    "texture": "Textures/slotboxempty.png"
+   },
+   {
+    "field": "customStyles[7].m_Active.m_Background",
+    "texture": "Textures/slotboxempty.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/equipbar.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/userstback.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/equipbar.png"
+   },
+   {
+    "field": "customStyles[12].m_Hover.m_Background",
+    "texture": "Textures/equipbar.png"
+   },
+   {
+    "field": "customStyles[12].m_Active.m_Background",
+    "texture": "Textures/equipbar.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/listselect.png"
+   },
+   {
+    "field": "customStyles[14].m_Hover.m_Background",
+    "texture": "Textures/listselect.png"
+   },
+   {
+    "field": "customStyles[14].m_Active.m_Background",
+    "texture": "Textures/listselect.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/emaildataback.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/emaildataback.png"
+   },
+   {
+    "field": "customStyles[15].m_Active.m_Background",
+    "texture": "Textures/emaildataback.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/emaildatabox.png"
+   },
+   {
+    "field": "customStyles[16].m_Hover.m_Background",
+    "texture": "Textures/emaildatabox.png"
+   },
+   {
+    "field": "customStyles[16].m_Active.m_Background",
+    "texture": "Textures/emaildatabox.png"
+   },
+   {
+    "field": "customStyles[18].m_Normal.m_Background",
+    "texture": "Textures/emailbutr.png"
+   },
+   {
+    "field": "customStyles[18].m_Hover.m_Background",
+    "texture": "Textures/emailbutr.png"
+   },
+   {
+    "field": "customStyles[18].m_Active.m_Background",
+    "texture": "Textures/emailbutr.png"
+   },
+   {
+    "field": "customStyles[19].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[19].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[19].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[20].m_Normal.m_Background",
+    "texture": "Textures/equipdlg.png"
+   },
+   {
+    "field": "customStyles[21].m_Normal.m_Background",
+    "texture": "Textures/unequipdlg.png"
+   },
+   {
+    "field": "customStyles[22].m_Normal.m_Background",
+    "texture": "Textures/gumdlg.png"
+   },
+   {
+    "field": "customStyles[23].m_Normal.m_Background",
+    "texture": "Textures/userdlg.png"
+   },
+   {
+    "field": "customStyles[24].m_Normal.m_Background",
+    "texture": "Textures/reward_userdlg.png"
+   },
+   {
+    "field": "customStyles[25].m_Normal.m_Background",
+    "texture": "Textures/cacuback.png"
+   },
+   {
+    "field": "customStyles[26].m_Normal.m_Background",
+    "texture": "Textures/userstback.png"
+   },
+   {
+    "field": "customStyles[27].m_Hover.m_Background",
+    "texture": "Textures/cacuover.png"
+   },
+   {
+    "field": "customStyles[28].m_Hover.m_Background",
+    "texture": "Textures/cacuover1.png"
+   },
+   {
+    "field": "customStyles[29].m_Hover.m_Background",
+    "texture": "Textures/cacuover3.png"
+   },
+   {
+    "field": "customStyles[30].m_Hover.m_Background",
+    "texture": "Textures/cacuoverc.png"
+   },
+   {
+    "field": "customStyles[31].m_Hover.m_Background",
+    "texture": "Textures/cacuovern.png"
+   },
+   {
+    "field": "customStyles[37].m_Normal.m_Background",
+    "texture": "Textures/Shadow__470.png"
+   },
+   {
+    "field": "customStyles[39].m_Normal.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[39].m_Hover.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[39].m_Active.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[40].m_Normal.m_Background",
+    "texture": "Textures/popuptag.png"
+   },
+   {
+    "field": "customStyles[40].m_Hover.m_Background",
+    "texture": "Textures/popuptag.png"
+   },
+   {
+    "field": "customStyles[40].m_Active.m_Background",
+    "texture": "Textures/popuptag.png"
+   },
+   {
+    "field": "customStyles[41].m_Normal.m_Background",
+    "texture": "Textures/leftturn.png"
+   },
+   {
+    "field": "customStyles[41].m_Hover.m_Background",
+    "texture": "Textures/leftturnover.png"
+   },
+   {
+    "field": "customStyles[41].m_Active.m_Background",
+    "texture": "Textures/leftturn.png"
+   },
+   {
+    "field": "customStyles[42].m_Normal.m_Background",
+    "texture": "Textures/rightturn.png"
+   },
+   {
+    "field": "customStyles[42].m_Hover.m_Background",
+    "texture": "Textures/rightturnover.png"
+   },
+   {
+    "field": "customStyles[42].m_Active.m_Background",
+    "texture": "Textures/rightturn.png"
+   },
+   {
+    "field": "customStyles[43].m_Normal.m_Background",
+    "texture": "Textures/tryview.png"
+   },
+   {
+    "field": "customStyles[43].m_Hover.m_Background",
+    "texture": "Textures/tryview.png"
+   },
+   {
+    "field": "customStyles[43].m_Active.m_Background",
+    "texture": "Textures/tryview.png"
+   },
+   {
+    "field": "customStyles[44].m_Normal.m_Background",
+    "texture": "Textures/pc2pctradearea.png"
+   },
+   {
+    "field": "customStyles[44].m_Hover.m_Background",
+    "texture": "Textures/pc2pctradearea.png"
+   },
+   {
+    "field": "customStyles[44].m_Active.m_Background",
+    "texture": "Textures/pc2pctradearea.png"
+   },
+   {
+    "field": "customStyles[45].m_Normal.m_Background",
+    "texture": "Textures/pc2pcmytrade.png"
+   },
+   {
+    "field": "customStyles[45].m_Hover.m_Background",
+    "texture": "Textures/pc2pcmytrade.png"
+   },
+   {
+    "field": "customStyles[45].m_Active.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[46].m_Normal.m_Background",
+    "texture": "Textures/pc2pcmytrade_ready.png"
+   },
+   {
+    "field": "customStyles[46].m_Hover.m_Background",
+    "texture": "Textures/pc2pcmytrade_ready.png"
+   },
+   {
+    "field": "customStyles[46].m_Active.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[47].m_Normal.m_Background",
+    "texture": "Textures/pc2pctrad.png"
+   },
+   {
+    "field": "customStyles[47].m_Hover.m_Background",
+    "texture": "Textures/pc2pctrad.png"
+   },
+   {
+    "field": "customStyles[47].m_Active.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[48].m_Normal.m_Background",
+    "texture": "Textures/pc2pctrad_ready.png"
+   },
+   {
+    "field": "customStyles[48].m_Hover.m_Background",
+    "texture": "Textures/pc2pctrad_ready.png"
+   },
+   {
+    "field": "customStyles[48].m_Active.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[49].m_Normal.m_Background",
+    "texture": "Textures/pc2pcchatbox.png"
+   },
+   {
+    "field": "customStyles[49].m_Hover.m_Background",
+    "texture": "Textures/pc2pcchatbox.png"
+   },
+   {
+    "field": "customStyles[49].m_Active.m_Background",
+    "texture": "Textures/pc2pcchatbox.png"
+   },
+   {
+    "field": "customStyles[50].m_Normal.m_Background",
+    "texture": "Textures/userfaceback.png"
+   },
+   {
+    "field": "customStyles[50].m_Hover.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[50].m_Active.m_Background",
+    "texture": "Textures/reditembox.png"
+   },
+   {
+    "field": "customStyles[51].m_Normal.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[51].m_Hover.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[51].m_Active.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[52].m_Normal.m_Background",
+    "texture": "Textures/taroscacu.png"
+   },
+   {
+    "field": "customStyles[52].m_Hover.m_Background",
+    "texture": "Textures/taroscacu.png"
+   },
+   {
+    "field": "customStyles[52].m_Active.m_Background",
+    "texture": "Textures/taroscacu.png"
+   },
+   {
+    "field": "customStyles[53].m_Normal.m_Background",
+    "texture": "Textures/moneybar.png"
+   },
+   {
+    "field": "customStyles[53].m_Hover.m_Background",
+    "texture": "Textures/moneybar.png"
+   },
+   {
+    "field": "customStyles[53].m_Active.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[54].m_Active.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[55].m_Normal.m_Background",
+    "texture": "Textures/vendorlistback.png"
+   },
+   {
+    "field": "customStyles[55].m_Hover.m_Background",
+    "texture": "Textures/vendorlistback.png"
+   },
+   {
+    "field": "customStyles[55].m_Active.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[56].m_Normal.m_Background",
+    "texture": "Textures/vendorlistbackbar.png"
+   },
+   {
+    "field": "customStyles[56].m_Hover.m_Background",
+    "texture": "Textures/vendorlistbackbar.png"
+   },
+   {
+    "field": "customStyles[56].m_Active.m_Background",
+    "texture": "Textures/pc2pcmoneyback.png"
+   },
+   {
+    "field": "customStyles[57].m_Normal.m_Background",
+    "texture": "Textures/mailprevbut.png"
+   },
+   {
+    "field": "customStyles[57].m_Hover.m_Background",
+    "texture": "Textures/mailprevbutover.png"
+   },
+   {
+    "field": "customStyles[57].m_Active.m_Background",
+    "texture": "Textures/mailprevbut.png"
+   },
+   {
+    "field": "customStyles[58].m_Normal.m_Background",
+    "texture": "Textures/mailnextbut.png"
+   },
+   {
+    "field": "customStyles[58].m_Hover.m_Background",
+    "texture": "Textures/mailnextbutover.png"
+   },
+   {
+    "field": "customStyles[58].m_Active.m_Background",
+    "texture": "Textures/mailnextbut.png"
+   },
+   {
+    "field": "customStyles[59].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[59].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[59].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[60].m_Normal.m_Background",
+    "texture": "Textures/pc2pcchatsendBut.png"
+   },
+   {
+    "field": "customStyles[60].m_Hover.m_Background",
+    "texture": "Textures/pc2pcchatsendButUp.png"
+   },
+   {
+    "field": "customStyles[60].m_Active.m_Background",
+    "texture": "Textures/pc2pcchatsendBut.png"
+   },
+   {
+    "field": "customStyles[62].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[62].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[62].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[63].m_Normal.m_Background",
+    "texture": "Textures/quicktitle.png"
+   },
+   {
+    "field": "customStyles[63].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[63].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[64].m_Normal.m_Background",
+    "texture": "Textures/quicktoggle.png"
+   },
+   {
+    "field": "customStyles[64].m_Hover.m_Background",
+    "texture": "Textures/quicktoggleover.png"
+   },
+   {
+    "field": "customStyles[64].m_Active.m_Background",
+    "texture": "Textures/quicktoggle.png"
+   },
+   {
+    "field": "customStyles[65].m_Normal.m_Background",
+    "texture": "Textures/quickshadow.png"
+   },
+   {
+    "field": "customStyles[65].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[65].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[66].m_Normal.m_Background",
+    "texture": "Textures/CombinedItemIcon.png"
+   },
+   {
+    "field": "customStyles[66].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[66].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[67].m_Normal.m_Background",
+    "texture": "Textures/HammerIcon.png"
+   },
+   {
+    "field": "customStyles[67].m_Hover.m_Background",
+    "texture": "Textures/HammerIconOver.png"
+   },
+   {
+    "field": "customStyles[67].m_Active.m_Background",
+    "texture": "Textures/HammerIcon.png"
+   },
+   {
+    "field": "customStyles[68].m_Normal.m_Background",
+    "texture": "Textures/equipiteminfo.png"
+   },
+   {
+    "field": "customStyles[68].m_Hover.m_Background",
+    "texture": "Textures/HammerIconOver.png"
+   },
+   {
+    "field": "customStyles[68].m_Active.m_Background",
+    "texture": "Textures/HammerIcon.png"
+   },
+   {
+    "field": "customStyles[70].m_Normal.m_Background",
+    "texture": "Textures/EnchantLevel.png"
+   },
+   {
+    "field": "customStyles[71].m_Normal.m_Background",
+    "texture": "Textures/bankslotback.png"
+   }
+  ]
+ },
+ "GUISkin#3": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/CombiTarosIcon.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/CombiLookItemBG.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/CombiGenderError.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/CombiStatItemBG.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/CombiStatItemError.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/CombinedItemIcon.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/CombiSucc.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/CombiIcon2.png"
+   },
+   {
+    "field": "customStyles[21].m_Normal.m_Background",
+    "texture": "Textures/EnchantCover.png"
+   },
+   {
+    "field": "customStyles[23].m_Normal.m_Background",
+    "texture": "Textures/EnchantItemCover.png"
+   },
+   {
+    "field": "customStyles[24].m_Normal.m_Background",
+    "texture": "Textures/EnchantRawCover.png"
+   },
+   {
+    "field": "customStyles[28].m_Normal.m_Background",
+    "texture": "Textures/EnchantWaiting.png"
+   },
+   {
+    "field": "customStyles[29].m_Normal.m_Background",
+    "texture": "Textures/CombiWaitBG.png"
+   },
+   {
+    "field": "customStyles[30].m_Normal.m_Background",
+    "texture": "Textures/EnchantLevel.png"
+   }
+  ]
+ },
+ "GUISkin#4": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/menuchat_box.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/chat_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/chat_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/chat_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/chat_tab_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Hover.m_Background",
+    "texture": "Textures/chat_tab_over.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/chat_tab_click.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_window.m_Normal.m_Background",
+    "texture": "Textures/chat_back.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/menuchat_box2.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/chat_box.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/emote_bar.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/menuchat_sel_over.png"
+   },
+   {
+    "field": "customStyles[9].m_Hover.m_Background",
+    "texture": "Textures/menuchat_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/menuchat_over.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/buddy_select.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/buddy_box.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[14].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/darkenedChatArea.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/largeChatTextfield-normal.png"
+   },
+   {
+    "field": "customStyles[18].m_Normal.m_Background",
+    "texture": "Textures/chatEntryArea.png"
+   },
+   {
+    "field": "customStyles[19].m_Normal.m_Background",
+    "texture": "Textures/chatTab_normal.png"
+   },
+   {
+    "field": "customStyles[19].m_Hover.m_Background",
+    "texture": "Textures/chatTab_over.png"
+   },
+   {
+    "field": "customStyles[20].m_Normal.m_Background",
+    "texture": "Textures/chatTab_selected.png"
+   },
+   {
+    "field": "customStyles[21].m_Normal.m_Background",
+    "texture": "Textures/emoteButton.png"
+   },
+   {
+    "field": "customStyles[21].m_Hover.m_Background",
+    "texture": "Textures/emoteButton_Over.png"
+   },
+   {
+    "field": "customStyles[22].m_Normal.m_Background",
+    "texture": "Textures/emoteButton_Sel.png"
+   },
+   {
+    "field": "customStyles[23].m_Normal.m_Background",
+    "texture": "Textures/menuChatButton.png"
+   },
+   {
+    "field": "customStyles[23].m_Hover.m_Background",
+    "texture": "Textures/menuChatButton_Over.png"
+   },
+   {
+    "field": "customStyles[24].m_Normal.m_Background",
+    "texture": "Textures/chatTab_selected.png"
+   },
+   {
+    "field": "customStyles[25].m_Normal.m_Background",
+    "texture": "Textures/chatTab_normal.png"
+   },
+   {
+    "field": "customStyles[26].m_Normal.m_Background",
+    "texture": "Textures/menuChatArrow.png"
+   },
+   {
+    "field": "customStyles[27].m_Normal.m_Background",
+    "texture": "Textures/emoteButton_Sel.png"
+   },
+   {
+    "field": "customStyles[28].m_Normal.m_Background",
+    "texture": "Textures/menuChatButton_Sel.png"
+   },
+   {
+    "field": "customStyles[29].m_Normal.m_Background",
+    "texture": "Textures/chatNullBack.png"
+   },
+   {
+    "field": "customStyles[30].m_Normal.m_Background",
+    "texture": "Textures/ChatBubbleIcon_buddy.png"
+   },
+   {
+    "field": "customStyles[31].m_Normal.m_Background",
+    "texture": "Textures/ChatBubbleIcon_group.png"
+   },
+   {
+    "field": "customStyles[32].m_Normal.m_Background",
+    "texture": "Textures/HasNextMenu_Arrow.png"
+   },
+   {
+    "field": "customStyles[33].m_Normal.m_Background",
+    "texture": "Textures/newEmoteMenuBox.png"
+   }
+  ]
+ },
+ "GUISkin#5": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/window__317.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_OnNormal.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_OnHover.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_OnActive.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_window.m_Normal.m_Background",
+    "texture": "Textures/window__317.png"
+   },
+   {
+    "field": "m_horizontalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/hscrollbar.png"
+   },
+   {
+    "field": "m_horizontalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/hscrollbart.png"
+   },
+   {
+    "field": "m_horizontalScrollbarLeftButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_left.png"
+   },
+   {
+    "field": "m_horizontalScrollbarRightButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_right.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/vscrollbar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/vscrollbart.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up__382.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_down.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/scroll_up__382.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/scroll_up__382.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/exit_button.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/exit_button_push.png"
+   },
+   {
+    "field": "customStyles[1].m_OnNormal.m_Background",
+    "texture": "Textures/exit_button.png"
+   },
+   {
+    "field": "customStyles[1].m_OnActive.m_Background",
+    "texture": "Textures/exit_button_push.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/window__317.png"
+   }
+  ]
+ },
+ "GUISkin#6": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/ex_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Hover.m_Background",
+    "texture": "Textures/ex_over.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/co_normal.png"
+   },
+   {
+    "field": "m_toggle.m_OnHover.m_Background",
+    "texture": "Textures/co_over.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/cu_mission_back.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/cu_mission_back.png"
+   },
+   {
+    "field": "m_textArea.m_Normal.m_Background",
+    "texture": "Textures/sel_mission_back.png"
+   },
+   {
+    "field": "m_window.m_Normal.m_Background",
+    "texture": "Textures/Shadow__470.png"
+   },
+   {
+    "field": "m_window.m_OnNormal.m_Background",
+    "texture": "Textures/Shadow.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/allow_right.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/mission_back.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/mission_back.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/CCCheckboxNormal.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/CCCheckboxOver.png"
+   },
+   {
+    "field": "customStyles[4].m_OnNormal.m_Background",
+    "texture": "Textures/CCCheckboxChecked.png"
+   },
+   {
+    "field": "customStyles[4].m_OnHover.m_Background",
+    "texture": "Textures/CCCheckboxCkeckedOver.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[5].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/active_tab.png"
+   },
+   {
+    "field": "customStyles[6].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/compl_tab.png"
+   },
+   {
+    "field": "customStyles[7].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/inventab.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/inventabover.png"
+   },
+   {
+    "field": "customStyles[8].m_OnNormal.m_Background",
+    "texture": "Textures/inventab.png"
+   },
+   {
+    "field": "customStyles[8].m_OnHover.m_Background",
+    "texture": "Textures/inventab.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/nanotab.png"
+   },
+   {
+    "field": "customStyles[9].m_Hover.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[9].m_OnNormal.m_Background",
+    "texture": "Textures/nanotab.png"
+   },
+   {
+    "field": "customStyles[9].m_OnHover.m_Background",
+    "texture": "Textures/nanotab.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/ncp_icon_back.png"
+   },
+   {
+    "field": "customStyles[10].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   }
+  ]
+ },
+ "GUISkin#7": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/timeMBut.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/timeMButUp.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/timeMBut.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/timeMBut.png"
+   },
+   {
+    "field": "customStyles[1].m_Hover.m_Background",
+    "texture": "Textures/timeMBut.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/timeMBut.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/premABut.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/premAButUp.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/premABut.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/premABut.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/premABut.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/premABut.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/TimeMachine_Icon.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/TimeMachine_Icon.png"
+   },
+   {
+    "field": "customStyles[4].m_Active.m_Background",
+    "texture": "Textures/premABut.png"
+   }
+  ]
+ },
+ "GUISkin#8": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/systemDialogBox.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/ff-toggle-unselected.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/ff-toggle-selected.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/close_normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/close_over.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/close_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[11].m_Hover.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[11].m_Active.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[12].m_Hover.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[12].m_Active.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/exp_back.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/OverheatBG.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/OverheatMax.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/MessageArea.png"
+   }
+  ]
+ },
+ "GUISkin#9": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/map_back.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_window.m_Normal.m_Background",
+    "texture": "Textures/buddy_select.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/up_n.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/up_o.png"
+   },
+   {
+    "field": "customStyles[4].m_Active.m_Background",
+    "texture": "Textures/up_n.png"
+   },
+   {
+    "field": "customStyles[4].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/lt_n.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/lt_o.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/lt_n.png"
+   },
+   {
+    "field": "customStyles[5].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/rt_n.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/rt_o.png"
+   },
+   {
+    "field": "customStyles[6].m_Active.m_Background",
+    "texture": "Textures/rt_n.png"
+   },
+   {
+    "field": "customStyles[6].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/dn_n.png"
+   },
+   {
+    "field": "customStyles[7].m_Hover.m_Background",
+    "texture": "Textures/dn_o.png"
+   },
+   {
+    "field": "customStyles[7].m_Active.m_Background",
+    "texture": "Textures/dn_n.png"
+   },
+   {
+    "field": "customStyles[7].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/zoom_in_n.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/zoom_in_over.png"
+   },
+   {
+    "field": "customStyles[8].m_Active.m_Background",
+    "texture": "Textures/zoom_in_n.png"
+   },
+   {
+    "field": "customStyles[8].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/zoom_out_n.png"
+   },
+   {
+    "field": "customStyles[9].m_Hover.m_Background",
+    "texture": "Textures/zoom_out_over.png"
+   },
+   {
+    "field": "customStyles[9].m_Active.m_Background",
+    "texture": "Textures/zoom_out_n.png"
+   },
+   {
+    "field": "customStyles[9].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/zoom_n.png"
+   },
+   {
+    "field": "customStyles[10].m_Hover.m_Background",
+    "texture": "Textures/zoom_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Active.m_Background",
+    "texture": "Textures/zoom_select.png"
+   },
+   {
+    "field": "customStyles[10].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/zoom_select.png"
+   },
+   {
+    "field": "customStyles[11].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/zoom_bar.png"
+   },
+   {
+    "field": "customStyles[12].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/view_but_off.png"
+   },
+   {
+    "field": "customStyles[13].m_Hover.m_Background",
+    "texture": "Textures/view_but.png"
+   },
+   {
+    "field": "customStyles[13].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/view_but.png"
+   },
+   {
+    "field": "customStyles[14].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[15].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[15].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[16].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/gray.png"
+   },
+   {
+    "field": "customStyles[17].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   }
+  ]
+ },
+ "GUISkin#10": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/ff-button-normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/ff-button-hover.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/ff-button-active.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/ff-toggle-unselected.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/ff-toggle-selected.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/ff-closebutton-normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/ff-closebutton-hover.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/ff-closebutton-active.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/back.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/EPRaceBack.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/EPRaceBack.png"
+   },
+   {
+    "field": "customStyles[6].m_Active.m_Background",
+    "texture": "Textures/EPRaceBack.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/EPStarBack.png"
+   },
+   {
+    "field": "customStyles[7].m_Hover.m_Background",
+    "texture": "Textures/EPStarBack.png"
+   },
+   {
+    "field": "customStyles[7].m_Active.m_Background",
+    "texture": "Textures/EPStarBack.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/EPStar.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/EPRaceItemBar.png"
+   },
+   {
+    "field": "customStyles[9].m_Hover.m_Background",
+    "texture": "Textures/EPRaceItemBar.png"
+   },
+   {
+    "field": "customStyles[9].m_Active.m_Background",
+    "texture": "Textures/EPRaceItemBar.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/SSBox.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/SSBoxInside.png"
+   },
+   {
+    "field": "customStyles[16].m_Hover.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[16].m_Active.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[16].m_OnHover.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[16].m_OnActive.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[17].m_Hover.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[17].m_Active.m_Background",
+    "texture": "Textures/SSButtonDown.png"
+   },
+   {
+    "field": "customStyles[18].m_Hover.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[18].m_Active.m_Background",
+    "texture": "Textures/SSButtonDown.png"
+   },
+   {
+    "field": "customStyles[19].m_Normal.m_Background",
+    "texture": "Textures/SSButtonDown.png"
+   },
+   {
+    "field": "customStyles[19].m_Hover.m_Background",
+    "texture": "Textures/SSButtonOver.png"
+   },
+   {
+    "field": "customStyles[19].m_Active.m_Background",
+    "texture": "Textures/SSButtonDown.png"
+   }
+  ]
+ },
+ "GUISkin#11": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/firsttab.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/firsttabbut.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/firsttabbutover.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/secondtab.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/secondtabbut.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/secondtabbutover.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/backbar.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/ff-closebutton-normal.png"
+   },
+   {
+    "field": "customStyles[13].m_Hover.m_Background",
+    "texture": "Textures/ff-closebutton-hover.png"
+   },
+   {
+    "field": "customStyles[13].m_Active.m_Background",
+    "texture": "Textures/ff-closebutton-active.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/chat_box.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   }
+  ]
+ },
+ "GUISkin#12": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/systemDialogBox.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/ff-toggle-unselected.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/ff-toggle-selected.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/LoadingWindow.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/LoadingBar.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[4].m_Active.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/CSMusinOn.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/CSMusinOn.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/CSMusinOn.png"
+   },
+   {
+    "field": "customStyles[5].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[5].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[5].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[6].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[6].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[6].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/horizSlider.png"
+   },
+   {
+    "field": "customStyles[7].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[7].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[7].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/box.png"
+   },
+   {
+    "field": "customStyles[8].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[8].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[8].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   }
+  ]
+ },
+ "GUISkin#13": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[6].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   }
+  ]
+ },
+ "GUISkin#14": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/systemDialogBox.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/ff-toggle-unselected.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/ff-toggle-selected.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[10].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[10].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/CombinedItemIcon.png"
+   },
+   {
+    "field": "customStyles[11].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[11].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   }
+  ]
+ },
+ "GUISkin#15": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[4].m_Active.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   }
+  ]
+ },
+ "GUISkin#16": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/CCBox.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/CCCheckboxNormal.png"
+   },
+   {
+    "field": "m_toggle.m_Hover.m_Background",
+    "texture": "Textures/CCCheckboxOver.png"
+   },
+   {
+    "field": "m_toggle.m_Active.m_Background",
+    "texture": "Textures/CCCheckboxNormal.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/CCCheckboxChecked.png"
+   },
+   {
+    "field": "m_toggle.m_OnHover.m_Background",
+    "texture": "Textures/CCCheckboxCkeckedOver.png"
+   },
+   {
+    "field": "m_toggle.m_OnActive.m_Background",
+    "texture": "Textures/CCCheckboxCkeckedOver.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/CCNameTabButtonNormal.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/CCNameTabButtonOver.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/CCNameTabButtonNormal.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/CCNameTab1.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/CCNameTab2.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/CCNameDisplay.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/CCScrollBG.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/CCScrollUpNormal.png"
+   },
+   {
+    "field": "customStyles[7].m_Hover.m_Background",
+    "texture": "Textures/CCScrollUpOver.png"
+   },
+   {
+    "field": "customStyles[7].m_Active.m_Background",
+    "texture": "Textures/CCScrollUpNormal.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/CCScrollDownUp.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/CCScrollDownOver.png"
+   },
+   {
+    "field": "customStyles[8].m_Active.m_Background",
+    "texture": "Textures/CCScrollDownUp.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/CCNameShade.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/CCBG.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/CCCharacterDisplayArea.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/CCRotateLeftNormal.png"
+   },
+   {
+    "field": "customStyles[12].m_Hover.m_Background",
+    "texture": "Textures/CCRotateLeftOver.png"
+   },
+   {
+    "field": "customStyles[12].m_Active.m_Background",
+    "texture": "Textures/CCRotateLeftNormal.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/CCRotateRightNormal.png"
+   },
+   {
+    "field": "customStyles[13].m_Hover.m_Background",
+    "texture": "Textures/CCRoatateRightOver.png"
+   },
+   {
+    "field": "customStyles[13].m_Active.m_Background",
+    "texture": "Textures/CCRotateRightNormal.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/CCZoomInNormal.png"
+   },
+   {
+    "field": "customStyles[14].m_Hover.m_Background",
+    "texture": "Textures/CCZoomInOver.png"
+   },
+   {
+    "field": "customStyles[14].m_Active.m_Background",
+    "texture": "Textures/CCZoomInNormal.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/CCZoomOutNormal.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/CCZoomOutOver.png"
+   },
+   {
+    "field": "customStyles[15].m_Active.m_Background",
+    "texture": "Textures/CCZoomOutNormal.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/CCRightBG.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/CCLeftIn12BG.png"
+   },
+   {
+    "field": "customStyles[18].m_Normal.m_Background",
+    "texture": "Textures/CCLeftIn3BG.png"
+   },
+   {
+    "field": "customStyles[20].m_Normal.m_Background",
+    "texture": "Textures/CCBodyshapeRightNormal.png"
+   },
+   {
+    "field": "customStyles[20].m_Hover.m_Background",
+    "texture": "Textures/CCBodyshapeRightOver.png"
+   },
+   {
+    "field": "customStyles[20].m_Active.m_Background",
+    "texture": "Textures/CCBodyshapeRightNormal.png"
+   },
+   {
+    "field": "customStyles[21].m_Normal.m_Background",
+    "texture": "Textures/CCBodyshapeDisplay.png"
+   },
+   {
+    "field": "customStyles[22].m_Normal.m_Background",
+    "texture": "Textures/CCBodyshapeLeftNormal.png"
+   },
+   {
+    "field": "customStyles[22].m_Hover.m_Background",
+    "texture": "Textures/CCBodyshapeLeftOver.png"
+   },
+   {
+    "field": "customStyles[22].m_Active.m_Background",
+    "texture": "Textures/CCBodyshapeLeftNormal.png"
+   },
+   {
+    "field": "customStyles[23].m_Normal.m_Background",
+    "texture": "Textures/CCColorOutline.png"
+   },
+   {
+    "field": "customStyles[24].m_Normal.m_Background",
+    "texture": "Textures/CCColorInside.png"
+   },
+   {
+    "field": "customStyles[25].m_Normal.m_Background",
+    "texture": "Textures/CCClothesBG.png"
+   },
+   {
+    "field": "customStyles[26].m_Normal.m_Background",
+    "texture": "Textures/CCClothesLeftButtonNormal.png"
+   },
+   {
+    "field": "customStyles[26].m_Hover.m_Background",
+    "texture": "Textures/CCClothesLeftButtonOver.png"
+   },
+   {
+    "field": "customStyles[26].m_Active.m_Background",
+    "texture": "Textures/CCClothesLeftButtonNormal.png"
+   },
+   {
+    "field": "customStyles[27].m_Normal.m_Background",
+    "texture": "Textures/CCClothesRightButtonNormal.png"
+   },
+   {
+    "field": "customStyles[27].m_Hover.m_Background",
+    "texture": "Textures/CCClothesRightButtonOver.png"
+   },
+   {
+    "field": "customStyles[27].m_Active.m_Background",
+    "texture": "Textures/CCClothesRightButtonNormal.png"
+   },
+   {
+    "field": "customStyles[28].m_Normal.m_Background",
+    "texture": "Textures/CCNameBG.png"
+   },
+   {
+    "field": "customStyles[29].m_Normal.m_Background",
+    "texture": "Textures/CCClothesLeftTopButtonNormal.png"
+   },
+   {
+    "field": "customStyles[29].m_Hover.m_Background",
+    "texture": "Textures/CCClothesLeftTopOver.png"
+   },
+   {
+    "field": "customStyles[29].m_Active.m_Background",
+    "texture": "Textures/CCClothesLeftTopButtonNormal.png"
+   },
+   {
+    "field": "customStyles[30].m_Normal.m_Background",
+    "texture": "Textures/CCClothesLeftBottomButtonNormal.png"
+   },
+   {
+    "field": "customStyles[30].m_Hover.m_Background",
+    "texture": "Textures/CCClothesLeftBottomButtonOver.png"
+   },
+   {
+    "field": "customStyles[30].m_Active.m_Background",
+    "texture": "Textures/CCClothesLeftBottomButtonNormal.png"
+   },
+   {
+    "field": "customStyles[31].m_Normal.m_Background",
+    "texture": "Textures/CCClothesRightTopButtonNormal.png"
+   },
+   {
+    "field": "customStyles[31].m_Hover.m_Background",
+    "texture": "Textures/CCClothesRightTopOver.png"
+   },
+   {
+    "field": "customStyles[31].m_Active.m_Background",
+    "texture": "Textures/CCClothesRightTopButtonNormal.png"
+   },
+   {
+    "field": "customStyles[32].m_Normal.m_Background",
+    "texture": "Textures/CCClothesRightBottomButtonNormal.png"
+   },
+   {
+    "field": "customStyles[32].m_Hover.m_Background",
+    "texture": "Textures/CCClothesRightBottomOver.png"
+   },
+   {
+    "field": "customStyles[32].m_Active.m_Background",
+    "texture": "Textures/CCClothesRightBottomButtonNormal.png"
+   },
+   {
+    "field": "customStyles[33].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[33].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[33].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[36].m_Normal.m_Background",
+    "texture": "Textures/CSCharButtonNormal.png"
+   },
+   {
+    "field": "customStyles[36].m_Hover.m_Background",
+    "texture": "Textures/CSCharButtonOver.png"
+   },
+   {
+    "field": "customStyles[36].m_Active.m_Background",
+    "texture": "Textures/CSCharButtonOver.png"
+   },
+   {
+    "field": "customStyles[37].m_Normal.m_Background",
+    "texture": "Textures/CSCharButtonEmpty.png"
+   },
+   {
+    "field": "customStyles[37].m_Hover.m_Background",
+    "texture": "Textures/CSCharButtonEmpty.png"
+   },
+   {
+    "field": "customStyles[37].m_Active.m_Background",
+    "texture": "Textures/CSCharButtonEmpty.png"
+   },
+   {
+    "field": "customStyles[38].m_Normal.m_Background",
+    "texture": "Textures/CSCharButtonSubscription.png"
+   },
+   {
+    "field": "customStyles[38].m_Hover.m_Background",
+    "texture": "Textures/CSCharButtonSubscription.png"
+   },
+   {
+    "field": "customStyles[38].m_Active.m_Background",
+    "texture": "Textures/CSCharButtonSubscription.png"
+   },
+   {
+    "field": "customStyles[39].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[39].m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[39].m_Active.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[45].m_Normal.m_Background",
+    "texture": "Textures/CSEnterButton.png"
+   },
+   {
+    "field": "customStyles[45].m_Hover.m_Background",
+    "texture": "Textures/CSEnterGameOver.png"
+   },
+   {
+    "field": "customStyles[45].m_Active.m_Background",
+    "texture": "Textures/CSEnterGameOver.png"
+   },
+   {
+    "field": "customStyles[46].m_Normal.m_Background",
+    "texture": "Textures/musicon.png"
+   },
+   {
+    "field": "customStyles[46].m_Hover.m_Background",
+    "texture": "Textures/musicon.png"
+   },
+   {
+    "field": "customStyles[46].m_Active.m_Background",
+    "texture": "Textures/musicon.png"
+   },
+   {
+    "field": "customStyles[46].m_OnNormal.m_Background",
+    "texture": "Textures/musicoff.png"
+   },
+   {
+    "field": "customStyles[46].m_OnHover.m_Background",
+    "texture": "Textures/musicoff.png"
+   },
+   {
+    "field": "customStyles[46].m_OnActive.m_Background",
+    "texture": "Textures/musicoff.png"
+   },
+   {
+    "field": "customStyles[47].m_Normal.m_Background",
+    "texture": "Textures/CSFullScreenButton.png"
+   },
+   {
+    "field": "customStyles[47].m_Hover.m_Background",
+    "texture": "Textures/FullscreenModeButton_Over.png"
+   },
+   {
+    "field": "customStyles[47].m_Active.m_Background",
+    "texture": "Textures/FullscreenModeButton_Over.png"
+   },
+   {
+    "field": "customStyles[47].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[47].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[47].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[48].m_Normal.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[48].m_Hover.m_Background",
+    "texture": "Textures/WindowModeButton_Over.png"
+   },
+   {
+    "field": "customStyles[48].m_Active.m_Background",
+    "texture": "Textures/WindowModeButton_Over.png"
+   },
+   {
+    "field": "customStyles[48].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[48].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[48].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[49].m_Normal.m_Background",
+    "texture": "Textures/CSCharButtonOver.png"
+   },
+   {
+    "field": "customStyles[49].m_Hover.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[49].m_Active.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[49].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[49].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[49].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[50].m_Normal.m_Background",
+    "texture": "Textures/CCSelectedColor.png"
+   },
+   {
+    "field": "customStyles[50].m_Hover.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[50].m_Active.m_Background",
+    "texture": "Textures/CSFullToWindow.png"
+   },
+   {
+    "field": "customStyles[50].m_OnNormal.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[50].m_OnHover.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[50].m_OnActive.m_Background",
+    "texture": "Textures/CSMusicOff.png"
+   },
+   {
+    "field": "customStyles[54].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[54].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[54].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[55].m_Normal.m_Background",
+    "texture": "Textures/CSCharLock.png"
+   },
+   {
+    "field": "customStyles[58].m_Normal.m_Background",
+    "texture": "Textures/DiskFront.png"
+   },
+   {
+    "field": "customStyles[59].m_Normal.m_Background",
+    "texture": "Textures/DiskBack.png"
+   },
+   {
+    "field": "customStyles[60].m_Normal.m_Background",
+    "texture": "Textures/CCClassBG.png"
+   }
+  ]
+ },
+ "GUISkin#17": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/close_normal.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/close_over.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/us_get.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/us_get_up.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/us_get.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/us_continue.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/us_continue_up.png"
+   },
+   {
+    "field": "customStyles[4].m_Active.m_Background",
+    "texture": "Textures/us_continue.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/us_not.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/us_not_up.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/us_not.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/advertis.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/advertis.png"
+   },
+   {
+    "field": "customStyles[6].m_Active.m_Background",
+    "texture": "Textures/advertis.png"
+   },
+   {
+    "field": "customStyles[6].m_Focused.m_Background",
+    "texture": "Textures/advertis.png"
+   }
+  ]
+ },
+ "GUISkin#18": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/map_back.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textArea.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/left_back.png"
+   },
+   {
+    "field": "customStyles[4].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/equipmentback__307.png"
+   },
+   {
+    "field": "customStyles[5].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/select_back.png"
+   },
+   {
+    "field": "customStyles[6].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/mission_back.png"
+   },
+   {
+    "field": "customStyles[7].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/sel_mission_back.png"
+   },
+   {
+    "field": "customStyles[8].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/Shadow.png"
+   },
+   {
+    "field": "customStyles[9].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/icon_box.png"
+   },
+   {
+    "field": "customStyles[10].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/zoom_select.png"
+   },
+   {
+    "field": "customStyles[11].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/zoom_bar.png"
+   },
+   {
+    "field": "customStyles[12].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/view_but_off.png"
+   },
+   {
+    "field": "customStyles[13].m_Hover.m_Background",
+    "texture": "Textures/view_but.png"
+   },
+   {
+    "field": "customStyles[13].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/view_but.png"
+   },
+   {
+    "field": "customStyles[14].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[15].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[15].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[16].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/gray.png"
+   },
+   {
+    "field": "customStyles[17].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   }
+  ]
+ },
+ "GUISkin#19": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/HelpButtonNormal.png"
+   },
+   {
+    "field": "customStyles[1].m_Hover.m_Background",
+    "texture": "Textures/HelpButtonUp.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/HelpButtonUp.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/HelpTitle.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[6].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[6].m_Active.m_Background",
+    "texture": "Textures/closeover.png"
+   }
+  ]
+ },
+ "GUISkin#20": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/mbubble.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_OnNormal.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_OnHover.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_button.m_OnActive.m_Background",
+    "texture": "Textures/button.png"
+   },
+   {
+    "field": "m_label.m_Normal.m_Background",
+    "texture": "Textures/mb_009.png"
+   },
+   {
+    "field": "m_horizontalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/hscrollbar.png"
+   },
+   {
+    "field": "m_horizontalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/hscrollbart.png"
+   },
+   {
+    "field": "m_horizontalScrollbarLeftButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_left.png"
+   },
+   {
+    "field": "m_horizontalScrollbarRightButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_right.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/vscrollbar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/vscrollbart.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up__382.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_down.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/scroll_up__382.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/scroll_up__382.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/exit_button.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/exit_button_push.png"
+   },
+   {
+    "field": "customStyles[1].m_OnNormal.m_Background",
+    "texture": "Textures/exit_button.png"
+   },
+   {
+    "field": "customStyles[1].m_OnActive.m_Background",
+    "texture": "Textures/exit_button_push.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/q_bubble.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/qb_009.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/bbubble.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/bb_009.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/fbubble.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/fb_009.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/close_normal.png"
+   },
+   {
+    "field": "customStyles[10].m_Hover.m_Background",
+    "texture": "Textures/close_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Active.m_Background",
+    "texture": "Textures/close_normal.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/infoHpBack.png"
+   },
+   {
+    "field": "customStyles[11].m_Hover.m_Background",
+    "texture": "Textures/close_over.png"
+   },
+   {
+    "field": "customStyles[11].m_Active.m_Background",
+    "texture": "Textures/close_normal.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/HP_BAR.png"
+   },
+   {
+    "field": "customStyles[12].m_Hover.m_Background",
+    "texture": "Textures/close_over.png"
+   },
+   {
+    "field": "customStyles[12].m_Active.m_Background",
+    "texture": "Textures/close_normal.png"
+   }
+  ]
+ },
+ "GUISkin#21": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/launchgage.png"
+   },
+   {
+    "field": "customStyles[1].m_Hover.m_Background",
+    "texture": "Textures/launchgage.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/launchgage.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/launchbar.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/launchback.png"
+   },
+   {
+    "field": "customStyles[3].m_Hover.m_Background",
+    "texture": "Textures/launchback__352.png"
+   },
+   {
+    "field": "customStyles[3].m_Active.m_Background",
+    "texture": "Textures/launchback__352.png"
+   }
+  ]
+ },
+ "GUISkin#22": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/NanoMachineBG2.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/rwd_box.png"
+   },
+   {
+    "field": "m_window.m_Normal.m_Background",
+    "texture": "Textures/Shadow__470.png"
+   },
+   {
+    "field": "m_window.m_OnNormal.m_Background",
+    "texture": "Textures/Shadow.png"
+   },
+   {
+    "field": "m_verticalScrollbar.m_Normal.m_Background",
+    "texture": "Textures/scroll_bar.png"
+   },
+   {
+    "field": "m_verticalScrollbarThumb.m_Normal.m_Background",
+    "texture": "Textures/scroll_Thumb.png"
+   },
+   {
+    "field": "m_verticalScrollbarUpButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_up.png"
+   },
+   {
+    "field": "m_verticalScrollbarDownButton.m_Normal.m_Background",
+    "texture": "Textures/scroll_dn.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/red_button_over.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/red_button_normal.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/nano_power.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[5].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[6].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[7].m_OnNormal.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/leftbox.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/world_left.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/ncp_icon_back.png"
+   },
+   {
+    "field": "customStyles[10].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[11].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[12].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[13].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/activedlg.png"
+   },
+   {
+    "field": "customStyles[14].m_Hover.m_Background",
+    "texture": "Textures/activedlg.png"
+   },
+   {
+    "field": "customStyles[14].m_Active.m_Background",
+    "texture": "Textures/activedlg.png"
+   },
+   {
+    "field": "customStyles[14].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/enddlg.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/enddlg.png"
+   },
+   {
+    "field": "customStyles[15].m_Active.m_Background",
+    "texture": "Textures/enddlg.png"
+   },
+   {
+    "field": "customStyles[15].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/offdlg.png"
+   },
+   {
+    "field": "customStyles[16].m_Hover.m_Background",
+    "texture": "Textures/offdlg.png"
+   },
+   {
+    "field": "customStyles[16].m_Active.m_Background",
+    "texture": "Textures/offdlg.png"
+   },
+   {
+    "field": "customStyles[16].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/acceptbut.png"
+   },
+   {
+    "field": "customStyles[17].m_Hover.m_Background",
+    "texture": "Textures/acceptbut.png"
+   },
+   {
+    "field": "customStyles[17].m_Active.m_Background",
+    "texture": "Textures/acceptbut.png"
+   },
+   {
+    "field": "customStyles[17].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[18].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[18].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[18].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[18].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   },
+   {
+    "field": "customStyles[19].m_Normal.m_Background",
+    "texture": "Textures/CombinedItemIcon.png"
+   },
+   {
+    "field": "customStyles[19].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[19].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[19].m_OnNormal.m_Background",
+    "texture": "Textures/nanotabover.png"
+   }
+  ]
+ },
+ "GUISkin#23": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/user_win.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/unselected.png"
+   },
+   {
+    "field": "m_toggle.m_Active.m_Background",
+    "texture": "Textures/unselected.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/selected.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/npc_win.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/multifunc_win.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/mission_top.png"
+   },
+   {
+    "field": "customStyles[6].m_Normal.m_Background",
+    "texture": "Textures/sel_bar.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/mission_body.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/mission_bottom_func.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/mission_bottom_func2.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/mission_button.png"
+   },
+   {
+    "field": "customStyles[10].m_Hover.m_Background",
+    "texture": "Textures/mission_button_over.png"
+   },
+   {
+    "field": "customStyles[10].m_Active.m_Background",
+    "texture": "Textures/mission_button.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[11].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[11].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   }
+  ]
+ },
+ "GUISkin#24": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/slotbox.png"
+   },
+   {
+    "field": "m_textArea.m_Normal.m_Background",
+    "texture": "Textures/sel_mission_back.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/rankprevbut.png"
+   },
+   {
+    "field": "customStyles[4].m_Hover.m_Background",
+    "texture": "Textures/rankprevbutup.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/ranknextbut.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/rankNextButUp.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/ranklocationbar.png"
+   },
+   {
+    "field": "customStyles[7].m_Hover.m_Background",
+    "texture": "Textures/ranklocationbar.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/ranklocationselbar.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/ranklocationselbar.png"
+   },
+   {
+    "field": "customStyles[9].m_Normal.m_Background",
+    "texture": "Textures/ranktoday.png"
+   },
+   {
+    "field": "customStyles[9].m_Hover.m_Background",
+    "texture": "Textures/ranktoday.png"
+   },
+   {
+    "field": "customStyles[10].m_Normal.m_Background",
+    "texture": "Textures/ranktodaytab.png"
+   },
+   {
+    "field": "customStyles[10].m_Hover.m_Background",
+    "texture": "Textures/ranktodaytab.png"
+   },
+   {
+    "field": "customStyles[11].m_Normal.m_Background",
+    "texture": "Textures/ranktodaytabover.png"
+   },
+   {
+    "field": "customStyles[11].m_Hover.m_Background",
+    "texture": "Textures/ranktodaytabover.png"
+   },
+   {
+    "field": "customStyles[12].m_Normal.m_Background",
+    "texture": "Textures/rankweek.png"
+   },
+   {
+    "field": "customStyles[12].m_Hover.m_Background",
+    "texture": "Textures/rankweek.png"
+   },
+   {
+    "field": "customStyles[12].m_OnNormal.m_Background",
+    "texture": "Textures/rankweek.png"
+   },
+   {
+    "field": "customStyles[13].m_Normal.m_Background",
+    "texture": "Textures/rankweektab.png"
+   },
+   {
+    "field": "customStyles[13].m_Hover.m_Background",
+    "texture": "Textures/rankweektab.png"
+   },
+   {
+    "field": "customStyles[14].m_Normal.m_Background",
+    "texture": "Textures/rankweektabover.png"
+   },
+   {
+    "field": "customStyles[14].m_Hover.m_Background",
+    "texture": "Textures/ranktodaytabover.png"
+   },
+   {
+    "field": "customStyles[15].m_Normal.m_Background",
+    "texture": "Textures/rankmypos.png"
+   },
+   {
+    "field": "customStyles[15].m_Hover.m_Background",
+    "texture": "Textures/rankmypos.png"
+   },
+   {
+    "field": "customStyles[16].m_Normal.m_Background",
+    "texture": "Textures/window__317.png"
+   },
+   {
+    "field": "customStyles[16].m_Hover.m_Background",
+    "texture": "Textures/window__317.png"
+   },
+   {
+    "field": "customStyles[17].m_Normal.m_Background",
+    "texture": "Textures/ranklocationback.png"
+   },
+   {
+    "field": "customStyles[17].m_Hover.m_Background",
+    "texture": "Textures/ranklocationback.png"
+   },
+   {
+    "field": "customStyles[18].m_Normal.m_Background",
+    "texture": "Textures/rankrightback.png"
+   },
+   {
+    "field": "customStyles[18].m_Hover.m_Background",
+    "texture": "Textures/rankrightback.png"
+   },
+   {
+    "field": "customStyles[19].m_Normal.m_Background",
+    "texture": "Textures/rankmypos.png"
+   },
+   {
+    "field": "customStyles[19].m_Hover.m_Background",
+    "texture": "Textures/rankmypos.png"
+   },
+   {
+    "field": "customStyles[20].m_Normal.m_Background",
+    "texture": "Textures/ranktabbar.png"
+   },
+   {
+    "field": "customStyles[20].m_Hover.m_Background",
+    "texture": "Textures/ranktabbar.png"
+   },
+   {
+    "field": "customStyles[21].m_Normal.m_Background",
+    "texture": "Textures/ff-closebutton-normal.png"
+   },
+   {
+    "field": "customStyles[21].m_Hover.m_Background",
+    "texture": "Textures/ff-closebutton-hover.png"
+   },
+   {
+    "field": "customStyles[21].m_Active.m_Background",
+    "texture": "Textures/ff-closebutton-active.png"
+   },
+   {
+    "field": "customStyles[22].m_Normal.m_Background",
+    "texture": "Textures/ncp_icon_back.png"
+   },
+   {
+    "field": "customStyles[23].m_Normal.m_Background",
+    "texture": "Textures/RanktabBar__549.png"
+   },
+   {
+    "field": "customStyles[26].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[26].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[26].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[27].m_Normal.m_Background",
+    "texture": "Textures/rankBGwindow.png"
+   },
+   {
+    "field": "customStyles[28].m_Normal.m_Background",
+    "texture": "Textures/yellowback.png"
+   }
+  ]
+ },
+ "GUISkin#25": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_box.m_Normal.m_Background",
+    "texture": "Textures/systemDialogBox.png"
+   },
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "m_toggle.m_Normal.m_Background",
+    "texture": "Textures/unselected.png"
+   },
+   {
+    "field": "m_toggle.m_Active.m_Background",
+    "texture": "Textures/unselected.png"
+   },
+   {
+    "field": "m_toggle.m_OnNormal.m_Background",
+    "texture": "Textures/selected.png"
+   },
+   {
+    "field": "m_textField.m_Normal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Hover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Active.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_Focused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnNormal.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnHover.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnActive.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_textField.m_OnFocused.m_Background",
+    "texture": "Textures/ff-textfield-normal.png"
+   },
+   {
+    "field": "m_window.m_Normal.m_Background",
+    "texture": "Textures/window.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/NanoMachineHelpButtonOver.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/NanoMachineHelpButton.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/close.png"
+   },
+   {
+    "field": "customStyles[3].m_Normal.m_Background",
+    "texture": "Textures/comptress_frame.png"
+   },
+   {
+    "field": "customStyles[4].m_Normal.m_Background",
+    "texture": "Textures/ncp_icon_back.png"
+   },
+   {
+    "field": "customStyles[5].m_Normal.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[5].m_Hover.m_Background",
+    "texture": "Textures/blue_button_over.png"
+   },
+   {
+    "field": "customStyles[5].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[7].m_Normal.m_Background",
+    "texture": "Textures/cur_frame.png"
+   },
+   {
+    "field": "customStyles[8].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[8].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[8].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   }
+  ]
+ },
+ "GUISkin#26": {
+  "gameobject": null,
+  "textures": [
+   {
+    "field": "m_button.m_Normal.m_Background",
+    "texture": "Textures/QuitButNor.png"
+   },
+   {
+    "field": "m_button.m_Hover.m_Background",
+    "texture": "Textures/QuitButUp.png"
+   },
+   {
+    "field": "m_button.m_Active.m_Background",
+    "texture": "Textures/QuitButNor.png"
+   },
+   {
+    "field": "customStyles[0].m_Normal.m_Background",
+    "texture": "Textures/QuitBackG.png"
+   },
+   {
+    "field": "customStyles[0].m_Hover.m_Background",
+    "texture": "Textures/QuitBackG.png"
+   },
+   {
+    "field": "customStyles[0].m_Active.m_Background",
+    "texture": "Textures/QuitBackG.png"
+   },
+   {
+    "field": "customStyles[0].m_Focused.m_Background",
+    "texture": "Textures/QuitBackG.png"
+   },
+   {
+    "field": "customStyles[1].m_Normal.m_Background",
+    "texture": "Textures/QuitBack.png"
+   },
+   {
+    "field": "customStyles[1].m_Hover.m_Background",
+    "texture": "Textures/QuitBack.png"
+   },
+   {
+    "field": "customStyles[1].m_Active.m_Background",
+    "texture": "Textures/QuitBack.png"
+   },
+   {
+    "field": "customStyles[2].m_Normal.m_Background",
+    "texture": "Textures/CancelNormal.png"
+   },
+   {
+    "field": "customStyles[2].m_Hover.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   },
+   {
+    "field": "customStyles[2].m_Active.m_Background",
+    "texture": "Textures/blue_button_normal.png"
+   }
+  ]
+ },
+ "NpcIconMode": {
+  "gameobject": "NpcIconMode",
+  "textures": [
+   {
+    "field": "pButtonTex[0]",
+    "texture": "Textures/npcicon_vendor.png"
+   },
+   {
+    "field": "pButtonTex[1]",
+    "texture": "Textures/npcicon_bank.png"
+   },
+   {
+    "field": "pButtonTex[2]",
+    "texture": "Textures/npcicon_mission.png"
+   },
+   {
+    "field": "pButtonTex[3]",
+    "texture": "Textures/npcicon_warp.png"
+   },
+   {
+    "field": "pButtonTex[4]",
+    "texture": "Textures/usericon_club.png"
+   },
+   {
+    "field": "pButtonTex[5]",
+    "texture": "Textures/npcicon_auction.png"
+   },
+   {
+    "field": "pButtonTex[6]",
+    "texture": "Textures/npcicon_ep.png"
+   },
+   {
+    "field": "pButtonTex[7]",
+    "texture": "Textures/npcicon_guide.png"
+   },
+   {
+    "field": "pButtonTex[8]",
+    "texture": "Textures/npcicon_ep.png"
+   },
+   {
+    "field": "pButtonTex[9]",
+    "texture": "Textures/npcicon_Nanotune.png"
+   },
+   {
+    "field": "pButtonTex[10]",
+    "texture": "Textures/npcicon_monkey.png"
+   },
+   {
+    "field": "pButtonTex[11]",
+    "texture": "Textures/npcicon_scamp.png"
+   },
+   {
+    "field": "pButtonTex[12]",
+    "texture": "Textures/usericon_trade.png"
+   },
+   {
+    "field": "pButtonTex[13]",
+    "texture": "Textures/usericon_group.png"
+   },
+   {
+    "field": "pButtonTex[14]",
+    "texture": "Textures/usericon_buddy.png"
+   },
+   {
+    "field": "pButtonTex[15]",
+    "texture": "Textures/usericon_club.png"
+   },
+   {
+    "field": "pButtonTex[16]",
+    "texture": "Textures/usericon_antibuddy.png"
+   },
+   {
+    "field": "pButtonTex[17]",
+    "texture": "Textures/npcicon_exit.png"
+   },
+   {
+    "field": "pButtonTex[18]",
+    "texture": "Textures/npcicon_warp.png"
+   },
+   {
+    "field": "pButtonTex[19]",
+    "texture": "Textures/npcicon_vendor.png"
+   },
+   {
+    "field": "pButtonTex[20]",
+    "texture": "Textures/CombiIcon.png"
+   },
+   {
+    "field": "pButtonTex[21]",
+    "texture": "Textures/CombiRulesIcon.png"
+   },
+   {
+    "field": "pButtonTex[22]",
+    "texture": "Textures/CombiRulesIcon.png"
+   },
+   {
+    "field": "pButtonTex[23]",
+    "texture": "Textures/CombiRulesIcon.png"
+   },
+   {
+    "field": "pButtonTex[24]",
+    "texture": "Textures/npcicon_auction.png"
+   },
+   {
+    "field": "pMissionIcon[0]",
+    "texture": "Textures/world_icon.png"
+   },
+   {
+    "field": "pMissionIcon[1]",
+    "texture": "Textures/edd_icon__540.png"
+   },
+   {
+    "field": "pMissionIcon[2]",
+    "texture": "Textures/dexter_icon__327.png"
+   },
+   {
+    "field": "pMissionIcon[3]",
+    "texture": "Textures/mojo_icon.png"
+   },
+   {
+    "field": "pMissionIcon[4]",
+    "texture": "Textures/ben_icon.png"
+   },
+   {
+    "field": "pMissionIcon[5]",
+    "texture": "Textures/compu_icon__556.png"
+   },
+   {
+    "field": "BlackTextue",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "Panel_UserClothes": {
+  "gameobject": "UserEquip",
+  "textures": [
+   {
+    "field": "barTexture",
+    "texture": "Textures/HP_BAR.png"
+   },
+   {
+    "field": "fmbarTexture",
+    "texture": "Textures/FM_BAR.png"
+   },
+   {
+    "field": "userStText",
+    "texture": "Textures/userst.png"
+   },
+   {
+    "field": "nanowinText",
+    "texture": "Textures/nanodlg.png"
+   },
+   {
+    "field": "vehiclewinText",
+    "texture": "Textures/vehicledlg.png"
+   },
+   {
+    "field": "nanoTypeText[0]",
+    "texture": "Textures/blue_icon.png"
+   },
+   {
+    "field": "nanoTypeText[1]",
+    "texture": "Textures/red_icon.png"
+   },
+   {
+    "field": "nanoTypeText[2]",
+    "texture": "Textures/yellow_icon.png"
+   },
+   {
+    "field": "OneText",
+    "texture": "Textures/OneVs.png"
+   },
+   {
+    "field": "ManyText",
+    "texture": "Textures/ManyVs.png"
+   },
+   {
+    "field": "DefenseText",
+    "texture": "Textures/Defense.png"
+   },
+   {
+    "field": "GuideBoxText",
+    "texture": "Textures/GuideBox.png"
+   },
+   {
+    "field": "DexIconText",
+    "texture": "Textures/DexIcon.png"
+   },
+   {
+    "field": "MojojoIconText",
+    "texture": "Textures/MojojoIcon.png"
+   },
+   {
+    "field": "BenIconText",
+    "texture": "Textures/BenIcon.png"
+   },
+   {
+    "field": "EddIconText",
+    "texture": "Textures/EddIcon.png"
+   },
+   {
+    "field": "ComIconText",
+    "texture": "Textures/Computeres.png"
+   },
+   {
+    "field": "ClassIconText[0]",
+    "texture": "Textures/closeover.png"
+   },
+   {
+    "field": "ClassIconText[1]",
+    "texture": "Textures/InvenClass2Icon.png"
+   },
+   {
+    "field": "ClassIconText[2]",
+    "texture": "Textures/InvenClass3Icon.png"
+   },
+   {
+    "field": "ClassIconText[3]",
+    "texture": "Textures/InvenClass4Icon.png"
+   },
+   {
+    "field": "infoHpBackText",
+    "texture": "Textures/infoHpBack.png"
+   }
+  ]
+ },
+ "Panel_Vendor": {
+  "gameobject": "Vendor",
+  "textures": [
+   {
+    "field": "textureBuybackTabOver",
+    "texture": "Textures/vendorTab2Over.png"
+   },
+   {
+    "field": "textureBuybackTabNor",
+    "texture": "Textures/vendorTab2Nor.png"
+   },
+   {
+    "field": "textureBuybackTab",
+    "texture": "Textures/vendorTab2.png"
+   },
+   {
+    "field": "textureBuyTabOver",
+    "texture": "Textures/vendorTab1Over.png"
+   },
+   {
+    "field": "textureBuyTabNor",
+    "texture": "Textures/vendorTab1Nor.png"
+   },
+   {
+    "field": "textureBuyTab",
+    "texture": "Textures/vendorTab1.png"
+   },
+   {
+    "field": "itmeBar",
+    "texture": "Textures/itembar.png"
+   },
+   {
+    "field": "infoTexture",
+    "texture": "Textures/vendorinfo.png"
+   }
+  ]
+ },
+ "cnGuideMode": {
+  "gameobject": "GuideMode",
+  "textures": [
+   {
+    "field": "GuideSelectTexture[0]",
+    "texture": "Textures/Ben.png"
+   },
+   {
+    "field": "GuideSelectTexture[1]",
+    "texture": "Textures/dexter.png"
+   },
+   {
+    "field": "GuideSelectTexture[2]",
+    "texture": "Textures/Mojo.png"
+   },
+   {
+    "field": "GuideSelectTexture[3]",
+    "texture": "Textures/Edd.png"
+   },
+   {
+    "field": "ConfirmTexture[0]",
+    "texture": "Textures/ben_confirm.png"
+   },
+   {
+    "field": "ConfirmTexture[1]",
+    "texture": "Textures/dexter_confirm.png"
+   },
+   {
+    "field": "ConfirmTexture[2]",
+    "texture": "Textures/mojo_confirm.png"
+   },
+   {
+    "field": "ConfirmTexture[3]",
+    "texture": "Textures/Edd_confirm.png"
+   },
+   {
+    "field": "GuideSelectIcon[0]",
+    "texture": "Textures/ben_icon__517.png"
+   },
+   {
+    "field": "GuideSelectIcon[1]",
+    "texture": "Textures/dexter_icon.png"
+   },
+   {
+    "field": "GuideSelectIcon[2]",
+    "texture": "Textures/mojo_icon__500.png"
+   },
+   {
+    "field": "GuideSelectIcon[3]",
+    "texture": "Textures/Edd_icon.png"
+   },
+   {
+    "field": "MemberBack",
+    "texture": "Textures/member.png"
+   },
+   {
+    "field": "SelectedEffect",
+    "texture": "Textures/select_bust.png"
+   },
+   {
+    "field": "AlertTex",
+    "texture": "Textures/messicon_timeMachine.png"
+   },
+   {
+    "field": "GuideTex",
+    "texture": "Textures/messicon_guide.png"
+   },
+   {
+    "field": "BlackTexture",
+    "texture": "Textures/back.png"
+   },
+   {
+    "field": "barTexture",
+    "texture": "Textures/cost_bar.png"
+   },
+   {
+    "field": "FMIcon",
+    "texture": "Textures/fmfpo.png"
+   },
+   {
+    "field": "TarosIcon",
+    "texture": "Textures/tarosfpo.png"
+   },
+   {
+    "field": "CompuTexture",
+    "texture": "Textures/compu_icon.png"
+   }
+  ]
+ },
+ "cnQuit": {
+  "gameobject": "QuitMenu",
+  "textures": [
+   {
+    "field": "backText",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "InventoryManagerScript": {
+  "gameobject": "InvManager",
+  "textures": [
+   {
+    "field": "PotionText",
+    "texture": "Textures/PostionIcon.png"
+   },
+   {
+    "field": "BoostText",
+    "texture": "Textures/BoostIcon.png"
+   },
+   {
+    "field": "FusionMatterBack",
+    "texture": "Textures/Potion.png"
+   },
+   {
+    "field": "TarosBack",
+    "texture": "Textures/Taros.png"
+   },
+   {
+    "field": "TarosIcon",
+    "texture": "Textures/tarosfpo.png"
+   },
+   {
+    "field": "TarosIconW",
+    "texture": "Textures/CombiTarosIcon.png"
+   },
+   {
+    "field": "FreeChatIcon",
+    "texture": "Textures/freechat_icon.png"
+   },
+   {
+    "field": "dexlabsbut",
+    "texture": "Textures/dexlabsbut.png"
+   }
+  ]
+ },
+ "NanoMachineScript": {
+  "gameobject": "InvManager",
+  "textures": [
+   {
+    "field": "texNanoPopupBG",
+    "texture": "Textures/NanoPopUp.png"
+   },
+   {
+    "field": "texNanoPupupEquippedBG",
+    "texture": "Textures/NanoPopUpEquippedBG.png"
+   },
+   {
+    "field": "texNextNanoPopupBG",
+    "texture": "Textures/NanoPopUpNextNano.png"
+   },
+   {
+    "field": "texGaugeFM",
+    "texture": "Textures/NanoPopupFMBar.png"
+   },
+   {
+    "field": "texGaugeItem",
+    "texture": "Textures/NanoPopupItemBar.png"
+   }
+  ]
+ },
+ "UserContainer": {
+  "gameobject": "UserManager",
+  "textures": [
+   {
+    "field": "m_pMainSpec",
+    "texture": "Textures/SpecRamp1.png"
+   },
+   {
+    "field": "m_pSubSpec",
+    "texture": "Textures/SpecRamp2.png"
+   },
+   {
+    "field": "m_pNotMainSpec",
+    "texture": "Textures/NonSpecRamp1.png"
+   },
+   {
+    "field": "m_pNotSubSpec",
+    "texture": "Textures/NonSpecRamp2.png"
+   }
+  ]
+ },
+ "Panel_UserStore": {
+  "gameobject": "UserStore",
+  "textures": [
+   {
+    "field": "textureBuybackTabOver",
+    "texture": "Textures/vendorTab2Over.png"
+   },
+   {
+    "field": "textureBuybackTabNor",
+    "texture": "Textures/vendorTab2Nor.png"
+   },
+   {
+    "field": "textureBuybackTab",
+    "texture": "Textures/vendorTab2.png"
+   },
+   {
+    "field": "textureBuyTabOver",
+    "texture": "Textures/vendorTab1Over.png"
+   },
+   {
+    "field": "textureBuyTabNor",
+    "texture": "Textures/vendorTab1Nor.png"
+   },
+   {
+    "field": "textureBuyTab",
+    "texture": "Textures/vendorTab1.png"
+   },
+   {
+    "field": "itmeBar",
+    "texture": "Textures/itembar.png"
+   },
+   {
+    "field": "infoTexture",
+    "texture": "Textures/vendorinfo.png"
+   }
+  ]
+ },
+ "ResurrectMode": {
+  "gameobject": "ResurrectMode",
+  "textures": [
+   {
+    "field": "GrimTexture",
+    "texture": "Textures/grim.png"
+   },
+   {
+    "field": "IconTexture",
+    "texture": "Textures/resurrect.png"
+   },
+   {
+    "field": "SkillIconBack",
+    "texture": "Textures/buff_icon_back.png"
+   },
+   {
+    "field": "blackBack",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "PrintName": {
+  "gameobject": "OwnUser",
+  "textures": [
+   {
+    "field": "CombatIcon[0]",
+    "texture": "Textures/target_icon1a.png"
+   },
+   {
+    "field": "CombatIcon[1]",
+    "texture": "Textures/target_icon1b.png"
+   },
+   {
+    "field": "CombatIcon[2]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "CombatIcon[3]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "CombatIcon[4]",
+    "texture": "Textures/target_icon3.png"
+   },
+   {
+    "field": "SkillIcon",
+    "texture": "Textures/target_n.png"
+   },
+   {
+    "field": "CombatIcon[0]",
+    "texture": "Textures/target_icon1a.png"
+   },
+   {
+    "field": "CombatIcon[1]",
+    "texture": "Textures/target_icon1b.png"
+   },
+   {
+    "field": "CombatIcon[2]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "CombatIcon[3]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "SkillIcon",
+    "texture": "Textures/target_n.png"
+   },
+   {
+    "field": "CombatIcon[0]",
+    "texture": "Textures/target_icon1a.png"
+   },
+   {
+    "field": "CombatIcon[1]",
+    "texture": "Textures/target_icon1b.png"
+   },
+   {
+    "field": "CombatIcon[2]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "CombatIcon[3]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "SkillIcon",
+    "texture": "Textures/target_n.png"
+   },
+   {
+    "field": "CombatIcon[0]",
+    "texture": "Textures/target_icon1a.png"
+   },
+   {
+    "field": "CombatIcon[1]",
+    "texture": "Textures/target_icon1b.png"
+   },
+   {
+    "field": "CombatIcon[2]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "CombatIcon[3]",
+    "texture": "Textures/target_icon2.png"
+   },
+   {
+    "field": "SkillIcon",
+    "texture": "Textures/target_n.png"
+   }
+  ]
+ },
+ "cnDexterShipEventScene": {
+  "gameobject": "DexterScene",
+  "textures": [
+   {
+    "field": "BlackScreen",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "cnSystemMessageManager": {
+  "gameobject": "SystemMessageManager",
+  "textures": [
+   {
+    "field": "BlackTexture",
+    "texture": "Textures/back.png"
+   },
+   {
+    "field": "ItemBox",
+    "texture": "Textures/equipbox.png"
+   },
+   {
+    "field": "pIcon[0]",
+    "texture": "Textures/messicon_warning.png"
+   },
+   {
+    "field": "pIcon[1]",
+    "texture": "Textures/messicon_trade.png"
+   },
+   {
+    "field": "pIcon[2]",
+    "texture": "Textures/messicon_buddy.png"
+   },
+   {
+    "field": "pIcon[3]",
+    "texture": "Textures/messicon_group.png"
+   },
+   {
+    "field": "pIcon[7]",
+    "texture": "Textures/CombiIcon2.png"
+   }
+  ]
+ },
+ "GameFrame": {
+  "gameobject": "GameModeManager",
+  "textures": [
+   {
+    "field": "CombatTexture",
+    "texture": "Textures/combat.png"
+   },
+   {
+    "field": "BackTexture",
+    "texture": "Textures/back.png"
+   },
+   {
+    "field": "WhiteTexture",
+    "texture": "Textures/white.png"
+   },
+   {
+    "field": "vExpireTex",
+    "texture": "Textures/vehicle_expire.png"
+   }
+  ]
+ },
+ "cnGuiEnchant": {
+  "gameobject": "EnchantMode",
+  "textures": [
+   {
+    "field": "texEnchantBG",
+    "texture": "Textures/EnchantBG.png"
+   },
+   {
+    "field": "texBlackShade",
+    "texture": "Textures/CombiBlackShade.png"
+   },
+   {
+    "field": "texXMark",
+    "texture": "Textures/EnchantXmark.png"
+   },
+   {
+    "field": "texEchantWaitingProgress",
+    "texture": "Textures/EnchantWaitProgress.png"
+   }
+  ]
+ },
+ "cnOptionMode": {
+  "gameobject": "OptionMode",
+  "textures": [
+   {
+    "field": "SkyTex",
+    "texture": "Textures/equipbar.png"
+   },
+   {
+    "field": "ChkTex1",
+    "texture": "Textures/set_check.png"
+   },
+   {
+    "field": "ChkTex2",
+    "texture": "Textures/set_check2.png"
+   },
+   {
+    "field": "ProTex",
+    "texture": "Textures/setting_progressbar_img.png"
+   },
+   {
+    "field": "BlkSel",
+    "texture": "Textures/rankmypos.png"
+   },
+   {
+    "field": "ChatColorBox",
+    "texture": "Textures/setting_back_tmp.png"
+   },
+   {
+    "field": "ChatColorBox2",
+    "texture": "Textures/color_box.png"
+   },
+   {
+    "field": "ChatColorSel",
+    "texture": "Textures/color_box_selected.png"
+   }
+  ]
+ },
+ "CnGuiNanoFreeTuning": {
+  "gameobject": "NanoFreeTuningMode",
+  "textures": [
+   {
+    "field": "texNextNanoPopupBG",
+    "texture": "Textures/NanoPopUpNextNano_1.png"
+   },
+   {
+    "field": "BlackTextue",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "cnGuiCombi": {
+  "gameobject": "CombiMode",
+  "textures": [
+   {
+    "field": "texBlackShade",
+    "texture": "Textures/CombiBlackShade.png"
+   },
+   {
+    "field": "texCombiWndBG",
+    "texture": "Textures/CombiWndBG.png"
+   }
+  ]
+ },
+ "CnGuiCharSelection": {
+  "gameobject": "CharSelectionMode",
+  "textures": [
+   {
+    "field": "texDelBG",
+    "texture": "Textures/CSDeleteBG.png"
+   },
+   {
+    "field": "texDelWin",
+    "texture": "Textures/CSDeleteWindow.png"
+   },
+   {
+    "field": "bgTexture",
+    "texture": "Textures/load.png"
+   }
+  ]
+ },
+ "CnGuiServerSelection": {
+  "gameobject": "ServerSelectionMode",
+  "textures": [
+   {
+    "field": "bgTexture",
+    "texture": "Textures/login_screen_bg_16x10.png"
+   }
+  ]
+ },
+ "Panel_EmailList": {
+  "gameobject": "EmailMode",
+  "textures": [
+   {
+    "field": "backImage",
+    "texture": "Textures/emailback.png"
+   },
+   {
+    "field": "textClip",
+    "texture": "Textures/clip.png"
+   },
+   {
+    "field": "textEmailList",
+    "texture": "Textures/comemaillist.png"
+   },
+   {
+    "field": "textUserTabBack",
+    "texture": "Textures/emailusertab.png"
+   },
+   {
+    "field": "textGuideBut",
+    "texture": "Textures/emailcombut.png"
+   },
+   {
+    "field": "textGuideButOver",
+    "texture": "Textures/emailcombutover.png"
+   },
+   {
+    "field": "textUserBut",
+    "texture": "Textures/emailuserbut.png"
+   },
+   {
+    "field": "textUserButOver",
+    "texture": "Textures/emailuserbutover.png"
+   }
+  ]
+ },
+ "Panel_NewEmail": {
+  "gameobject": "EmailMode",
+  "textures": [
+   {
+    "field": "buddyTexture",
+    "texture": "Textures/emailbudylist.png"
+   },
+   {
+    "field": "cacuTexture",
+    "texture": "Textures/emailcacu.png"
+   },
+   {
+    "field": "cacuButtonBack",
+    "texture": "Textures/cacuback.png"
+   },
+   {
+    "field": "clip",
+    "texture": "Textures/clip.png"
+   }
+  ]
+ },
+ "CnGuiCharacter_info": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "DiskFrontTexture",
+    "texture": "Textures/DiskFront.png"
+   },
+   {
+    "field": "backTexture",
+    "texture": "Textures/character_info.png"
+   },
+   {
+    "field": "combatbackTexture",
+    "texture": "Textures/character_info.png"
+   },
+   {
+    "field": "barTexture",
+    "texture": "Textures/HP_BAR.png"
+   },
+   {
+    "field": "FreeChatTexture",
+    "texture": "Textures/freechat_icon.png"
+   },
+   {
+    "field": "ExpBar",
+    "texture": "Textures/exp_bar.png"
+   },
+   {
+    "field": "ExpBonusBar",
+    "texture": "Textures/exp_bonus.png"
+   },
+   {
+    "field": "ExpBonusBack",
+    "texture": "Textures/exp_bonus_back.png"
+   },
+   {
+    "field": "ExpCursor",
+    "texture": "Textures/exp_cursor.png"
+   }
+  ]
+ },
+ "CnGuiMonster_info": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "backNpcTexture",
+    "texture": "Textures/npc_info.png"
+   },
+   {
+    "field": "backMobTexture",
+    "texture": "Textures/mop_info.png"
+   },
+   {
+    "field": "backUserTexture",
+    "texture": "Textures/character_info.png"
+   },
+   {
+    "field": "backNanoTexture",
+    "texture": "Textures/nano_info.png"
+   },
+   {
+    "field": "DiskFrontTexture",
+    "texture": "Textures/DiskFront.png"
+   },
+   {
+    "field": "FreeChatTexture",
+    "texture": "Textures/freechat_icon.png"
+   },
+   {
+    "field": "DangerTexture",
+    "texture": "Textures/danger.png"
+   },
+   {
+    "field": "ABC_Win[0]",
+    "texture": "Textures/nano_win.png"
+   },
+   {
+    "field": "ABC_Win[1]",
+    "texture": "Textures/nano_draw.png"
+   },
+   {
+    "field": "ABC_Win[2]",
+    "texture": "Textures/nano_lose.png"
+   },
+   {
+    "field": "ABCIcon[0]",
+    "texture": "Textures/a_icon.png"
+   },
+   {
+    "field": "ABCIcon[1]",
+    "texture": "Textures/b_icon.png"
+   },
+   {
+    "field": "ABCIcon[2]",
+    "texture": "Textures/c_icon.png"
+   },
+   {
+    "field": "ABCEffect[0]",
+    "texture": "Textures/blue_icon.png"
+   },
+   {
+    "field": "ABCEffect[1]",
+    "texture": "Textures/red_icon.png"
+   },
+   {
+    "field": "ABCEffect[2]",
+    "texture": "Textures/yellow_icon.png"
+   },
+   {
+    "field": "barTexture",
+    "texture": "Textures/HP_BAR.png"
+   }
+  ]
+ },
+ "CnGuiNano_info": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "backTexture",
+    "texture": "Textures/nano_info.png"
+   },
+   {
+    "field": "barTexture",
+    "texture": "Textures/HP_BAR.png"
+   },
+   {
+    "field": "CoolTime[0]",
+    "texture": "Textures/cooltime01.png"
+   },
+   {
+    "field": "CoolTime[1]",
+    "texture": "Textures/cooltime02.png"
+   },
+   {
+    "field": "CoolTime[2]",
+    "texture": "Textures/cooltime03.png"
+   },
+   {
+    "field": "CoolTime[3]",
+    "texture": "Textures/cooltime04.png"
+   },
+   {
+    "field": "CoolTime[4]",
+    "texture": "Textures/cooltime05.png"
+   },
+   {
+    "field": "CoolTime[5]",
+    "texture": "Textures/cooltime06.png"
+   },
+   {
+    "field": "CoolTime[6]",
+    "texture": "Textures/cooltime07.png"
+   },
+   {
+    "field": "CoolTime_00",
+    "texture": "Textures/CoolTime_00.png"
+   }
+  ]
+ },
+ "cnGUINanocom": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "mapIcons[0]",
+    "texture": "Textures/map_icon_00.png"
+   },
+   {
+    "field": "mapIcons[1]",
+    "texture": "Textures/camera.png"
+   },
+   {
+    "field": "mapIcons[2]",
+    "texture": "Textures/map_icon_02.png"
+   },
+   {
+    "field": "mapIcons[3]",
+    "texture": "Textures/map_icon_03.png"
+   },
+   {
+    "field": "mapIcons[4]",
+    "texture": "Textures/map_icon_04.png"
+   },
+   {
+    "field": "mapIcons[5]",
+    "texture": "Textures/map_icon_05.png"
+   },
+   {
+    "field": "mapIcons[6]",
+    "texture": "Textures/map_icon_06.png"
+   },
+   {
+    "field": "mapIcons[7]",
+    "texture": "Textures/map_icon_07.png"
+   },
+   {
+    "field": "mapIcons[8]",
+    "texture": "Textures/map_icon_08.png"
+   },
+   {
+    "field": "mapIcons[9]",
+    "texture": "Textures/map_icon_09.png"
+   },
+   {
+    "field": "mapIcons[10]",
+    "texture": "Textures/map_icon_10.png"
+   },
+   {
+    "field": "mapIcons[11]",
+    "texture": "Textures/map_icon_11.png"
+   },
+   {
+    "field": "mapIcons[12]",
+    "texture": "Textures/map_icon_12.png"
+   },
+   {
+    "field": "mapIcons[13]",
+    "texture": "Textures/map_icon_13.png"
+   },
+   {
+    "field": "mapIcons[14]",
+    "texture": "Textures/map_icon_14.png"
+   },
+   {
+    "field": "mapIcons[15]",
+    "texture": "Textures/map_icon_15.png"
+   },
+   {
+    "field": "mapIcons[16]",
+    "texture": "Textures/map_icon_16.png"
+   },
+   {
+    "field": "mapIcons[17]",
+    "texture": "Textures/map_icon_17.png"
+   },
+   {
+    "field": "mapIcons[18]",
+    "texture": "Textures/map_icon_18.png"
+   },
+   {
+    "field": "mapIcons[19]",
+    "texture": "Textures/map_icon_19.png"
+   },
+   {
+    "field": "mapIcons[20]",
+    "texture": "Textures/map_icon_20.png"
+   },
+   {
+    "field": "mapIcons[21]",
+    "texture": "Textures/map_icon_21.png"
+   },
+   {
+    "field": "mapIcons[22]",
+    "texture": "Textures/map_icon_22.png"
+   },
+   {
+    "field": "mapIcons[23]",
+    "texture": "Textures/map_icon_23.png"
+   },
+   {
+    "field": "mapIcons[24]",
+    "texture": "Textures/map_icon_24.png"
+   },
+   {
+    "field": "mapIcons[25]",
+    "texture": "Textures/map_icon_25.png"
+   },
+   {
+    "field": "mapIcons[26]",
+    "texture": "Textures/map_icon_26.png"
+   },
+   {
+    "field": "mapIcons[27]",
+    "texture": "Textures/map_icon_27.png"
+   },
+   {
+    "field": "mapIcons[28]",
+    "texture": "Textures/plus_but_1.png"
+   },
+   {
+    "field": "mapIcons[29]",
+    "texture": "Textures/minus_but_1.png"
+   },
+   {
+    "field": "mapIcons[30]",
+    "texture": "Textures/map_icon_30.png"
+   },
+   {
+    "field": "mapIcons[31]",
+    "texture": "Textures/map_icon_31.png"
+   },
+   {
+    "field": "mapIcons[32]",
+    "texture": "Textures/map_icon_32.png"
+   },
+   {
+    "field": "mapIcons[33]",
+    "texture": "Textures/map_icon_33.png"
+   },
+   {
+    "field": "rtBackImage",
+    "texture": "Textures/fusionmatter_us.png"
+   },
+   {
+    "field": "rtBackImage2Left",
+    "texture": "Textures/fusionmeter_back_left.png"
+   },
+   {
+    "field": "rtBackImage2Right",
+    "texture": "Textures/fusionmeter_back_right.png"
+   },
+   {
+    "field": "rtNewBackImage",
+    "texture": "Textures/new_minimap_back.png"
+   },
+   {
+    "field": "rtAlarmImage",
+    "texture": "Textures/new_alarm.png"
+   },
+   {
+    "field": "backMenuTexture",
+    "texture": "Textures/menu_box.png"
+   },
+   {
+    "field": "LineEffect",
+    "texture": "Textures/line_minimap.png"
+   },
+   {
+    "field": "plusTexture",
+    "texture": "Textures/plus_but.png"
+   },
+   {
+    "field": "minusTexture",
+    "texture": "Textures/minus_but.png"
+   },
+   {
+    "field": "mailTexture",
+    "texture": "Textures/mail_but.png"
+   },
+   {
+    "field": "NanoComNPCBg",
+    "texture": "Textures/nanocom_message_npc.png"
+   },
+   {
+    "field": "NanoComNanoBg",
+    "texture": "Textures/nanocom_message_nano.png"
+   },
+   {
+    "field": "NanoComUserBg",
+    "texture": "Textures/nanocom_message.png"
+   },
+   {
+    "field": "NanoComEtcBg",
+    "texture": "Textures/nanocom_message_etc.png"
+   },
+   {
+    "field": "MinimapAlpha",
+    "texture": "Textures/nanocom_minimap_a.png"
+   },
+   {
+    "field": "RingTexture",
+    "texture": "Textures/ring.png"
+   },
+   {
+    "field": "blackBack",
+    "texture": "Textures/back.png"
+   },
+   {
+    "field": "EmailNoticeTexture",
+    "texture": "Textures/EmailNotice.png"
+   },
+   {
+    "field": "EmailNoticeTextureOver",
+    "texture": "Textures/EmailNoticeUp.png"
+   },
+   {
+    "field": "TaskBustTexture",
+    "texture": "Textures/burst.png"
+   },
+   {
+    "field": "BoxAlpha",
+    "texture": "Textures/boxalpha.png"
+   },
+   {
+    "field": "BonusTexture",
+    "texture": "Textures/bonus.png"
+   },
+   {
+    "field": "IconTexture[0]",
+    "texture": "Textures/messicon_warning.png"
+   },
+   {
+    "field": "IconTexture[1]",
+    "texture": "Textures/messicon_trade.png"
+   },
+   {
+    "field": "IconTexture[2]",
+    "texture": "Textures/messicon_buddy.png"
+   },
+   {
+    "field": "IconTexture[3]",
+    "texture": "Textures/messicon_group.png"
+   }
+  ]
+ },
+ "CnGuiGroup_info": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "backTexture",
+    "texture": "Textures/group_info.png"
+   },
+   {
+    "field": "barTexture",
+    "texture": "Textures/HP_BAR.png"
+   },
+   {
+    "field": "nanobackTexture",
+    "texture": "Textures/group_nano_hpframe.png"
+   },
+   {
+    "field": "npcBackTexture",
+    "texture": "Textures/npc_co_op.png"
+   },
+   {
+    "field": "FreeChatTexture",
+    "texture": "Textures/group_freechat_icon.png"
+   }
+  ]
+ },
+ "CnGuiChat": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "PressEnter",
+    "texture": "Textures/press_enter.png"
+   },
+   {
+    "field": "alertIcon",
+    "texture": "Textures/chatAlert.png"
+   },
+   {
+    "field": "texDelBG",
+    "texture": "Textures/CSDeleteBG.png"
+   },
+   {
+    "field": "texDelWin",
+    "texture": "Textures/CSDeleteWindow.png"
+   },
+   {
+    "field": "texFreeChat",
+    "texture": "Textures/freechat_icon.png"
+   }
+  ]
+ },
+ "cnNanoWheel": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "backTexture",
+    "texture": "Textures/nano_whell.png"
+   },
+   {
+    "field": "SkillBack",
+    "texture": "Textures/buff_icon_back.png"
+   },
+   {
+    "field": "ABCIcon[0]",
+    "texture": "Textures/a_icon.png"
+   },
+   {
+    "field": "ABCIcon[1]",
+    "texture": "Textures/b_icon.png"
+   },
+   {
+    "field": "ABCIcon[2]",
+    "texture": "Textures/c_icon.png"
+   },
+   {
+    "field": "ABCBack[0]",
+    "texture": "Textures/blue_icon.png"
+   },
+   {
+    "field": "ABCBack[1]",
+    "texture": "Textures/red_icon.png"
+   },
+   {
+    "field": "ABCBack[2]",
+    "texture": "Textures/yellow_icon.png"
+   },
+   {
+    "field": "SlotIcon[0]",
+    "texture": "Textures/but_1.png"
+   },
+   {
+    "field": "SlotIcon[1]",
+    "texture": "Textures/but_2.png"
+   },
+   {
+    "field": "SlotIcon[2]",
+    "texture": "Textures/but_3.png"
+   },
+   {
+    "field": "CoolTime[0]",
+    "texture": "Textures/cooltime01.png"
+   },
+   {
+    "field": "CoolTime[1]",
+    "texture": "Textures/cooltime02.png"
+   },
+   {
+    "field": "CoolTime[2]",
+    "texture": "Textures/cooltime03.png"
+   },
+   {
+    "field": "CoolTime[3]",
+    "texture": "Textures/cooltime04.png"
+   },
+   {
+    "field": "CoolTime[4]",
+    "texture": "Textures/cooltime05.png"
+   },
+   {
+    "field": "CoolTime[5]",
+    "texture": "Textures/cooltime06.png"
+   },
+   {
+    "field": "CoolTime[6]",
+    "texture": "Textures/cooltime07.png"
+   },
+   {
+    "field": "CoolTime_00",
+    "texture": "Textures/CoolTime_00.png"
+   },
+   {
+    "field": "NanoSBar",
+    "texture": "Textures/nano_st_bar.png"
+   },
+   {
+    "field": "R_Bar",
+    "texture": "Textures/HP_BAR.png"
+   },
+   {
+    "field": "BoostCount",
+    "texture": "Textures/boost_counter.png"
+   },
+   {
+    "field": "PotionCount",
+    "texture": "Textures/potion_counter.png"
+   },
+   {
+    "field": "ABCGumBall[0]",
+    "texture": "Textures/NanoGumballBlue.png"
+   },
+   {
+    "field": "ABCGumBall[1]",
+    "texture": "Textures/NanoGumballRed.png"
+   },
+   {
+    "field": "ABCGumBall[2]",
+    "texture": "Textures/NanoGumballYellow.png"
+   }
+  ]
+ },
+ "CnGuiSkillBuffIcon": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "texBackPicture",
+    "texture": "Textures/buff_icon_back.png"
+   }
+  ]
+ },
+ "cnQuickSlot": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "QuickSlotBG",
+    "texture": "Textures/quickslot_main.png"
+   }
+  ]
+ },
+ "CnGuiWpnOverheat": {
+  "gameobject": "GameHUD",
+  "textures": [
+   {
+    "field": "texOverheatNormal",
+    "texture": "Textures/OverheatNormal.png"
+   }
+  ]
+ },
+ "CnGuiNameCreation": {
+  "gameobject": "CharNameCreationMode",
+  "textures": [
+   {
+    "field": "style.m_Normal.m_Background",
+    "texture": "Textures/horizSlider.png"
+   }
+  ]
+ },
+ "Panel_Cashmall": {
+  "gameobject": "CashmallMode",
+  "textures": [
+   {
+    "field": "cashBack",
+    "texture": "Textures/cash.png"
+   },
+   {
+    "field": "infoTexture",
+    "texture": "Textures/vendorinfo.png"
+   }
+  ]
+ },
+ "cnTrans": {
+  "gameobject": "TransportMode",
+  "textures": [
+   {
+    "field": "LineMap",
+    "texture": "Textures/line_main.png"
+   },
+   {
+    "field": "LineEffect[0]",
+    "texture": "Textures/line_main00.png"
+   },
+   {
+    "field": "LineEffect[1]",
+    "texture": "Textures/line_main01.png"
+   },
+   {
+    "field": "RegWarpIcon",
+    "texture": "Textures/reg_warp.png"
+   },
+   {
+    "field": "SelWarpIcon",
+    "texture": "Textures/sel_warp.png"
+   },
+   {
+    "field": "UnRegWarpIcon",
+    "texture": "Textures/unregi_warp.png"
+   },
+   {
+    "field": "StartIcon",
+    "texture": "Textures/mypoint.png"
+   },
+   {
+    "field": "BloomSelectIcon",
+    "texture": "Textures/selected_monkey.png"
+   },
+   {
+    "field": "BloomIcon",
+    "texture": "Textures/register_monkey.png"
+   },
+   {
+    "field": "BlommIconU",
+    "texture": "Textures/unregister_monkey.png"
+   },
+   {
+    "field": "Monkey",
+    "texture": "Textures/monkey_pilot.png"
+   },
+   {
+    "field": "Bubble",
+    "texture": "Textures/bubble.png"
+   },
+   {
+    "field": "tempIcon",
+    "texture": "Textures/buddy.png"
+   },
+   {
+    "field": "TarosIcon",
+    "texture": "Textures/tarosfpo.png"
+   }
+  ]
+ },
+ "Panel_BankScript": {
+  "gameobject": "BankMode",
+  "textures": [
+   {
+    "field": "infoTexture",
+    "texture": "Textures/vendorinfo.png"
+   }
+  ]
+ },
+ "AssetLoader": {
+  "gameobject": "AssetLoader",
+  "textures": [
+   {
+    "field": "LoadTexture",
+    "texture": "Textures/load.png"
+   },
+   {
+    "field": "BackTexture",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "cnGuiFirstUse": {
+  "gameobject": "FirstUse",
+  "textures": [
+   {
+    "field": "texComputress",
+    "texture": "Textures/FirstUseComputress.png"
+   },
+   {
+    "field": "texIcon",
+    "texture": "Textures/FirstUseIcon.png"
+   },
+   {
+    "field": "texIconSelected",
+    "texture": "Textures/FirstUseIconSelected.png"
+   }
+  ]
+ },
+ "cnRaceMode": {
+  "gameobject": "RaceMode",
+  "textures": [
+   {
+    "field": "BlackTextue",
+    "texture": "Textures/black.dds.png"
+   },
+   {
+    "field": "fmIcon",
+    "texture": "Textures/fmicon.png"
+   }
+  ]
+ },
+ "WorldMapMode": {
+  "gameobject": "WorldMapMode",
+  "textures": [
+   {
+    "field": "mapIcons[0]",
+    "texture": "Textures/map_icon_00.png"
+   },
+   {
+    "field": "mapIcons[1]",
+    "texture": "Textures/map_icon_01.png"
+   },
+   {
+    "field": "mapIcons[2]",
+    "texture": "Textures/map_icon_02.png"
+   },
+   {
+    "field": "mapIcons[3]",
+    "texture": "Textures/map_icon_03.png"
+   },
+   {
+    "field": "mapIcons[4]",
+    "texture": "Textures/map_icon_04.png"
+   },
+   {
+    "field": "mapIcons[5]",
+    "texture": "Textures/map_icon_05.png"
+   },
+   {
+    "field": "mapIcons[6]",
+    "texture": "Textures/map_icon_06.png"
+   },
+   {
+    "field": "mapIcons[7]",
+    "texture": "Textures/map_icon_07.png"
+   },
+   {
+    "field": "mapIcons[8]",
+    "texture": "Textures/map_icon_08.png"
+   },
+   {
+    "field": "mapIcons[9]",
+    "texture": "Textures/map_icon_09.png"
+   },
+   {
+    "field": "mapIcons[10]",
+    "texture": "Textures/map_icon_10.png"
+   },
+   {
+    "field": "mapIcons[11]",
+    "texture": "Textures/map_icon_11.png"
+   },
+   {
+    "field": "mapIcons[12]",
+    "texture": "Textures/map_icon_12.png"
+   },
+   {
+    "field": "mapIcons[13]",
+    "texture": "Textures/map_icon_13.png"
+   },
+   {
+    "field": "mapIcons[14]",
+    "texture": "Textures/map_icon_14.png"
+   },
+   {
+    "field": "mapIcons[15]",
+    "texture": "Textures/map_icon_15.png"
+   },
+   {
+    "field": "mapIcons[16]",
+    "texture": "Textures/map_icon_16.png"
+   },
+   {
+    "field": "mapIcons[17]",
+    "texture": "Textures/map_icon_17.png"
+   },
+   {
+    "field": "mapIcons[18]",
+    "texture": "Textures/map_icon_18.png"
+   },
+   {
+    "field": "mapIcons[19]",
+    "texture": "Textures/map_icon_19.png"
+   },
+   {
+    "field": "mapIcons[20]",
+    "texture": "Textures/map_icon_20.png"
+   },
+   {
+    "field": "mapIcons[21]",
+    "texture": "Textures/map_icon_21.png"
+   },
+   {
+    "field": "mapIcons[22]",
+    "texture": "Textures/map_icon_22.png"
+   },
+   {
+    "field": "mapIcons[23]",
+    "texture": "Textures/map_icon_23.png"
+   },
+   {
+    "field": "mapIcons[24]",
+    "texture": "Textures/map_icon_24.png"
+   },
+   {
+    "field": "mapIcons[25]",
+    "texture": "Textures/map_icon_25.png"
+   },
+   {
+    "field": "mapIcons[26]",
+    "texture": "Textures/map_icon_26.png"
+   },
+   {
+    "field": "mapIcons[27]",
+    "texture": "Textures/map_icon_27.png"
+   },
+   {
+    "field": "mapIcons[28]",
+    "texture": "Textures/plus_but_1.png"
+   },
+   {
+    "field": "mapIcons[29]",
+    "texture": "Textures/minus_but_1.png"
+   },
+   {
+    "field": "mapIcons[30]",
+    "texture": "Textures/map_icon_30.png"
+   },
+   {
+    "field": "mapIcons[31]",
+    "texture": "Textures/map_icon_31.png"
+   },
+   {
+    "field": "mapIcons[32]",
+    "texture": "Textures/map_icon_32.png"
+   },
+   {
+    "field": "mapIcons[33]",
+    "texture": "Textures/map_icon_33.png"
+   },
+   {
+    "field": "LineMap",
+    "texture": "Textures/line_main.png"
+   },
+   {
+    "field": "LineEffect[0]",
+    "texture": "Textures/line_main00.png"
+   },
+   {
+    "field": "LineEffect[1]",
+    "texture": "Textures/line_main01.png"
+   },
+   {
+    "field": "BlackTex",
+    "texture": "Textures/back.png"
+   }
+  ]
+ },
+ "cnMissionJournal": {
+  "gameobject": "Journal",
+  "textures": [
+   {
+    "field": "pMissionIcon[0]",
+    "texture": "Textures/nreddicon.png"
+   },
+   {
+    "field": "pMissionIcon[1]",
+    "texture": "Textures/nrdexicon.png"
+   },
+   {
+    "field": "pMissionIcon[2]",
+    "texture": "Textures/nrmojoicon.png"
+   },
+   {
+    "field": "pMissionIcon[3]",
+    "texture": "Textures/nrbenicon.png"
+   },
+   {
+    "field": "pMissionIcon[4]",
+    "texture": "Textures/nrcomicon.png"
+   },
+   {
+    "field": "pMissionIcon[5]",
+    "texture": "Textures/nrnanoicon.png"
+   },
+   {
+    "field": "pMissionIcon[6]",
+    "texture": "Textures/nrworldicon.png"
+   },
+   {
+    "field": "GuideBannerTex[0]",
+    "texture": "Textures/edd_banner.png"
+   },
+   {
+    "field": "GuideBannerTex[1]",
+    "texture": "Textures/dexter_banner.png"
+   },
+   {
+    "field": "GuideBannerTex[2]",
+    "texture": "Textures/mojo_banner.png"
+   },
+   {
+    "field": "GuideBannerTex[3]",
+    "texture": "Textures/ben_banner.png"
+   },
+   {
+    "field": "GuideBannerTex[4]",
+    "texture": "Textures/compu_banner.png"
+   },
+   {
+    "field": "GuideBannerTex[5]",
+    "texture": "Textures/nano_banner.png"
+   },
+   {
+    "field": "GuideBannerTex[6]",
+    "texture": "Textures/world_banner.png"
+   },
+   {
+    "field": "SkillIconBack",
+    "texture": "Textures/buff_icon_back.png"
+   },
+   {
+    "field": "TarosIcon",
+    "texture": "Textures/tarosfpo.png"
+   },
+   {
+    "field": "FMIcon",
+    "texture": "Textures/fmfpo.png"
+   },
+   {
+    "field": "tarosIcon",
+    "texture": "Textures/tarosicon.png"
+   },
+   {
+    "field": "fmIcon",
+    "texture": "Textures/fmicon.png"
+   },
+   {
+    "field": "CurrentMissionTex",
+    "texture": "Textures/current_mission.png"
+   },
+   {
+    "field": "currectPointTex",
+    "texture": "Textures/point.png"
+   },
+   {
+    "field": "PopupBackTexture",
+    "texture": "Textures/unequipdlg.png"
+   },
+   {
+    "field": "PopupSmallBack",
+    "texture": "Textures/reward_userdlg.png"
+   },
+   {
+    "field": "equipTexture",
+    "texture": "Textures/equipiteminfo.png"
+   }
+  ]
+ },
+ "cnDisplayMapName": {
+  "gameobject": "MainGame",
+  "textures": [
+   {
+    "field": "CrateTexture",
+    "texture": "Textures/crate.png"
+   },
+   {
+    "field": "BoostTexture",
+    "texture": "Textures/boost.png"
+   },
+   {
+    "field": "PotionTexture",
+    "texture": "Textures/potion__548.png"
+   },
+   {
+    "field": "ShinyTexture",
+    "texture": "Textures/shiny_back.png"
+   },
+   {
+    "field": "FullInvenTex",
+    "texture": "Textures/full_inven.png"
+   },
+   {
+    "field": "TarosTexture",
+    "texture": "Textures/taros_count.png"
+   },
+   {
+    "field": "FMTexture",
+    "texture": "Textures/fm_count.png"
+   }
+  ]
+ }
+}

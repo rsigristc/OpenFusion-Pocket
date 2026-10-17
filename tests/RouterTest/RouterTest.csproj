@@ -1,0 +1,2 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><RestoreSources>/nonexistent</RestoreSources></PropertyGroup>
+<ItemGroup><Compile Include="../../Assets/Scripts/OpenFusion/Unity25/*.cs;../../Assets/Scripts/OpenFusion/Convert/*.cs;../../Assets/Scripts/OpenFusion/World/AssetIndex.cs;../../Assets/Scripts/OpenFusion/World/ResourceRouter.cs;../../Assets/Scripts/OpenFusion/World/DongGrid.cs;../../Assets/Scripts/OpenFusion/World/BundleSources.cs"/></ItemGroup></Project>

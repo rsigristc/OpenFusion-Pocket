@@ -1,0 +1,2 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Library</OutputType><TargetFramework>net8.0</TargetFramework><RestoreSources>/nonexistent</RestoreSources><NoWarn>CS8632;CS0649;CS0169;CS0414;CS0067;CS0108;CS0168;CS0219</NoWarn><LangVersion>9.0</LangVersion></PropertyGroup>
+<ItemGroup><Compile Include="../../Assets/Scripts/**/*.cs"/></ItemGroup></Project>
