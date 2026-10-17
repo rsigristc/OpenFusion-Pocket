@@ -28,6 +28,7 @@ namespace OpenFusion.EditorTools
                 GamepadStartupRegressionChecks.Run();
                 CombatRegressionChecks.Run();
                 WorldRegressionChecks.Run();
+                UpdaterRegressionChecks.Run();
                 WeaponAudioRegressionChecks.Run();
                 await ConnectionRegressionChecks.Run();
                 await AndroidRegressionChecks.Run();

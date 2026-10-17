@@ -46,7 +46,8 @@ namespace OpenFusion.EditorTools
 
         public static void ConfigurePlayer()
         {
-            PlayerSettings.companyName = "OpenFusion"; PlayerSettings.productName = "OpenFusion Android";
+            PlayerSettings.companyName = "OpenFusion"; PlayerSettings.productName = "OpenFusion:Pocket";
+            PlayerSettings.bundleVersion = OpenFusion.Api.PocketRelease.AppVersion; PlayerSettings.Android.bundleVersionCode = OpenFusion.Api.PocketRelease.BuildCode;
             PlayerSettings.colorSpace = ColorSpace.Gamma;      // el juego original está hecho en gamma
             var a = NamedBuildTarget.Android;
             PlayerSettings.SetApplicationIdentifier(a, "com.openfusion.android");
@@ -251,6 +252,7 @@ namespace OpenFusion.EditorTools
             };
             var report = BuildPipeline.BuildPlayer(opts);
             var sum = report.summary; Debug.Log("OpenFusion: compilación " + sum.result + ", " + (sum.totalSize / 1048576) + " MB, " + sum.totalErrors + " errores, " + sum.totalWarnings + " avisos → " + output);
+            if (sum.result == BuildResult.Succeeded) UpdaterRegressionChecks.VerifyApk(output);
             return sum.result == BuildResult.Succeeded;
         }
     }

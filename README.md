@@ -26,6 +26,7 @@ To update an existing installation signed with the same certificate, install ove
 
 - Native Android execution through Unity 2022.3 LTS and IL2CPP.
 - Server selection, version information and staged game-resource downloads.
+- Automatic checks for GitHub releases, release-note changelogs and verified in-app APK downloads with Android installation confirmation.
 - Persistent resource caching with integrity checks and a bounded decoded cache to reduce repeated decompression.
 - Reconstruction of maps, terrain, characters, equipment, textures and animations from legacy Unity resource formats.
 - Adapted materials, particles, lighting and environmental audio.
@@ -64,6 +65,8 @@ The latest asset audit found 20 unresolved target references in the source resou
 ## Build and contribute
 
 Use **Unity 2022.3.62f3** with Android Build Support, SDK, NDK and OpenJDK. See [Building from source](docs/BUILDING.md), [Contributing](CONTRIBUTING.md) and [Reporting security issues](SECURITY.md).
+
+The launcher's **About** screen links directly to this repository. **Updates** checks the latest stable GitHub release and shows its changelog. You choose when to download and install; Android may ask you to allow installations from this app. See [Updater and release maintenance](docs/UPDATER.md) for the update manifest and future publishing workflow. The refreshed V1.0 APK uses Android build code **2**.
 
 - `Assets/Scripts/OpenFusion/`: legacy readers, networking, launcher and gameplay systems.
 - `Assets/Shaders/`: rendering adaptations.

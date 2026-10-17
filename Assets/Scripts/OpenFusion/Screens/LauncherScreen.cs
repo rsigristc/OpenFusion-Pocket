@@ -18,7 +18,7 @@ using OpenFusion.Api;
 
 namespace OpenFusion.Screens
 {
-    public sealed class LauncherScreen : MonoBehaviour
+    public sealed partial class LauncherScreen : MonoBehaviour
     {
         /// <summary>true mientras el launcher esta en pantalla.</summary>
         public bool Visible { get; private set; }
@@ -37,7 +37,7 @@ namespace OpenFusion.Screens
         static readonly Color CHdrRow = Hex("#304165"), CRowA = Hex("#2b3750"), CRowB = Hex("#304164"), CRowSel = Hex("#2272e5"), CChip = Hex("#18794d"), CPlayers = Hex("#8fd203"), CRowBld = Hex("#34405a"), CRowBld2 = Hex("#34476e");
         static readonly Color COk = Hex("#a2ec00"), CTag = Hex("#4a76b7"), CTagShadow = Hex("#4349c4"), CGray = Hex("#9aa5b1"), CLink = Hex("#6ea8fe"), CRed = new Color(1f, 0f, 0f, 1f);
 
-        enum Modal { None, AddEdit, Delete, Login, Forgot, About, Settings }
+        enum Modal { None, AddEdit, Delete, Login, Forgot, About, Settings, Updates }
         enum Kind { Primary, Success, Danger, Warning, Dark }
         enum Page { Home, Settings }
 
@@ -86,7 +86,7 @@ namespace OpenFusion.Screens
             thanks = tcs != null && tcs.Task.IsCompleted;   // al volver del juego
             tcs = new TaskCompletionSource<LauncherResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             LoadServers(); modal = Modal.None; confirmOpen = false; busy = false; modalToken++; page = Page.Home; ApplyPrefs(LoadPrefs(), false);
-            Visible = true; RefreshAll();
+            Visible = true; RefreshAll(); EnsureUpdater();
             return tcs.Task;
         }
 
@@ -114,7 +114,7 @@ namespace OpenFusion.Screens
                 }
                 catch (Exception) { escBroken = true; }   // sin Input antiguo
             }
-            Inertia(scrTable); Inertia(scrAnn); Inertia(scrPage);
+            Inertia(scrTable); Inertia(scrAnn); Inertia(scrPage); Inertia(scrUpdates);
             if (page == Page.Settings && stab == 2 && Time.unscaledTime >= nextCacheScan) RefreshBuildCache();
             { var cur = Sel(); foreach (var sv in servers) { float al; bgAlpha.TryGetValue(sv.uuid, out al); float tgt = page == Page.Home && sv == cur && Art(artBg, sv, false) != null ? 0.25f : 0f; bgAlpha[sv.uuid] = Mathf.MoveTowards(al, tgt, Time.unscaledDeltaTime * 0.5f); } }
             toasts.RemoveAll(t => Time.unscaledTime > t.expire);
@@ -646,6 +646,7 @@ namespace OpenFusion.Screens
                     case Modal.Login: DrawLogin(a); break;
                     case Modal.Forgot: DrawForgot(a); break;
                     case Modal.About: DrawAbout(a); break;
+                    case Modal.Updates: DrawUpdates(a); break;
                 }
                 inputOn = true; DrawToasts(a);
             }
@@ -780,9 +781,10 @@ namespace OpenFusion.Screens
             if (Btn(new Rect(x0, rowY, 48f, 38f), null, Kind.Success, true, 16, "plus")) OpenAddEdit(null);
             if (Btn(new Rect(x0 + 52f, rowY, 50f, 38f), null, Kind.Primary, has, 16, "edit")) OpenAddEdit(Sel());
             if (Btn(new Rect(x0 + 106f, rowY, 48f, 38f), null, Kind.Danger, has, 16, "trash")) { modal = Modal.Delete; modalToken++; }
-            if (Btn(new Rect(x0 + tw - 112f, rowY, 112f, 38f), "Connect", Kind.Primary, has, 16, "angles_right")) OnConnect();
+            if (Btn(new Rect(x0 + tw - 112f, rowY, 112f, 38f), "Connect", Kind.Primary, has && (updater == null || !updater.Downloading), 16, "angles_right")) OnConnect();
 
             if (Btn(new Rect(a.x + 4f, a.yMax - 42f, 50f, 38f), null, Kind.Primary, true, 16, "cog")) OpenSettings();
+            if (Btn(new Rect(a.x + 62f, a.yMax - 42f, 190f, 38f), updater != null && updater.Available ? "Update available" : "Updates", Kind.Primary, true, 15)) OpenUpdates();
             if (Btn(new Rect(a.xMax - 54f, a.yMax - 42f, 50f, 38f), null, Kind.Primary, true, 16, "info")) { modal = Modal.About; modalToken++; }
         }
 
@@ -1054,14 +1056,16 @@ namespace OpenFusion.Screens
 
         void DrawAbout(Rect a)
         {
-            var body = ModalFrame(a, Mathf.Min(a.width - 16f, 500f), 214f, "About OpenFusionLauncher");
+            var body = ModalFrame(a, Mathf.Min(a.width - 16f, 560f), 294f, "About OpenFusion:Pocket");
             float x0 = body.x + 16f, iw = body.width - 32f, y = body.y + 14f;
-            LblM(new Rect(x0, y, iw, 22f), "Version " + Application.version, 15, CModalText); y += 36f;
+            LblM(new Rect(x0, y, iw, 22f), "Version " + Application.version + " (build " + PocketRelease.BuildCode + ")", 15, CModalText); y += 30f;
+            LblM(new Rect(x0, y, iw, 22f), "Android adaptation: Rodrigo Sigrist / rsigristc", 14, CModalText); y += 28f;
             LblM(new Rect(x0, y, iw, 22f), "©2020-2025 OpenFusion Contributors", 15, CModalText); y += 22f;
             LblM(new Rect(x0, y, iw, 22f), "OpenFusion is licensed under MIT.", 15, CModalText);
             float by = body.yMax - 48f;
-            if (Btn(new Rect(x0, by, 56f, 38f), null, Kind.Primary, true, 18, "github")) Application.OpenURL("https://github.com/OpenFusionProject/");
-            if (Btn(new Rect(x0 + 62f, by, 56f, 38f), null, Kind.Primary, true, 18, "discord")) Application.OpenURL("https://discord.gg/DYavckB");
+            if (Btn(new Rect(x0, by - 46f, iw, 38f), "GitHub: rsigristc/OpenFusion-Pocket", Kind.Primary, true, 15, "github")) Application.OpenURL(PocketRelease.Repository);
+            if (Btn(new Rect(x0, by, 170f, 38f), "Check for updates", Kind.Primary, true, 15)) OpenUpdates();
+            if (Btn(new Rect(x0 + 178f, by, 56f, 38f), null, Kind.Primary, true, 18, "discord")) Application.OpenURL("https://discord.gg/DYavckB");
             if (Btn(new Rect(body.xMax - 16f - 78f, by, 78f, 38f), "Close", Kind.Primary, true, 16)) CloseModal();
         }
 
