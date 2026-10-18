@@ -14,7 +14,7 @@ using OpenFusion.Tables.Gen;
 namespace OpenFusion.World
 {
     [DefaultExecutionOrder(100)]
-    public sealed class CombatSystem : MonoBehaviour
+    public sealed partial class CombatSystem : MonoBehaviour
     {
         public bool Enabled = true;
         public float AttackInterval = 0.65f;     // cooltime del arma = m_iDelayTime * 0.1 s (GameCondition.SetCoolTimeMax(0, ...)); 0,65 s sólo sin arma
@@ -105,7 +105,10 @@ namespace OpenFusion.World
         {
             if (b == null) return;
             if (b.Length >= 4 && (type == PacketIds.P_FE2CL_NPC_SKILL_READY || type == PacketIds.P_FE2CL_NPC_SKILL_CORRUPTION_READY || type == PacketIds.P_FE2CL_NPC_SKILL_HIT || type == PacketIds.P_FE2CL_NPC_SKILL_CORRUPTION_HIT || type == PacketIds.P_FE2CL_NPC_SKILL_CANCEL))
-            { int npc = I(b, 0); string phase = type == PacketIds.P_FE2CL_NPC_SKILL_CORRUPTION_READY ? "corruption-ready" : type == PacketIds.P_FE2CL_NPC_SKILL_READY ? "skill-ready" : "hit-or-cancel"; QueueNpcResult(() => CombatAudit.Phase(npc, phase)); }
+            { int npc = I(b, 0); string phase = type == PacketIds.P_FE2CL_NPC_SKILL_CORRUPTION_READY ? "corruption-ready" : type == PacketIds.P_FE2CL_NPC_SKILL_READY ? "skill-ready" : "hit-or-cancel"; QueueNpcResult(() => CombatAudit.Phase(npc, phase));
+                if ((type == PacketIds.P_FE2CL_NPC_SKILL_READY || type == PacketIds.P_FE2CL_NPC_SKILL_CORRUPTION_READY) && b.Length >= 6) {
+                    var ready = b; QueueNpcResult(() => NpcSkillPresentation(ready, true));
+                } }
             if (type == PacketIds.P_FE2CL_NANO_SKILL_USE && b.Length >= 36 && I(b, 28) == 28)
             {   // W24: eST_Recall_Group (28) de OTRO jugador: GameFrame.SkillResultDistributor case 28 -> Status.ProcessSkillResult evento 28 sobre el avatar propio -> caja "<nombre> is trying to recall you. Accept?"
                 //   NANO_SKILL_USE {iPC_ID@0 (lanzador), ..., eST@28, iTargetCnt@32} + sSkillResult_Move[24 B] {eCT@0, iID@4, iMapNum, iMoveX, iMoveY, iMoveZ}
@@ -197,10 +200,21 @@ namespace OpenFusion.World
             }
         }
         static ItemBase Item(byte[] b, int o) { return new ItemBase { Type = BitConverter.ToInt16(b, o), Id = BitConverter.ToInt16(b, o + 2), Opt = I(b, o + 4), TimeLimit = I(b, o + 8) }; }
-        void EquipChanged()
+        bool equipmentPending; float nextEquipmentRefresh;
+        void EquipChanged() { ReadWeapon(selfApp); equipmentPending = true; RefreshEquipment(); }
+        void RefreshEquipment()
         {
-            ReadWeapon(selfApp);
-            if (avatars != null && ents != null && ents.Self != null) { try { avatars.RefreshWeapon(ents.Self, selfApp); } catch (Exception e) { Debug.LogWarning("[atk] arma visible: " + e.Message); } }
+            if (!equipmentPending || Time.unscaledTime < nextEquipmentRefresh || avatars == null || ents == null || ents.Self == null) return;
+            nextEquipmentRefresh = Time.unscaledTime + .5f;
+            if (VehicleRide.SelfRiding || BroomFlight.Active || ZiplineRide.Riding) return;
+            try {
+                var before = ents.Self.GetComponentInChildren<Animation>(true);
+                if (!avatars.RefreshEquipment(ents.Self, selfApp)) return;
+                equipmentPending = false;
+                if (before != ents.Self.GetComponentInChildren<Animation>(true)) {
+                    gc?.InvalidateAvatarAnimation(); GetComponent<PlayerHud>()?.InvalidatePortrait(); InvenMode.Instance?.RefreshAvatar();
+                }
+            } catch (Exception e) { Debug.LogWarning("[equipment] refresh: " + e.Message); }
         }
         /// cnAvatarAttack.WeaponChange (TAB): intercambia las ranuras de equipo 0 (arma) y 7 (arma secundaria) con REQ_ITEM_MOVE.
         void SwitchWeapon()
@@ -250,14 +264,18 @@ namespace OpenFusion.World
             try
             {
                 if (ents == null) return;
+                NpcSkillPresentation(b, false, corr);
                 int npcId = I(b, 0), skill = BitConverter.ToInt16(b, 4), style = corr ? BitConverter.ToInt16(b, 6) : 0;
                 int est = corr ? 0 : I(b, 20), cnt = corr ? I(b, 20) : I(b, 24), first = corr ? 24 : 28;
-                int stride = corr ? 40 : (est == 3 || est == 4 || est == 5 || est == 8 ? 32 : 20);
+                if (!corr && est == 30) first += 16;
+                int stride = corr ? 40 : SkillResults.Stride(est);
+                if (stride <= 0 || cnt < 0 || cnt > (b.Length - first) / stride) return;
                 string nname = null; var ng = ents.NpcById(npcId); if (ng != null) { var ni = ng.GetComponent<NpcInfo>(); if (ni != null) nname = ni.Name; }
                 for (int i = 0; i < cnt; i++)
                 {
-                    int o = first + stride * i; if (o + 20 > b.Length) break;
+                    int o = first + stride * i; if (o + stride > b.Length) break;
                     int ct = I(b, o), id = I(b, o + 4); if (ct != 1) continue;
+                    if (!corr && !SkillResults.Damage(est)) continue;
                     int dmg = I(b, o + 12), hp = I(b, o + 16); bool prot = I(b, o + 8) != 0; bool self = id == ents.SelfId;
                     var tt = ents.TransformOfPlayer(id);
                     if (tt != null && !(est != 0 && est != 1 && est != 3 && est != 4 && est != 5 && est != 8)) FloatingPoints.AddOn(tt.gameObject, 0, FloatingPoints.SkillDamage, prot ? -2 : dmg, 1.8f);
@@ -303,6 +321,7 @@ namespace OpenFusion.World
         void LateUpdate()
         {
             while (q.TryDequeue(out var a)) a();
+            RefreshEquipment();
             for (int i = pops.Count - 1; i >= 0; i--) if (Time.time - pops[i].T0 > 1.2f) pops.RemoveAt(i);
             if (!Enabled || WorldBootstrap.Travelling || ents == null || ents.Self == null || Camera.main == null) { NpcUI.MobTarget = null; return; }
             if (gc == null) { gc = FindObjectOfType<GameClient>(); if (gc != null) gc.AniStyle = aniStyle; }
@@ -326,7 +345,7 @@ namespace OpenFusion.World
             Comparison<NpcInfo> cmp = (x, y) => x.SortDist.CompareTo(y.SortDist); view.Sort(cmp); atk.Sort(cmp);
             if (atk.Count > maxTargets) atk.RemoveRange(maxTargets, atk.Count - maxTargets);
             NpcUI.MobTarget = atk.Count > 0 ? atk[0] : (view.Count > 0 ? view[0] : null);
-            bool blocked = ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking;
+            bool blocked = PlayerLife.Active || GetComponent<PlayerHud>()?.Data.Hp <= 0 || ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking;
             bool pointerOverUi = ChatHud.MouseOver || MenuChatPanel.MouseOver || GameMenu.MouseOverHud || FirstUse.MouseOver;
             if (!blocked && NpcUI.Sender != null && Time.unscaledTime >= nextBoostInput)
             {

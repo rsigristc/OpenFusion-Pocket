@@ -61,7 +61,7 @@ namespace OpenFusion.World
                 foreach (var sh in go.GetComponentsInChildren<BlobShadow>(true)) sh.enabled = false;
                 go.transform.position = new Vector3(7000f + idx * 40f, -4000f, 7000f); go.transform.rotation = Quaternion.Euler(0f, Yaw, 0f);
                 foreach (var an in go.GetComponentsInChildren<Animation>(true)) { an.cullingType = AnimationCullingType.AlwaysAnimate; }
-                if (rt == null || w != width || h != height) { if (rt != null) { rt.Release(); Destroy(rt); } w = width; h = height; rt = new RenderTexture(w, h, 16, RenderTextureFormat.ARGB32) { name = "AvatarRT", antiAliasing = 1 }; rt.Create(); }
+                if (rt == null || w != width || h != height) { if (rt != null) { rt.Release(); Destroy(rt); } w = width; h = height; rt = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32) { name = "AvatarRT", antiAliasing = 1 }; rt.Create(); }
             }
             catch (Exception ex) { Debug.LogWarning("[avatar3d] " + ex.Message); }
         }
@@ -150,9 +150,13 @@ namespace OpenFusion.World
             dist = (half / t + b.size.z * 0.5f) * Fill; framed = true;
         }
 
+        bool TryOnVisible() => InventoryWindow.Instance != null && InventoryWindow.Instance.TryOnOpen;
+        float nextDualFrame;
         void LateUpdate()
         {
             if (go == null || rt == null || Time.unscaledTime - last > 0.5f) return;
+            if (idx == 0 && DualScreenController.Instance != null && DualScreenController.Instance.Active && DualScreenController.Instance.SecondaryTab == "Equipment" && !TryOnVisible())
+            { if (Time.unscaledTime < nextDualFrame) return; nextDualFrame = Time.unscaledTime + DualEquipmentPreview.FrameInterval; }
             UpdateVehicle(); KeepAvatarAnim(); EnsureCamera(); go.transform.rotation = Quaternion.Euler(0f, Yaw, 0f);
             if (!framed) Frame();
             if (Head || !LegacyCam) { cam.transform.position = center + new Vector3(0f, 0.15f, 0f) + Vector3.forward * dist; cam.transform.LookAt(center); }
@@ -161,11 +165,9 @@ namespace OpenFusion.World
                 Vector3 feet = go.transform.position; Vector3 p = feet + Quaternion.Euler(-10f, 0f, 0f) * Vector3.forward * 2.65f;
                 cam.fieldOfView = 45f; cam.transform.position = p; cam.transform.LookAt(feet); cam.transform.position = p + new Vector3(0f, 1f, 0f);
             }
-            cam.targetTexture = rt;
-            var req = new RenderPipeline.StandardRequest(); req.destination = rt;
-            try { if (RenderPipeline.SupportsRenderRequest(cam, req)) RenderPipeline.SubmitRenderRequest(cam, req); else cam.Render(); }
+            try { PreviewRender.Render(cam, rt); }
             catch (Exception ex) { Debug.LogWarning("[avatar3d] render: " + ex.Message); }
-            cam.targetTexture = null;
+
         }
 
         void OnDestroy() { if (rt != null) { rt.Release(); Destroy(rt); } if (go != null) Destroy(go); if (inst == this) inst = null; }

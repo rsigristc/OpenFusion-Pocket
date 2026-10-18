@@ -97,6 +97,7 @@ namespace OpenFusion.World
             if (sec <= 0f) return;
             slots[slot].Gum = true; slots[slot].GumEnd = Time.time + sec;
         }
+        public float GumballRemaining(int slot) => slot >= 0 && slot < SlotCount ? Mathf.Max(0, slots[slot].GumEnd - Time.time) : 0;
         static string GumTime(float rem) { int t = Mathf.Max(0, Mathf.CeilToInt(rem)); return (t / 60).ToString("00") + ":" + (t % 60).ToString("00"); }
         GUIStyle gumStyle;
 
@@ -259,9 +260,13 @@ namespace OpenFusion.World
                         int skill = S(b, 6), nid = S(b, 24); short st = S(b, 26);
                         SetBankStamina(nid, st);
                         for (int i = 0; i < SlotCount; i++) if (d.NanoSlots[i] == nid) d.NanoStamina[i] = st;
-                        if (d.ActiveNanoSlot >= 0 && st <= 0) d.ActiveNanoSlot = -1;   // NanoSkillUseSucc: iNanoStamina <= 0 => se desactiva el nano
+                        if (d.ActiveNanoSlot >= 0 && (st <= 0 || I(b, 20) != 0)) d.ActiveNanoSlot = -1;   // NanoSkillUseSucc: iNanoStamina <= 0 => se desactiva el nano
                         var se = SkillAt(skill);
-                        if (se != null) NotifyNanoSkillUsed(se.m_iCoolType);
+                        if (se != null) {
+                            Refresh();
+                            for (int i = 0; i < SlotCount; i++) if (d.NanoSlots[i] == nid && nid > 0 && nid < bankSkill.Length && bankSkill[nid] == skill) slots[i].CoolCur = Time.time;
+                            NotifyNanoSkillUsed(se.m_iCoolType);
+                        }
                         break;
                     }
                 }
@@ -289,6 +294,22 @@ namespace OpenFusion.World
             sl.CoolCur = Time.time; return false;
         }
         public bool IsCooling(int slot) { if (slot < 0 || slot >= SlotCount) return true; var sl = slots[slot]; return sl.CoolMax > 0f && Time.time - sl.CoolCur < sl.CoolMax; }
+        public float CooldownRemaining(int slot) { if (slot < 0 || slot >= SlotCount) return 0; var s = slots[slot]; return Mathf.Max(0, s.CoolMax - (Time.time - s.CoolCur)); }
+        // Native input uses explicit text/modal state, not an IMGUI login field's retained focus ID.
+        public bool CanSummonFromUi => hud != null && hud.Data.Hp > 0 && !NpcUI.Active && !GameMenu.Blocking &&
+            !WelcomePopup.Active && !ChatHud.Typing && !EmailWindow.Typing && !InventoryWindow.Typing && !ControlMap.Capturing &&
+            (InputBlocked == null || !InputBlocked());
+        public bool RequestSlotFromUi(int slot) => CanSummonFromUi && RequestSlot(slot);
+        // Equipped cards explicitly summon. Re-selecting the active Nano must not toggle it off.
+        public bool CanSummonFromCard => CanSummonFromUi || (hud != null && hud.Data.Hp > 0 && GameMenu.NanoStationOnly &&
+            !NpcUI.Active && !WelcomePopup.Active && !ChatHud.Typing && !EmailWindow.Typing && !InventoryWindow.Typing && !ControlMap.Capturing &&
+            InventoryWindow.Instance != null && !InventoryWindow.Instance.DualNanoBusy && (InputBlocked == null || !InputBlocked()));
+        public bool RequestSummonFromCard(int slot, int expectedId)
+        {
+            if (!CanSummonFromCard || slot < 0 || slot >= SlotCount || expectedId <= 0 ||
+                hud.Data.NanoSlots[slot] != expectedId || hud.Data.ActiveNanoSlot == slot) return false;
+            return RequestSlot(slot);
+        }
 
         SkillElement SkillAt(int id) { return skillT != null && skillT.m_pSkillData != null && id > 0 && id < skillT.m_pSkillData.Length ? skillT.m_pSkillData[id] : null; }
         IconElement NanoIconElement(NanoElement n) { return n != null && nanoT.m_pNanoIconData != null && n.m_iIcon1 >= 0 && n.m_iIcon1 < nanoT.m_pNanoIconData.Length ? nanoT.m_pNanoIconData[n.m_iIcon1] : null; }
@@ -415,6 +436,7 @@ namespace OpenFusion.World
 
         void OnGUI()
         {
+            if (DualScreenController.ShowSecondaryNanos) return;
             if (GameMenu.HudHidden) return;
             if (hud == null || !Visible || !hud.Visible || Event.current == null) return;
             if (string.IsNullOrEmpty(hud.Data.Name)) return;                      // aun no hay jugador (igual que PlayerHud)
@@ -500,17 +522,16 @@ namespace OpenFusion.World
                 gumStyle.normal.textColor = slots[gi].GumEnd - Time.time < 30f ? new Color(1f, 0.85f, 0.3f, 1f) : Color.white; GUI.Label(br, tx, gumStyle);
             }
 
-            // disco de cooldown sobre el icono de skill de la ventana del nano activo (CnGuiNano_info.DoWindow; pivote TopLeft, RenderRect (101,42), nano_info_picRect (125,2,26,26))
-            if (DrawNanoInfoCooldown && hud.ShowNanoInfo && d.ActiveNanoSlot >= 0 && d.ActiveNanoSlot < SlotCount)
-            {
-                var s = slots[d.ActiveNanoSlot];
-                if (s.Has && s.ActiveSkill && s.CoolMax > 0f && Time.time - s.CoolCur < s.CoolMax)
-                {
-                    var pos = new Rect((101f + 125f - 1f) * sc, (42f + 2f) * sc, 26f * sc, 26f * sc);
-                    DrawCooldown(pos, s.CoolMax - (Time.time - s.CoolCur), s.CoolMax);
-                }
-            }
             GUI.matrix = oldMatrix; GUI.color = oldColor;
+        }
+
+        // Draw immediately after PlayerHud draws this very icon, including in DS mode.
+        public void DrawActiveInfoCooldown(Rect iconRect)
+        {
+            if (!DrawNanoInfoCooldown || hud == null) return;
+            int slot = hud.Data.ActiveNanoSlot; if (slot < 0 || slot >= SlotCount) return;
+            var s = slots[slot]; float remaining = CooldownRemaining(slot);
+            if (s.Has && s.ActiveSkill && s.CoolMax > 0 && remaining > 0) DrawCooldown(iconRect, remaining, s.CoolMax);
         }
 
         static Rect Union(Rect a, Rect b) { float x0 = Mathf.Min(a.xMin, b.xMin), y0 = Mathf.Min(a.yMin, b.yMin), x1 = Mathf.Max(a.xMax, b.xMax), y1 = Mathf.Max(a.yMax, b.yMax); return new Rect(x0, y0, x1 - x0, y1 - y0); }

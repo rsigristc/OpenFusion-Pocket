@@ -102,6 +102,7 @@ namespace OpenFusion.World
                 var go = kv.Value; if (go == null) continue;
                 var app = ents.AppOf(kv.Key); if (app == null || app.Equip == null || app.Equip.Length == 0) continue;
                 var na = go.GetComponent<NpcAnimator>(); if (na == null) continue;
+                if (avatars != null && kv.Value.GetComponent<AvatarOutfitStamp>()?.Signature != PlayerAvatarFactory.OutfitSignature(app, avatars.CombineEquip)) avatars.RefreshEquipment(kv.Value, app);
                 int st = StyleOfWeapon(WeaponById(app.Equip[0].Id)); if (na.AniStyle != st) na.SetStyle(st);
             }
         }
@@ -136,10 +137,10 @@ namespace OpenFusion.World
                     break;
                 case PacketIds.P_FE2CL_NPC_SKILL_CORRUPTION_HIT: if (b.Length >= 24) Victims(b, I(b, 20), 24, 40, true, 0.3f); break;
                 case PacketIds.P_FE2CL_PC_EQUIP_CHANGE:
-                    if (b.Length >= 20 && I(b, 4) == 0)
+                    if (b.Length >= 20 && I(b, 4) >= 0 && I(b, 4) < 9)
                     {
                         int id = I(b, 0); var item = new ItemBase { Type = BitConverter.ToInt16(b, 8), Id = BitConverter.ToInt16(b, 10), Opt = I(b, 12), TimeLimit = I(b, 16) };
-                        q.Enqueue(() => WeaponChanged(id, item));
+                        int slot = I(b, 4); q.Enqueue(() => EquipmentChanged(id, slot, item));
                     }
                     break;
             }
@@ -248,12 +249,13 @@ namespace OpenFusion.World
         }
 
         // ------------------------------------------------------------------ cambio de arma
-        void WeaponChanged(int pc, ItemBase item)
+        void EquipmentChanged(int pc, int slot, ItemBase item)
         {
             if (ents == null || pc == ents.SelfId) return;
             var app = ents.AppOf(pc); var go = PlayerGo(pc); if (app == null || app.Equip == null || app.Equip.Length == 0 || go == null) return;
-            if (app.Equip[0].Id == item.Id) return;   // ReceiveEquipChage: solo si cambia el id
-            app.Equip[0] = item;
+            if (app.Equip[slot].Id == item.Id && app.Equip[slot].Opt == item.Opt) return;   // ReceiveEquipChage: solo si cambia el id
+            app.Equip[slot] = item;
+            if (slot != 0) { avatars?.RefreshEquipment(go, app); return; }
             var na = go.GetComponent<NpcAnimator>(); if (na != null) { na.SetStyle(StyleOfWeapon(WeaponById(item.Id))); na.PlayerSheath(); }
             if (avatars != null) { try { avatars.RefreshWeapon(go, app); } catch (Exception ex) { Debug.LogWarning("[rcombat] arma visible de " + pc + ": " + ex.Message); } }
         }

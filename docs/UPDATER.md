@@ -22,3 +22,8 @@ A refreshed APK under the same release version can be detected through a higher 
 ## V1.0 refresh
 
 The updater-enabled V1.0 uses Android build code **2**, replacing the original V1.0 build code 1. Its source, APK, checksum and update manifest are published together under the existing V1.0 release. Updating from the original installation preserves data because the application ID and signing identity remain unchanged.
+
+
+## v1.5 — DS Companion
+
+Version 1.5 uses Android build code **3**, following v1.0 build 2. The package ID and signing certificate remain unchanged. This stable release includes the DS Companion panels and gameplay/stability fixes listed in [CHANGELOG.md](../CHANGELOG.md). Its release body supplies the in-app changelog; the APK, update manifest and checksum file are published together.

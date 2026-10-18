@@ -28,7 +28,12 @@ namespace OpenFusion.World
         /// <summary>Menu visible/deslizando o ventana abierta: el avatar no recibe entrada (cnMainGame.ShowNanoMenu -> SetAvatarInputEnable(false)).</summary>
         /// <summary>Con Settings abierto se oculta todo el HUD (el original muestra la ventana a pantalla completa).</summary>
         public static bool HudHidden { get { return WelcomePopup.Active || Current == Win.Settings || Current == Win.Map || Current == Win.Journal || Current == Win.Guide || Current == Win.EMail || Current == Win.MyStuff || Current == Win.Bank || Current == Win.Vendor || Current == Win.Trade || TransportWindow.Active || GuideChangerWindow.Active || EnchantWindow.Active || CombineWindow.Active || RulesWindow.Active || BarberWindow.Shown; } }
-        public static bool Blocking { get { return SysMessageBox.Active || Open || Slide > 0f || Current != Win.None || BarberWindow.Active || GuideChangerWindow.Active || TransportWindow.Active || RaceSystem.Active || RulesWindow.Active || EnchantWindow.Active || CombineWindow.Active || RulesWindow.Active; } }
+        static bool NonLifeBlocking => SysMessageBox.Active || Open || Slide > 0f || BarberWindow.Active || GuideChangerWindow.Active || TransportWindow.Active || RaceSystem.Active || RulesWindow.Active || EnchantWindow.Active || CombineWindow.Active;
+        static bool OtherBlocking => PlayerLife.Active || NonLifeBlocking;
+        public static bool Blocking => OtherBlocking || Current != Win.None;
+        public static bool NanoStationOnly => !OtherBlocking && Current == Win.MyStuff && InventoryWindow.Machine;
+        public static bool EquipmentInfoOnly => !OtherBlocking && Current == Win.MyStuff && InventoryWindow.Instance != null && InventoryWindow.Instance.DualItemPreview;
+        public static bool DeathOnly => PlayerLife.Active && !NonLifeBlocking && Current == Win.None;
         public static bool NewMail;                                // cnGUINanocom.bNewMail (aun no hay correo en el cliente)
 
         public static void SetOpen(bool v, bool sound = true)
@@ -67,7 +72,16 @@ namespace OpenFusion.World
             else if (type == PacketIds.P_FE2CL_PC_GROUP_LEAVE_SUCC) inGroup = false;
             else if (type == PacketIds.P_FE2CL_PC_VEHICLE_ON_SUCC) { riding = true; Riding = true; }
             else if (type == PacketIds.P_FE2CL_PC_VEHICLE_OFF_SUCC) { riding = false; Riding = false; }
-            else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC && b != null && b.Length >= 20) { regenTeleX = I(b, 8); regenTeleY = I(b, 12); regenTeleZ = I(b, 16); regenPending = true; }
+            else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC && b != null && b.Length >= 48) {
+                regenTeleX = I(b, 8); regenTeleY = I(b, 12); regenTeleZ = I(b, 16);
+                // OpenFusion's revivePlayer sets bMoveLocation=0 even for a spawn relocation.
+                // Coordinates are authoritative for normal AND in-place/Phoenix revival.
+                Debug.Log("[life] REGEN_SUCC hp=" + I(b, 0) + " target=" + regenTeleX + "," + regenTeleY + "," + regenTeleZ + " moveFlag=" + b[40]);
+                // HUD and this component process queues in different Updates. Stage the relocation
+                // at receipt, before positive HP can resume locomotion at the old death position.
+                GameClient.FindSelf?.QueueServerRelocation(regenTeleX, regenTeleY, regenTeleZ);
+                regenPending = true;
+            }
         }
 
         // ============================================================ entrada / estado ============================================================
@@ -100,7 +114,7 @@ namespace OpenFusion.World
             warpCool = 5f;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_REGEN, 12); ClientPackets.PutInt(p, 4, 5); ClientPackets.PutInt(p, 8, 0); ClientPackets.PutInt(p, 12, NearestXCom()); Net(p);
         }
-        int NearestXCom()
+        public int NearestXCom()
         {   // CnGuiChat.FindNearestValidXComForPC (fuera de instancias: m_iZone == 0)
             var xt = tables != null ? tables.m_pXComTable : null; if (xt == null || xt.m_pXComData == null || ents == null || ents.Self == null) return 0;
             Vector3 me = ents.Self.transform.position; int best = 0; float bd = float.MaxValue;

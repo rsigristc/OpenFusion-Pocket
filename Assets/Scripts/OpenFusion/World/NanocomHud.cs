@@ -479,6 +479,7 @@ namespace OpenFusion.World
         static readonly int[] BuffId = { 1, 3, 4, 5, 6, 7, 13, 14, 15, 16, 18, 20, 24, 21, 22, 23 };         // eCharStatusTimeBuffID
         static readonly uint[] DebuffFlag = { 128u, 256u, 512u, 1024u, 65536u, 262144u };
         static readonly int[] DebuffId = { 8, 9, 10, 11, 17, 19 };
+        public bool HasPhoenix => (buffFlags & 16) != 0; // 1 << (ECSB_PHOENIX(5) - 1)
         int buffFlags; bool buffsDirty = true;
         readonly List<Texture> buffTex = new List<Texture>();
 

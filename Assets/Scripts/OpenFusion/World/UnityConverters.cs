@@ -47,6 +47,13 @@ namespace OpenFusion.World
 
         /// RGBA32 decodificado -> Texture2D. El orden de filas del archivo de Unity 2.5 (origen abajo-izquierda) coincide con el de Unity moderno.
         /// Compresión a ETC2/ASTC: pasar compress=true (Texture2D.Compress sólo es rápido en editor; en dispositivo usar un transcodificador propio).
+        public static bool IsInterfaceIcon(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return false;
+            foreach (var prefix in new[] { "cosicon_", "wpnicon_", "nanoicon_", "nanoready_", "skillicon_", "npcicon_", "hnpcicon_", "mobicon_", "generalitemicon_", "questitemicon_", "vehicle_", "transport_" })
+                if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) return true;
+            return false;
+        }
         public static Texture2D ToTexture(Texture25 t, bool compress = false)
         {
             var rgba = t.ToRGBA32(); var tex = new Texture2D(t.Width, t.Height, TextureFormat.RGBA32, t.MipMap) { name = t.Name };
@@ -54,7 +61,7 @@ namespace OpenFusion.World
             tex.filterMode = t.FilterMode == 0 ? FilterMode.Point : t.FilterMode == 1 ? FilterMode.Bilinear : FilterMode.Trilinear;
             tex.Apply(t.MipMap, false);   // los mipmaps se regeneran (no se leen los del archivo)
             bool powerOfTwo = Mathf.IsPowerOfTwo(t.Width) && Mathf.IsPowerOfTwo(t.Height);
-            if (compress && t.Width % 4 == 0 && t.Height % 4 == 0 && (!t.MipMap || powerOfTwo))
+            if (compress && !IsInterfaceIcon(t.Name) && t.Width % 4 == 0 && t.Height % 4 == 0 && (!t.MipMap || powerOfTwo))
                 tex.Compress(!Application.isMobilePlatform);
             return tex;
         }

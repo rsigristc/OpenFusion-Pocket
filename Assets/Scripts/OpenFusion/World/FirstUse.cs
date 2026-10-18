@@ -2,8 +2,7 @@
 //  Check(cond): si hints activos y la condición (1..72) no está marcada => marca el flag (local + REQ_PC_FIRST_USE_FLAG_SET 318767238), añade el icono (máx. 10) y,
 //  si no hay Computress activa, la muestra con su burbuja y sonido "FU Sound/<m_strComment1>.wav". Flags iniciales: sPCLoadData2CL.iFirstUseFlag1/2 (ENTER_SUCC).
 //  Iconos: bajo-derecha (Screen.width-45*(n-k), Screen.height-190, 38x38; 2ª fila a -235 si n>5). Computress: (0,H-435,244,380); burbuja x=10,y=H-405-alto; cerrar (163,H-400,23,23).
-//  Click en un icono: abre la Game Guide (no portada aún: sólo se registra la página) y lo elimina.
-// SIN COMPILAR EN UNITY.
+//  Click en un icono: abre la Game Guide en el tema/subtema de la tabla descargada.
 using System.Collections.Generic;
 using UnityEngine;
 using OpenFusion.Net;
@@ -27,15 +26,17 @@ namespace OpenFusion.World
             if (disp != null) disp.SelfEnter -= OnSelfEnter;
             disp = d; tables = t; hud = h; ents = e; if (disp != null) disp.SelfEnter += OnSelfEnter;
         }
-        void OnDestroy() { if (disp != null) disp.SelfEnter -= OnSelfEnter; if (Instance == this) Instance = null; MouseOver = false; }
-        void OnSelfEnter(EnterSucc e) { if (e.Quest != null) { Flag1 = e.Quest.FirstUse1; Flag2 = e.Quest.FirstUse2; } icons.Clear(); compQ.Clear(); computress = false; hadHp = false; }
+        void OnDestroy() { if (disp != null) disp.SelfEnter -= OnSelfEnter; StopSound(); if (Instance == this) Instance = null; MouseOver = false; }
+        void OnSelfEnter(EnterSucc e) { Flag1 = e.Quest?.FirstUse1 ?? 0; Flag2 = e.Quest?.FirstUse2 ?? 0; icons.Clear(); compQ.Clear(); computress = false; cur = null; StopSound(); hadHp = false; }
 
-        public static bool Has(int c) { if (c <= 64) return (Flag1 & (1L << (c - 1))) != 0; return (Flag2 & (1L << (c - 65))) != 0; }
+        public static bool Has(int c) { if (c < 1 || c > 72) return false; if (c <= 64) return (Flag1 & (1L << (c - 1))) != 0; return (Flag2 & (1L << (c - 65))) != 0; }
 
         /// <summary>cnFirstUseSysManager.CheckCondition</summary>
         public static void Check(int cond)
         {
-            var f = Instance; if (f == null || !GameOptions.Cur.GameHint || cond <= 0 || cond >= 73 || Has(cond)) return;
+            var f = Instance; if (f == null || !GameOptions.Cur.GameHint || cond <= 0 || cond >= 73 || Has(cond) || NpcUI.Sender == null) return;
+            var rows = f.tables?.m_pFirstUseTable?.m_pFirstUseData;
+            if (rows == null || cond >= rows.Length || rows[cond] == null) return; // Do not consume an unavailable hint.
             if (cond <= 64) Flag1 |= 1L << (cond - 1); else Flag2 |= 1L << (cond - 65);
             if (NpcUI.Sender != null) NpcUI.Sender(ClientPackets.FirstUseFlagSet(cond));
             f.AddIcon(cond);
@@ -97,8 +98,11 @@ namespace OpenFusion.World
 
         void Press(int idx)
         {
-            if (idx < 0 || idx >= icons.Count) return; var ic = icons[idx]; icons.RemoveAt(idx); computress = false; compQ.Clear(); StopSound();
-            Debug.Log("[hint] icono " + ic.Id + " -> Game Guide (principal " + ic.Main + ", sub " + ic.Sub + ") — Game Guide aún no portada");
+            if (idx < 0 || idx >= icons.Count) return; var ic = icons[idx];
+            int oldBig = GuideWindow.NextBig, oldSmall = GuideWindow.NextSmall;
+            GuideWindow.NextBig = ic.Main; GuideWindow.NextSmall = ic.Sub;
+            if (!GameMenu.OpenWindow(GameMenu.Win.Guide)) { GuideWindow.NextBig = oldBig; GuideWindow.NextSmall = oldSmall; return; }
+            icons.RemoveAt(idx); computress = false; cur = null; compQ.Clear(); StopSound();
         }
 
         void OnGUI()

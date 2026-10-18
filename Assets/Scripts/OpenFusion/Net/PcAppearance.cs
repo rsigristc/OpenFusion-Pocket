@@ -56,9 +56,9 @@ namespace OpenFusion.Net
         }
 
         /// Ids visibles de los objetos equipados. Con "combine" (localización que lo active) un objeto puede mostrar otro aspecto en (iOpt >> 16) & 0xFFFF.
-        public PlayerEquip VisibleEquip(bool combine = false)
+        public PlayerEquip VisibleEquip(bool combine = true)
         {
-            var ids = new int[9]; for (int i = 0; i < 9; i++) { int cosmetic = (Equip[i].Opt >> 16) & 0xFFFF; ids[i] = combine && cosmetic > 0 ? cosmetic : Equip[i].Id; }
+            var ids = new int[9]; for (int i = 0; i < 9; i++) { int cosmetic = (Equip[i].Opt >> 16) & 0xFFFF; ids[i] = combine && i <= 3 && cosmetic > 0 ? cosmetic : Equip[i].Id; }
             return PlayerEquip.FromItemEquip(ids);
         }
     }

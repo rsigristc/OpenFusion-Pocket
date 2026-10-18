@@ -70,6 +70,16 @@ namespace OpenFusion.EditorTools
                 Require(TouchControls.Down(ControlMap.K.Fire1), "Touch must resume after controller disconnect.");
                 frame(Array.Empty<Touch>(), true, true);
                 Require(!TouchControls.Held(ControlMap.K.Fire1), "Opening a modal must reset held actions.");
+                frame(new[] { Finger(3, attack, TouchPhase.Began) }, true, false);
+                Require(TouchControls.Held(ControlMap.K.Fire1), "Transition fixture must start with attack held.");
+                touch.CancelForSurfaceChange();
+                Require(!TouchControls.Held(ControlMap.K.Fire1) && !TouchControls.Down(ControlMap.K.Fire1), "DS surface change must release held attack and its edge.");
+                frame(new[] { Finger(3, attack, TouchPhase.Moved) }, true, false);
+                Require(!TouchControls.Held(ControlMap.K.Fire1), "A finger from the old surface must not acquire a new action until lifted.");
+                frame(new[] { Finger(4, attack, TouchPhase.Began) }, true, false);
+                Require(TouchControls.Down(ControlMap.K.Fire1), "A new touch must work after restoring the single surface.");
+                frame(Array.Empty<Touch>(), true, true);
+                results.Add("PASS: DS resize releases held attack, rejects old moved fingers, and accepts a fresh touch.");
                 results.Add("PASS: attack + movement + camera; independent jump; cancellation; gamepad connect/disconnect; modal reset.");
                 var nano = ClientPackets.ChargeNano(123); var weapon = ClientPackets.ToggleWeaponBoost(123);
                 Require(nano.Length == 8 && BitConverter.ToInt32(nano, 4) == 123 && weapon.Length == 16 && BitConverter.ToInt32(weapon, 8) == 8, "Boost packet layout changed.");

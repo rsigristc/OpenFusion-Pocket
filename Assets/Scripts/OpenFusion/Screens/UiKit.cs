@@ -123,10 +123,9 @@ namespace OpenFusion.Screens
         public static void RenderCam(Camera cam, RenderTexture rt)
         {
             if (cam == null || rt == null) return;
-            cam.targetTexture = rt;
-            try { var req = new UnityEngine.Rendering.RenderPipeline.StandardRequest(); req.destination = rt; if (UnityEngine.Rendering.RenderPipeline.SupportsRenderRequest(cam, req)) UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(cam, req); else cam.Render(); }
+            try { PreviewRender.Render(cam, rt); }
             catch (System.Exception ex) { Debug.LogWarning("[ui] render: " + ex.Message); }
-            cam.targetTexture = null;
+
         }
         public static RenderTexture NewRt(int w, int h) { var rt = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32) { antiAliasing = 1 }; rt.Create(); return rt; }
     }

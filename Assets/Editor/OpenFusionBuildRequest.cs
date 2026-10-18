@@ -18,16 +18,29 @@ namespace OpenFusion.EditorTools
             EditorApplication.delayCall += Run;
         }
         static bool batch;
+        static string output = "Builds/OpenFusion-release.apk";
         public static void Batch() { batch = true; Run(); }
+        public static void BatchDS() { batch = true; output = "Builds/OpenFusion-Pocket-DS-preview.apk"; Run(); }
         static async void Run()
         {
             Directory.CreateDirectory("Logs");
             try
             {
                 InputRegressionChecks.Run();
+                DualScreenRegressionChecks.Run();
+                DualNanoRegressionChecks.Run();
+                DualEquipmentRegressionChecks.Run();
+                DualGumballRegressionChecks.Run();
+                DualMissionRegressionChecks.Run();
                 GamepadStartupRegressionChecks.Run();
                 CombatRegressionChecks.Run();
+                CombatFeedbackRegressionChecks.Run();
+                LegacyRespawnRegressionChecks.Run();
+                DeathTutorialRegressionChecks.Run();
                 WorldRegressionChecks.Run();
+                RemotePlayerRegressionChecks.Run();
+                RenderIsolationRegressionChecks.Run();
+                CameraGroundingRegressionChecks.Run();
                 UpdaterRegressionChecks.Run();
                 WeaponAudioRegressionChecks.Run();
                 await ConnectionRegressionChecks.Run();
@@ -49,7 +62,7 @@ namespace OpenFusion.EditorTools
         {
             try
             {
-                bool ok = BuildScript.Build(false, "Builds/OpenFusion-release.apk");
+                bool ok = BuildScript.Build(false, output);
                 File.WriteAllText("Logs/release-result.txt", ok ? "Succeeded" : "Failed");
                 if (batch) EditorApplication.Exit(ok ? 0 : 1);
             }

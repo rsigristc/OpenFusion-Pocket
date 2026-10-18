@@ -16,7 +16,7 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class WorldMapWindow : MonoBehaviour
+    public sealed partial class WorldMapWindow : MonoBehaviour
     {
         public static WorldMapWindow Instance;
         /// <summary>Carga una textura de los bundles del cliente por ruta (p. ej. "TutorialAssets/Mapframe.png").</summary>
@@ -132,8 +132,9 @@ namespace OpenFusion.World
             open = now;
         }
         Transform Me { get { return ents != null && ents.Self != null ? ents.Self.transform : null; } }
-        void OnOpen()
+        void OnOpen(bool notify = true)
         {
+            if (dualInitialized) { bDragging = false; insFlag = RaceSystem.InsMap && RaceSystem.EpId <= 0; if (insFlag && noMap == null) noMap = Load("no_map"); return; }
             if (!filtersLoaded) LoadFilters();
             if (!backTried) { backTried = true; back = Load("panelback"); frame = Load("Mapframe"); }
             if (back == null && TexLoader != null) { try { back = TexLoader("TutorialAssets/panelback.png"); } catch (Exception) { } }
@@ -154,10 +155,10 @@ namespace OpenFusion.World
             if (RaceSystem.InsMap && RaceSystem.EpId <= 0)
             {   // WorldMapMode: SendSystemMessageBox(174, "Exit") + NoiseTex (no_map)
                 if (noMap == null) noMap = Load("no_map");
-                insFlag = true; SysMessageBox.Show(174, () => { if (GameMenu.Current == GameMenu.Win.Map) GameMenu.CloseWindow(); }, null);
+                insFlag = true; if (notify) SysMessageBox.Show(174, () => { if (GameMenu.Current == GameMenu.Win.Map) GameMenu.CloseWindow(); }, null);
             }
         }
-        void OnClosed() { insFlag = false; SaveFilters(); SaveUserWaypoints(); PlayerPrefs.Save(); for (int i = 0; i < 4; i++) payZone[i] = null; for (int i = 0; i < 2; i++) { freeZone[i] = null; darkZone[i] = null; } bDragging = false; }
+        void OnClosed() { insFlag = false; SaveFilters(); SaveUserWaypoints(); PlayerPrefs.Save(); if (!dualInitialized) { for (int i = 0; i < 4; i++) payZone[i] = null; for (int i = 0; i < 2; i++) { freeZone[i] = null; darkZone[i] = null; } } bDragging = false; }
 
         // ---- zoom ----
         Rect ZoneRect() { return zone == 0 ? FutureZone : zone == 1 ? DarkZone : zone == 2 ? TutorialZone : new Rect(0, 0, World, World); }

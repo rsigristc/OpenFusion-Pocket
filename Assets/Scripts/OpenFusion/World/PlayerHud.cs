@@ -115,7 +115,10 @@ namespace OpenFusion.World
         public static bool ApplyRegenSucc(byte[] b, HudData d, bool applyFusionMatter)
         {
             if (b == null || b.Length < 48) return false; d.Hp = I(b, 0); d.ActiveNanoSlot = S(b, 20);
-            for (int i = 0; i < 3; i++) d.NanoStamina[i] = S(b, 22 + i * 6 + 4);
+            for (int i = 0; i < 3; i++) {
+                int o = 22 + i * 6; d.NanoSlots[i] = S(b, o); d.NanoStamina[i] = S(b, o + 4);
+                SkillResults.SetBankStamina(d, d.NanoSlots[i], d.NanoStamina[i]);
+            }
             if (applyFusionMatter) d.FusionMatter = I(b, 44); return true;
         }
 
@@ -230,8 +233,12 @@ namespace OpenFusion.World
                         var nanocom = GetComponent<NanocomHud>(); if (conditions != -1 && nanocom != null) nanocom.SetConditionFlags(conditions);
                     }
                 }
+                else if (type == PacketIds.P_FE2CL_PC_SUDDEN_DEAD && b != null && b.Length >= 16 && BitConverter.ToInt32(b, 0) == selfId) Data.Hp = BitConverter.ToInt32(b, 12);
+                else if (SkillResults.IsPacket(type)) {
+                    if (SkillResults.ApplyPacket(type, b, selfId, Data, out int flags) && flags != -1) GetComponent<NanocomHud>()?.SetConditionFlags(flags);
+                }
                 else if (type == PacketIds.P_FE2CL_NPC_ATTACK_PCs) HudPackets.ApplyNpcAttackPcs(b, selfId, Data);
-                else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC) HudPackets.ApplyRegenSucc(b, Data, false);
+                else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC) HudPackets.ApplyRegenSucc(b, Data, true);
                 else if (type == PacketIds.P_FE2CL_GM_REP_PC_SET_VALUE) HudPackets.ApplySetValue(b, selfId, Data);
                 else if (type == PacketIds.P_FE2CL_REP_REWARD_ITEM) { int pt = Data.Taros, pf = Data.FusionMatter, pn = Data.BatteryNano, pw = Data.BatteryWpn; HudPackets.ApplyRewardItem(b, Data); RewardApplied?.Invoke(pt, pf, pn, pw, b); }
                 else if (type == PacketIds.P_FE2CL_REP_PC_NANO_CREATE_SUCC) HudPackets.ApplyNanoCreate(b, Data);
@@ -333,6 +340,7 @@ namespace OpenFusion.World
             RenderPortraitCore();
         }
         Transform clone, cloneSrc; static readonly Vector3 CloneAt = new Vector3(0f, -4000f, 0f);
+        public void InvalidatePortrait() { if (clone != null) Destroy(clone.gameObject); clone = null; cloneSrc = null; neck = null; portraitValid = false; }
         void EnsureClone()
         {
             if (clone != null && cloneSrc == self) return;
@@ -357,18 +365,8 @@ namespace OpenFusion.World
             Vector3 pos = target + rot * Quaternion.Euler(0f, PortraitYaw, 0f) * Vector3.forward * PortraitDistance;
             cam.transform.position = pos; cam.transform.LookAt(target); pos = cam.transform.position; pos.y += PortraitHeight; cam.transform.position = pos;
             cam.fieldOfView = PortraitFov; cam.aspect = PortraitRect.width / PortraitRect.height; cam.cullingMask = 1 << PortraitLayer;
-            try
-            {
-                cam.targetTexture = rt;
-                bool done = false;
-                // [RR] URP / SRP: Camera.Render() esta desaconsejado; SubmitRenderRequest renderiza a la textura destino
-                var req = new RenderPipeline.StandardRequest(); req.destination = rt;
-                if (RenderPipeline.SupportsRenderRequest(cam, req)) { RenderPipeline.SubmitRenderRequest(cam, req); done = true; }
-                // [/RR]
-                if (!done) cam.Render();
-                portraitValid = true;
-            }
-            finally { cam.targetTexture = null; }
+            PreviewRender.Render(cam, rt);
+            portraitValid = true;
         }
         Bounds GetBounds() { var rs = (clone != null ? clone : self).GetComponentsInChildren<Renderer>(); if (rs.Length == 0) return new Bounds((clone != null ? clone : self).position + Vector3.up, Vector3.one); var b = rs[0].bounds; for (int i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds); return b; }
 
@@ -403,7 +401,7 @@ namespace OpenFusion.World
             // --- ventana del nano activo (CnGuiNano_info) ---
             if (ShowNanoInfo && Data.ActiveNanoSlot >= 0 && Data.ActiveNanoSlot < 3) DrawNanoInfo(xf);
             // --- contadores (cnNanoWheel), pivote BottomRight ---
-            if (ShowBatteryCounters)
+            if (ShowBatteryCounters && !DualScreenController.ShowSecondaryNanos)
             {
                 float W = Screen.width, H = Screen.height; var xb = new Xf { P = new Vector2(W, H), S = s };
                 var rr = new Rect(W - 223f - 20f - 81f, H - 85f, 76f, 29f); var rr2 = Off(rr, 12f, 8f);
@@ -431,7 +429,9 @@ namespace OpenFusion.World
             var o = NanoRenderRect; int slot = Data.ActiveNanoSlot; int id = Data.NanoSlots[slot];
             Draw(xf, new Rect(o.x + NanoWindowRect.x, o.y + NanoWindowRect.y, NanoWindowRect.width, NanoWindowRect.height), "nano_info");
             Texture icon = NanoSkillIconProvider != null ? NanoSkillIconProvider(id) : null;
-            if (icon != null) GUI.DrawTexture(xf.R(Off(NanoIconRect, o.x, o.y)), icon, ScaleMode.StretchToFill, true);
+            var iconRect = xf.R(Off(NanoIconRect, o.x, o.y));
+            if (icon != null) GUI.DrawTexture(iconRect, icon, ScaleMode.StretchToFill, true);
+            GetComponent<NanoWheelHud>()?.DrawActiveInfoCooldown(iconRect);
             string nm = NanoNameProvider != null ? NanoNameProvider(id) : "Nano " + id;
             Label(chalet, xf, Off(NanoNameRect, o.x, o.y), nm, TextAnchor.MiddleLeft, LabelCol);
             var bar = T("HP_BAR"); if (bar == null) return;

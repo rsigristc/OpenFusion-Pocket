@@ -24,6 +24,7 @@ The client behavior, formats and data studied during reconstruction are part of 
 - **[Unity](https://unity.com/)** and Universal Render Pipeline: the current engine and rendering foundation. Unity packages retain their own licenses.
 - **[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)**: JSON handling, used through Unity's package. MIT license; copyright James Newton-King and contributors.
 - **Igor Pavlov / [LZMA SDK](https://www.7-zip.org/sdk.html)**: the public-domain algorithm on which the compact legacy-container decoder is based. This is not a claim that all of 7-Zip is public domain.
+- **[AndroidX / Jetpack](https://android.googlesource.com/platform/frameworks/support/)**: Core 1.9.0 and WindowManager / WindowManager Java 1.2.0 provide Android view and fold/posture integration for DS Companion. Apache License 2.0; copyright The Android Open Source Project and contributors. Resolved through Gradle, with their upstream notices and transitive dependency licenses.
 - Android SDK, NDK and OpenJDK: build tooling, subject to their respective licenses.
 
 The earlier Winlator-based [OpenFusion Android](https://github.com/rsigristc/OpenFusion_Android) project has separate provenance and licensing. OpenFusion:Pocket uses a native Unity client rather than that Windows compatibility runtime.

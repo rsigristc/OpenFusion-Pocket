@@ -11,7 +11,7 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class JournalWindow : MonoBehaviour
+    public sealed partial class JournalWindow : MonoBehaviour
     {
         public Func<string, Texture> TexLoader;
         const int SKL = Skin.JournalL, SKR = Skin.Journal;
@@ -118,8 +118,9 @@ namespace OpenFusion.World
         {
             bool now = GameMenu.Current == GameMenu.Win.Journal;
             if (now && !open) OnOpen(); else if (!now && open) OnClosed();
-            open = now; if (!open) return;
+            open = now;
             if (cooldown > 0f) cooldown -= Time.unscaledDeltaTime;
+            if (!open) return;
             if (busy > 0f) busy -= Time.unscaledDeltaTime;
             Action act; while (evq.TryDequeue(out act)) { try { act(); } catch (Exception ex) { Debug.LogWarning("[journal] " + ex.Message); } }
             if (popOpen && Input.GetKeyDown(KeyCode.Escape)) popOpen = false; PopupActive = popOpen;
@@ -127,9 +128,12 @@ namespace OpenFusion.World
         }
         void OnOpen()
         {
+            var retained = dualJournalPrepared ? cur : null; int retainedTab = tab;
             if (!texTried) { texTried = true; LoadTextures(); }
             confirmDelete = false; popOpen = false; extPopup = false; PopupActive = false; completedCount = -1; activeSig = -1; entryCache.Clear(); subScroll = rewardScroll = listScroll = 0f;
-            tab = 0; mode = 0; RefreshLists(); SetActive(true); ApplyPending();
+            tab = dualJournalPrepared ? retainedTab : 0; mode = 0; RefreshLists(); SetActive(true);
+            if (retained != null) { var match = DualMissionList().Find(m => m.m_iHMissionID == retained.m_iHMissionID); if (match != null) SetCurrent(match); }
+            ApplyPending();
         }
         void OnClosed() { if (mode != 0) { int id = offerNpc; mode = 0; busy = 0f; notice = null; NpcUI.ReturnTo(id); } confirmDelete = false; popOpen = false; PopupActive = false; back = null; texTried = false; entryCache.Clear(); }
 
@@ -297,6 +301,7 @@ namespace OpenFusion.World
         /// <summary>Muestra la ficha del objeto (tipo/id/opt) y, si es equipo, la del objeto equipado y del arma de reserva.</summary>
         public void ShowItemExternal(int type, int id, int opt, string title, int timeLimit = 0)
         {
+            var retained = dualJournalPrepared ? cur : null; int retainedTab = tab;
             if (!texTried) { texTried = true; LoadTextures(); }
             if (selfApp == null && ents != null && ents.Self != null) { }
             try
@@ -905,11 +910,11 @@ namespace OpenFusion.World
             if (Skin.Button(new Rect(r.x + 226f, r.y + 150f, 190f, 28f), Loc.T("CANCEL"), Skin.Get(SKL, "CancelButton"), true)) confirmDelete = false;
         }
 
-        void DeleteMission()
+        bool DeleteMission()
         {   // REQ_PC_TASK_STOP { int iTaskNum }
-            if (cur == null || NpcUI.Sender == null) return;
+            if (cur == null || NpcUI.Sender == null) return false;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_TASK_STOP, 4); BitConverter.GetBytes(cur.m_iHTaskID).CopyTo(p, 4);
-            try { NpcUI.Sender(p); cooldown = 1f; } catch (Exception ex) { Debug.LogWarning("[journal] TASK_STOP: " + ex.Message); }
+            try { NpcUI.Sender(p); cooldown = 1f; return true; } catch (Exception ex) { Debug.LogWarning("[journal] TASK_STOP: " + ex.Message); return false; }
         }
     }
 }

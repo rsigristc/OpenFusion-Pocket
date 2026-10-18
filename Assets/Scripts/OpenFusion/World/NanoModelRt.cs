@@ -16,7 +16,7 @@ namespace OpenFusion.World
         public const int NanoLayer = 29;
         public int Size = 128; public float Fov = 45f, Distance = 2.3f, Height = 0.8f; public Vector3 Angle = new Vector3(-10f, 0f, 0f);
         ModelFactory models; ModelCatalog catalog;
-        sealed class Entry { public GameObject Go; public Transform Pivot; public RenderTexture Rt; public Animation Anim; public BillboardNode[] Bills; public bool Failed; public float Last, LastTry; public bool Framed; public Vector3 Center; public float Dist; }
+        sealed class Entry { public GameObject Go; public Transform Pivot; public RenderTexture Rt; public Animation Anim; public BillboardNode[] Bills; public bool Failed, DualRequested; public float Last, LastTry, LastLegacy = -1000, NextDual; public bool Framed; public Vector3 Center; public float Dist; }
         readonly Dictionary<int, Entry> map = new Dictionary<int, Entry>();
         Camera cam; int slotCounter;
 
@@ -24,11 +24,16 @@ namespace OpenFusion.World
 
         /// Provider para NanoWheelHud.NanoModelProvider: devuelve la textura del nano (null mientras no se haya podido cargar el modelo -> se usa el icono).
         public Texture Get(int nanoId)
+            => GetPreview(nanoId, false);
+        public Texture GetDual(int nanoId) => GetPreview(nanoId, true);
+        Texture GetPreview(int nanoId, bool dual)
         {
             if (models == null || catalog == null || nanoId < 0) return null;
             if (!map.TryGetValue(nanoId, out var e)) { e = new Entry(); map[nanoId] = e; TryBuild(nanoId, e); }
             else if (e.Go == null && !e.Failed && Time.time - e.LastTry > 1f) TryBuild(nanoId, e);   // el bundle del nano puede llegar tarde
             e.Last = Time.time;
+            if (dual) e.DualRequested = true; else e.LastLegacy = Time.time;
+            if (e.Go != null && !e.Go.activeSelf) e.Go.SetActive(true);
             return e.Go != null && e.Rt != null ? e.Rt : null;
         }
 
@@ -157,6 +162,8 @@ namespace OpenFusion.World
 
         void LateUpdate()
         {
+            PruneDualPreviews();
+            foreach (var e in map.Values) if (e.DualRequested && e.Go != null && Time.time - e.Last > .5f && Time.time - e.LastLegacy > .5f) e.Go.SetActive(false);
             Entry any = null; foreach (var e in map.Values) if (e.Go != null && Time.time - e.Last < 0.5f) { any = e; break; }
             if (any == null) return;
             EnsureCamera();
@@ -164,6 +171,8 @@ namespace OpenFusion.World
             {
                 var e = kv0.Value; int key = kv0.Key;
                 if (e.Go == null || e.Rt == null || Time.time - e.Last > 0.5f) continue;   // sólo los nanos que la rueda pidió este cuadro
+                if (key >= 0 && e.DualRequested && Time.time - e.LastLegacy > .5f)
+                { if (Time.unscaledTime < e.NextDual) continue; e.NextDual = Time.unscaledTime + 1f / 12f; }
                 cam.nearClipPlane = 0.1f; bool useBackdrop = false;
                 if (key <= -PB)
                 {   // retrato cnTrans: cnSimpleCharRenderCamera (Distance 2.3, fHeight 0.8, vAngle (-10,0,0)), fov 45, farClip 5, mira al origen del NPC
@@ -200,7 +209,7 @@ namespace OpenFusion.World
                 var p = e.Pivot.position + e.Center + new Vector3(0f, sk, 0f); cam.transform.position = p + Quaternion.Euler(Angle) * Vector3.forward * e.Dist; cam.transform.LookAt(p);
                 }
                 if (key >= 0) cam.farClipPlane = 50f;
-                cam.fieldOfView = Fov; cam.targetTexture = e.Rt;
+                cam.fieldOfView = Fov;
                 PlaceBackdrop(useBackdrop, (float)e.Rt.width / e.Rt.height);
                 if (e.Bills != null) foreach (var b in e.Bills)
                 {   // BillboardNode (desactivado en el clon): los planos *_BillboardCamera (halos de la estacion) miran a la camara del RT; Mode 0 = Camera, 1 = Up (solo guinada)
@@ -208,13 +217,22 @@ namespace OpenFusion.World
                     if (b.Mode == 0) b.transform.rotation = cam.transform.rotation * Quaternion.Euler(0f, 180f, 0f);
                     else if (b.Mode == 1) { var f = cam.transform.forward; f.y = 0f; if (f.sqrMagnitude > 1e-12f) b.transform.rotation = Quaternion.LookRotation(f) * Quaternion.Euler(0f, 180f, 0f); }
                 }
-                var req = new RenderPipeline.StandardRequest(); req.destination = e.Rt;
-                try { if (RenderPipeline.SupportsRenderRequest(cam, req)) RenderPipeline.SubmitRenderRequest(cam, req); else cam.Render(); }
-                catch (System.Exception ex) { Debug.LogWarning("[nanomodel] render: " + ex.Message); }
-                cam.targetTexture = null;
+                try { PreviewRender.Render(cam, e.Rt); }
+                catch (System.Exception ex) { Debug.LogWarning("[nano3d] render: " + ex.Message); }
+
             }
         }
 
+        float nextPrune;
+        void PruneDualPreviews()
+        {
+            if (Time.unscaledTime < nextPrune || map.Count <= 8) return; nextPrune = Time.unscaledTime + 1f;
+            var stale = new List<int>(); int total = 0;
+            foreach (var pair in map) if (pair.Key >= 0 && pair.Value.DualRequested)
+            { total++; if (Time.time - pair.Value.Last > 2f && Time.time - pair.Value.LastLegacy > 2f) stale.Add(pair.Key); }
+            stale.Sort((a,b) => map[a].Last.CompareTo(map[b].Last));
+            foreach (int id in stale) { if (total <= 8) break; var e = map[id]; if (e.Rt != null) { e.Rt.Release(); Destroy(e.Rt); } if (e.Go != null) Destroy(e.Go); map.Remove(id); sink.Remove(id); total--; }
+        }
         void OnDestroy() { foreach (var e in map.Values) { if (e.Rt != null) { e.Rt.Release(); Destroy(e.Rt); } if (e.Go != null) Destroy(e.Go); } }
     }
 }

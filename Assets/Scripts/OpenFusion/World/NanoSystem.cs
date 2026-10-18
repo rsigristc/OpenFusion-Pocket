@@ -19,7 +19,7 @@ namespace OpenFusion.World
     {
         sealed class Nn
         {
-            public int PcId, NanoId, Skill, SkillAni, Style, Mode; public GameObject Root, Model; public Animation Anim; public Transform User; public bool Own, Leaving, Dead;
+            public int PcId, NanoId, Skill, SkillAni, Style, Mode; public GameObject Root, Model; public Animation Anim; public Transform User; public bool Own, Leaving, Dead, Passive, PassiveStarted;
             public float Angle, ModeEnd, PatternAt, RotSpeed, TurnSpeed, PulseH, PulseHz, SpawnAt; public int Pattern; public bool Circle = true, Vertical = true, ForceSound; public int Tries; public NanoElement Row;
         }
         const int Stand = 1, Skill1 = 11, Skill2 = 12, Skill3 = 13, Discharge = 3, Withdraw = 10;
@@ -38,7 +38,12 @@ namespace OpenFusion.World
             if (disp != null) { disp.Unhandled += OnPacket; disp.PcEnter += OnPcEnter; }
             if (AnimEventSink.Muted == null) AnimEventSink.Muted = IsMuted;
         }
-        void OnDestroy() { if (disp != null) { disp.Unhandled -= OnPacket; disp.PcEnter -= OnPcEnter; } }
+        void OnDestroy() {
+            if (disp != null) { disp.Unhandled -= OnPacket; disp.PcEnter -= OnPcEnter; }
+            if (AnimEventSink.Muted == (Func<Transform, string, bool>)IsMuted) AnimEventSink.Muted = null;
+            foreach (var n in new List<Nn>(byPc.Values)) Dispose(n);
+            byPc.Clear(); byModel.Clear(); pending.Clear();
+        }
 
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
         static short S(byte[] b, int o) { return BitConverter.ToInt16(b, o); }
@@ -75,18 +80,7 @@ namespace OpenFusion.World
         }
 
         /// Tamaño de cada resultado según eST (GameFrame.SkillResultDistributor).
-        static int Stride(int est)
-        {
-            switch (est)
-            {
-                case 1: case 30: return 20;
-                case 3: case 4: case 5: case 8: return 32;
-                case 2: case 34: case 6: return 16;
-                case 10: case 11: case 12: case 14: case 15: case 16: case 17: case 18: case 19: case 20: case 23: case 25: case 31: case 32: case 33: case 35: return 16;
-                case 27: return 24;
-            }
-            return 0;
-        }
+        static int Stride(int est) => SkillResults.Stride(est);
 
         // ------------------------------------------------------------------ nano en el mundo
 
@@ -105,7 +99,7 @@ namespace OpenFusion.World
             var user = ents != null ? ents.TransformOfPlayer(pc) : null;
             if (user == null) { pending[pc] = new Pend { Nano = nanoId, Skill = skillId, Passive = passive, At = Time.time }; return; }
             pending.Remove(pc);
-            var n = new Nn { PcId = pc, NanoId = nanoId, Skill = skillId, Own = pc == ents.SelfId, User = user, Row = RowOf(nanoId), SpawnAt = Time.time };
+            var n = new Nn { PcId = pc, NanoId = nanoId, Skill = skillId, Own = pc == ents.SelfId, User = user, Row = RowOf(nanoId), SpawnAt = Time.time, Passive = passive };
             n.Style = n.Row != null ? n.Row.m_iStyle : 0; n.Angle = user.rotation.eulerAngles.y; NewPattern(n);
             byPc[pc] = n; PickSkillAni(n);
             if (passive) n.SkillAni = Skill1;
@@ -244,9 +238,9 @@ namespace OpenFusion.World
             // nano propio = slot activo del HUD (REP_NANO_ACTIVE_SUCC / REGEN / ENTER lo actualizan)
             if (Time.time >= nextSync && hud != null && hud.Data != null && ents.Self != null)
             {
-                nextSync = Time.time + 0.2f; int slot = hud.Data.ActiveNanoSlot; int id = slot >= 0 && slot < 3 ? hud.Data.NanoSlots[slot] : 0;
+                nextSync = Time.time + 0.2f; int slot = hud.Data.ActiveNanoSlot; int id = hud.Data.Hp > 0 && slot >= 0 && slot < 3 ? hud.Data.NanoSlots[slot] : 0;
                 Nn cur; byPc.TryGetValue(ents.SelfId, out cur);
-                if (id > 0) { int sk = wheel != null ? wheel.BankSkill(id) : 0; if (cur == null || cur.Leaving || cur.NanoId != id) SetNano(ents.SelfId, id, sk, false); else if (cur.Skill != sk) { cur.Skill = sk; PickSkillAni(cur); } }
+                if (id > 0) { int sk = wheel != null ? wheel.BankSkill(id) : 0; if (cur == null || cur.Leaving || cur.NanoId != id) SetNano(ents.SelfId, id, sk, wheel?.SkillOf(sk)?.m_iBatteryDrainType == 2); else if (cur.Skill != sk) { cur.Skill = sk; cur.Passive = wheel?.SkillOf(sk)?.m_iBatteryDrainType == 2; cur.PassiveStarted = false; PickSkillAni(cur); } }
                 else if (cur != null && !cur.Leaving) Kill(cur, true);
             }
             var done = (List<Nn>)null;
@@ -256,7 +250,13 @@ namespace OpenFusion.World
                 if (n.User == null && !n.Own) { (done ?? (done = new List<Nn>())).Add(n); continue; }
                 if (n.Dead) { if (Time.time >= n.ModeEnd) (done ?? (done = new List<Nn>())).Add(n); else Follow(n); continue; }
                 if (n.Model == null && Time.time - n.SpawnAt < 15f) { if (!BuildModel(n)) { Follow(n); continue; } }
-                if (n.Model != null && Time.time >= n.ModeEnd) SetStand(n);   // "end" del clip
+                if (n.Model != null && Time.time >= n.ModeEnd) {
+                    if (n.Passive && !n.PassiveStarted) {
+                        n.PassiveStarted = true; SkillAnim(n);
+                        var skill = wheel?.SkillOf(n.Skill);
+                        if (skill != null && skill.m_iEffect > 0 && BulletFx.Instance != null) BulletFx.Instance.Spawn(skill.m_iEffect, n.Root.transform.position, n.Root.transform.rotation, 1, n.Root.transform, 3);
+                    } else SetStand(n);
+                }   // "end" del clip
                 Follow(n);
             }
             if (done != null) foreach (var n in done) Dispose(n);
@@ -306,7 +306,7 @@ namespace OpenFusion.World
         public void UseSkill()
         {
             if (hud == null || hud.Data == null || ents == null || ents.Self == null || wheel == null || NpcUI.Sender == null) return;
-            var d = hud.Data; int slot = d.ActiveNanoSlot; if (slot < 0 || slot > 2) return;
+            var d = hud.Data; if (d.Hp <= 0) return; int slot = d.ActiveNanoSlot; if (slot < 0 || slot > 2) return;
             int nanoId = d.NanoSlots[slot]; int skillId = wheel.BankSkill(nanoId); if (skillId <= 0) return;
             var se = wheel.SkillOf(skillId); if (se == null || d.NanoStamina[slot] <= 0 || se.m_iBatteryDrainType != 1) return;
             if (se.m_iEffectType != 1) { if (logN++ < 8) Debug.Log("[skill] skill " + skillId + ": EffectType " + se.m_iEffectType + " no se usa desde el cliente (el original sólo envía NANO_SKILL_USE para tipo 1; los de cohete/área llegan como ojivas del servidor)"); return; }
@@ -417,6 +417,9 @@ namespace OpenFusion.World
                 var user = ents.TransformOfPlayer(pc); Nn nn; byPc.TryGetValue(pc, out nn);
                 if (nn != null && !(own && Time.time - lastUse < 0.3f)) SkillAnim(nn);   // el propio ya animó al enviar
                 var se = wheel != null ? wheel.SkillOf(skillId) : null; if (se == null) return;
+                var sourceFx = BulletFx.Instance;
+                var origin = nn != null && nn.Root != null ? nn.Root.transform : user;
+                if (sourceFx != null && origin != null && se.m_iEffect > 0) sourceFx.Spawn(se.m_iEffect, origin.position, origin.rotation, 1, null, 3);
                 if (logN++ < 14) Debug.Log("[skill] " + (own ? "SUCC" : "otro") + " pc=" + pc + " skill=" + skillId + " eST=" + est + " objetivos=" + cnt + " estamina=" + stamina);
                 if (cnt <= 0) return; int stride = Stride(est); if (stride == 0) return;
                 int first = 36; Transform src = nn != null && nn.Root != null && !nn.Dead ? nn.Root.transform : user;
@@ -430,6 +433,7 @@ namespace OpenFusion.World
                     int o = first + stride * i; if (o + stride > b.Length) break; int ct = I(b, o), id = I(b, o + 4);
                     Transform tgt = null; float h = 1.5f;
                     if (ct == 1) tgt = ents.TransformOfPlayer(id); else if (ct == 2 || ct == 4) { var go = ents.NpcById(id); if (go != null) { tgt = go.transform; var inf = go.GetComponent<NpcInfo>(); if (inf != null) h = inf.Height; } }
+                    if (est == 26 && ct == 1 && id == ents.SelfId) GetComponent<PlayerLife>()?.OfferGroupRevive();
                     if (fx != null && src != null && tgt != null && se.m_iTargetEffect > 0) fx.Fire(se.m_iTargetEffect, src, tgt, h, tgt.position + Vector3.up);
                     if ((est == 2 || est == 34) && ct == 1 && id == ents.SelfId && own) SelfHeal(b, o);
                     else if ((est == 2 || est == 34) && ct == 1 && o + 12 <= b.Length && tgt != null) FloatingPoints.AddOn(tgt.gameObject, 0, FloatingPoints.Heal, I(b, o + 8), 1.8f);

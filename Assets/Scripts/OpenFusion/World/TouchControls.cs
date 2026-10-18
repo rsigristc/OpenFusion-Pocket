@@ -56,6 +56,8 @@ namespace OpenFusion.World
             tch.Clear(); joyId = -1; Move = Look = Vector2.zero; Pinch = 0f;
             held.Clear(); down.Clear(); up.Clear(); jumpFlag = tapFlag = false;
         }
+        // Surface resizing invalidates held fingers and the cached pixel/dp geometry.
+        public void CancelForSurfaceChange() { ResetTouches(); dpScale = 0f; }
         void OnApplicationFocus(bool focus) { if (!focus) ResetTouches(); }
         void OnApplicationPause(bool paused) { if (paused) ResetTouches(); }
         void OnDisable() { ResetTouches(); }
@@ -76,8 +78,13 @@ namespace OpenFusion.World
         Rect ChatRect { get { return new Rect(SafeArea.xMax - 62f * Dp, 210f * Dp, 52f * Dp, 42f * Dp); } }
         int HitAction(Vector2 g)
         {
-            for (int i = 0; i < TouchLayout.Actions.Length; i++) if (TouchLayout.Enabled(i) && ActionRect(i).Contains(g)) return i;
+            for (int i = 0; i < TouchLayout.Actions.Length; i++) if (ActionVisible(i) && ActionRect(i).Contains(g)) return i;
             return -1;
+        }
+        public static bool ActionVisible(int index)
+        {
+            var k = TouchLayout.Actions[index];
+            return TouchLayout.Enabled(index) && !(DualScreenController.ShowSecondaryNanos && (k == ControlMap.K.Nano1 || k == ControlMap.K.Nano2 || k == ControlMap.K.Nano3));
         }
         bool InJoyZone(Vector2 g) { return g.x < ViewWidth * 0.38f && g.y > ViewHeight * 0.35f; }
         bool Blocked { get { return ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking; } }
@@ -185,7 +192,7 @@ namespace OpenFusion.World
                 var st = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = Mathf.RoundToInt(11f * Dp * TouchLayout.Scale), fontStyle = FontStyle.Bold, wordWrap = true };
                 for (int i = 0; i < TouchLayout.Actions.Length; i++)
                 {
-                    if (!TouchLayout.Enabled(i)) continue;
+                    if (!ActionVisible(i)) continue;
                     var r = ActionRect(i); bool pressed = held.Contains(TouchLayout.Actions[i]);
                     GUI.color = new Color(1f, 1f, 1f, pressed ? .5f : .2f); GUI.DrawTexture(r, disc);
                     GUI.color = new Color(1f, 1f, 1f, .6f); GUI.DrawTexture(r, ring);

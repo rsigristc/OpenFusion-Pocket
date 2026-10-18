@@ -29,6 +29,7 @@ namespace OpenFusion.World
     public sealed class NpcUI : MonoBehaviour
     {
         public static NpcUI Instance; public static System.Action<byte[]> Sender; public static bool Active => Instance != null && Instance.talking != null;
+        public static bool NanoStationActive => Active && Instance.talking.Type >= 7 && Instance.talking.Type <= 9;
         public float InteractRange = 8f, IconRange = 60f;
         WorldEntities ents; ModelFactory models; NpcInfo near, talking; Texture2D white; readonly Dictionary<string, Texture2D> cache = new Dictionary<string, Texture2D>(); readonly HashSet<string> missing = new HashSet<string>();
         GUIStyle label, btn, wrap, small; string note; readonly List<Renderer> hidden = new List<Renderer>();
@@ -373,8 +374,7 @@ namespace OpenFusion.World
                 var center = n.transform.position + Vector3.up * (h * 0.86f); var go = new GameObject("portraitCam"); var cam = go.AddComponent<Camera>(); cam.enabled = false;
                 cam.transform.position = center + n.transform.forward * d; cam.transform.rotation = Quaternion.LookRotation(center - cam.transform.position, Vector3.up);
                 cam.fieldOfView = 30f; cam.nearClipPlane = Mathf.Max(0.05f, d - h * 0.35f); cam.farClipPlane = d + h * 0.3f; cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0, 0, 0, 0);
-                var req = new UnityEngine.Rendering.RenderPipeline.StandardRequest { destination = rt };
-                if (UnityEngine.Rendering.RenderPipeline.SupportsRenderRequest(cam, req)) UnityEngine.Rendering.RenderPipeline.SubmitRenderRequest(cam, req); else { cam.targetTexture = rt; cam.Render(); cam.targetTexture = null; }
+                PreviewRender.Render(cam, rt);
                 Destroy(go); Debug.Log("[npcui] retrato por cámara para " + n.Name);
             }
             catch (System.Exception e) { Debug.LogWarning("[npcui] retrato por cámara: " + e.Message); }

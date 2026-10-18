@@ -37,6 +37,8 @@ namespace OpenFusion.World
         {
             Machine = true; machineNpc = npcId; machineName = npcName ?? ""; machineBusy = false; tab = 1; nanoPop = -1;
             if (!GameMenu.OpenWindow(GameMenu.Win.MyStuff)) Machine = false;
+            if (Machine) DualScreenController.Instance?.StationOpened();
+            Debug.Log("[DS Nanos] station npc=" + npcId + " opened=" + Machine + " window=" + GameMenu.Current);
         }
         List<int> nanoList; float turnDir; float clothRetry; Texture cloth;
         readonly System.Collections.Concurrent.ConcurrentQueue<Action> qn = new System.Collections.Concurrent.ConcurrentQueue<Action>();
@@ -492,7 +494,7 @@ namespace OpenFusion.World
             }
             var c = up != null ? Center(up) : null;
             Skin.Label(new Rect(177, yF - 2f, 129, 13), fm + " / " + fmReq, c); Skin.Label(new Rect(177, yI - 2f, 129, 13), have + " / " + need, c);
-            bool ok = fr >= 1f && ir >= 1f && !machineBusy;
+            bool ok = CanTuneNano(nanoPop, tuneId, out _, out _, out _);
             if (Skin.Button(new Rect(236, row == 1 ? 267f : 427f, 100, 26), Loc.T("ACTIVATE"), Skin.Get(SN, "button") ?? St("button"), ok)) TuneNano(tuneId, td);
         }
 

@@ -11,8 +11,8 @@ namespace OpenFusion.Api
     {
         public const string Repository = "https://github.com/rsigristc/OpenFusion-Pocket";
         public const string LatestApi = "https://api.github.com/repos/rsigristc/OpenFusion-Pocket/releases/latest";
-        public const int BuildCode = 2;
-        public const string AppVersion = "1.0";
+        public const int BuildCode = 3;
+        public const string AppVersion = "1.5";
         public const string Package = "com.openfusion.android";
         public string Tag, Title, Notes, Page, ManifestUrl, ApkUrl, ApkName, Sha256, Version;
         public long Size, VersionCode;

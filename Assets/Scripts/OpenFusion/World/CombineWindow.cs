@@ -169,7 +169,7 @@ namespace OpenFusion.World
         void Combine()
         {
             if (Blocked || !v.HasLook || !v.HasStat || v.LookErr != 0 || v.StatErr != 0) return;
-            if (v.Cost <= 0 || Taros > v.Cost) ShowConfirm(254, "Do you want to combine these items?", StartWait);
+            if (v.Cost <= 0 || Taros >= v.Cost) ShowConfirm(254, "Do you want to combine these items?", StartWait);
             else ShowMsg(256, "You do not have enough Taros to combine these items.", null, null, null);
         }
         void StartWait() { waitAnim = true; waitT = 0f; res = v; }                           // CombiWaiting: animacion del NPC 4 s antes de enviar

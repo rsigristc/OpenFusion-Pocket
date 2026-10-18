@@ -152,14 +152,11 @@ namespace OpenFusion.World
                 Vector3 pos = tp + rot * Quaternion.Euler(0f, PortraitYaw, 0f) * Vector3.forward * PortraitDistance;
                 cam.transform.position = pos; cam.transform.LookAt(tp); pos = cam.transform.position; pos.y += PortraitHeight; cam.transform.position = pos;
                 cam.fieldOfView = PortraitFov; cam.aspect = IconRect.width / IconRect.height; cam.cullingMask = 1 << PortraitLayer;
-                cam.targetTexture = rt;
-                var req = new RenderPipeline.StandardRequest(); req.destination = rt; bool done = false;
-                if (RenderPipeline.SupportsRenderRequest(cam, req)) { RenderPipeline.SubmitRenderRequest(cam, req); done = true; }
-                if (!done) cam.Render();
+                PreviewRender.Render(cam, rt);
                 portraitValid = true;
             }
             catch (Exception e) { Debug.LogWarning("[objetivo] retrato: " + e.Message); portraitValid = false; }
-            finally { if (cam != null) cam.targetTexture = null; }
+
         }
 
         // ---------------- dibujo ----------------

@@ -57,7 +57,7 @@ adb -s YOUR_DEVICE_SERIAL logcat -s Unity
 
 `install -r` retains existing data when package and signing identity match. Local builds may use your local Android development certificate if no custom signing identity is configured. They are not guaranteed to update a release signed on another machine. No private keystore or signing password is distributed in this repository.
 
-The refreshed V1.0 asset includes the GitHub updater and uses Android build code 2. Its application ID remains `com.openfusion.android`, and its display name is OpenFusion:Pocket. After building, use `tools/prepare-release.ps1` to generate the APK, update manifest and checksums for publication. See [UPDATER.md](UPDATER.md) for the release workflow.
+The v1.5 DS Companion asset includes the GitHub updater and uses Android build code 3 (v1.0 used build 2). Its application ID remains `com.openfusion.android`, and its display name is OpenFusion:Pocket. After building, use `tools/prepare-release.ps1` to generate the APK, update manifest and checksums for publication. See [UPDATER.md](UPDATER.md) for the release workflow.
 
 ## Useful references
 

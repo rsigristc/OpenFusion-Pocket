@@ -1184,6 +1184,7 @@ namespace OpenFusion.Screens
 
         void DrawPrefsTab(float vw)
         {
+            if (stab == 1 && Btn(new Rect(16f, 350f, vw - 32f, 42f), "Dual Screen settings", Kind.Primary, true, 16)) OpenFusion.World.DualScreenController.ShowSettings();
             if (prefsEdit == null) { prefsApplied = LoadPrefs(); prefsEdit = prefsApplied.Clone(); }
             bool launcher = stab == 0;
             float pw = Mathf.Min(vw - 24f, Mathf.Clamp(vw * 0.66f, 520f, 780f)), px = (vw - pw) * 0.5f, py = 28f;

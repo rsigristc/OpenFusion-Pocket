@@ -85,6 +85,7 @@ namespace OpenFusion.World
             else if (selfOn && !win) { selfOn = false; SelfApply(false); SendSwitch(); }
         }
 
+        public void RefreshAvatar() { if (ents != null && ents.Self != null && gc != null) SelfApply(selfOn); }
         void SelfApply(bool on)
         {
             var self = ents.Self.transform; gc.InvenMode = on; gc.ResetAnimClip();

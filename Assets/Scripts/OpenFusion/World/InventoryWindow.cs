@@ -260,9 +260,11 @@ namespace OpenFusion.World
             else if (!now && open) { open = false; VendorWindow.ReturnToStore = false; Machine = false; machineBusy = false; nanoPop = -1; turnDir = 0f; CloseInfo(); confirmSlot = confirmEq = -1; redeemOpen = false; Typing = false; back = null; }
             if (journal != null && infoOpen && !journal.ExternalOpen) infoOpen = false;
             if (Overlay && Input.GetKeyDown(KeyCode.Escape)) { if (gpad.Open) gpad.Open = false; else if (nanoPop > 0) nanoPop = -1; else if (redeemOpen) { redeemOpen = false; Typing = false; } else if (confirmSlot >= 0 || confirmEq >= 0) { confirmSlot = confirmEq = -1; } else CloseInfo(); }
+            DualItemTick();
         }
 
         public void ResetOverlays() { gpad.Open = false; nanoPop = -1; CloseInfo(); confirmSlot = confirmEq = -1; redeemOpen = false; Typing = false; pendSlot = -1; dragging = false; }
+        public void OpenTab(bool nanos) { if (GameMenu.OpenWindow(GameMenu.Win.MyStuff)) tab = nanos ? 1 : 0; }
         public void EnsureTextures() { if (!texTried) LoadTextures(); }
         void LoadTextures()
         {
@@ -287,8 +289,8 @@ namespace OpenFusion.World
                     if (back != null) GUI.DrawTexture(new Rect(-960f, -720f, 1920f, 1440f), back, ScaleMode.ScaleToFit);
                 }
                 GUI.BeginGroup(new Rect(-WindowRect.width * 0.5f, -WindowRect.height * 0.5f, WindowRect.width, WindowRect.height));
-                DrawLeft(e, !Overlay);
-                DrawPanel(e, true, false);
+                if (DualItemPreview && DualScreenController.Instance != null && DualScreenController.Instance.Active) DrawOverlays(e);
+                else { DrawLeft(e, !Overlay); DrawPanel(e, true, false); }
                 GUI.EndGroup();
                 if (e.type == EventType.MouseDown || e.type == EventType.MouseUp || e.type == EventType.ScrollWheel) e.Use();
             }
@@ -339,7 +341,10 @@ namespace OpenFusion.World
                 else Skin.Label(ItemTabBut, Loc.T("EQUIPMENT"), bf, Color.white);
                 if (!emailMode) { if (!nano) { if (Skin.Button(NanoTabBut, Loc.T("NANOS"), bf, en, true)) { tab = 1; scroll = 0f; Sfx.Ui("Tab_Click01"); } } else Skin.Label(NanoTabBut, Loc.T("NANOS"), bf, Color.white); }
             }
-            if (bf != null && !nano && SortAllowed() && Skin.Button(SortBut, Loc.T("SORT"), btn, en && !StackBusy, false)) StartSort();
+            if (bf != null && !nano && SortAllowed()) {
+                if (Skin.Button(SortBut, "", btn, en && !StackBusy, false)) StartSort();
+                if (rep) DrawFittedLegacyText(new Rect(SortBut.x + 3, SortBut.y + 2, SortBut.width - 6, SortBut.height - 4), Loc.T("SORT"), btn, en && !StackBusy ? Color.white : Color.gray);
+            }
             // rejilla
             var slotSt = Skin.Get(SK, "slotbox"); var emptySt = Skin.Get(SK, "slotboxempty"); var redSt = Skin.Get(SK, "redItemBox"); var cnt = Skin.Get(SK, "label") ?? bf;
             GUI.BeginGroup(Content);
@@ -370,9 +375,9 @@ namespace OpenFusion.World
             if (rep)
             {
                 var tt = tTaros != null ? tTaros : tTarosAlt; if (tt != null) GUI.DrawTexture(TarosBox, tt);
-                int n = hud != null ? hud.Data.Taros : 0, div = 100000000;
-                var dg = VendorWindow.Align(bf != null ? bf : btn, TextAnchor.MiddleRight); if (dg != null) { dg.pL = 0; dg.pR = 0; dg.pT = 0; dg.pB = 0; }   // Panel_PCStuffScript: etiquetas de 12x20 alineadas a la derecha, una por casilla
-                for (int i = 0; i < 9; i++) { int dgt = Mathf.Clamp(n / div, 0, 9); if (dg != null) Skin.Label(new Rect(TarosBox.x + 2f + 12 * i, TarosBox.y + 4f, 12f, 20f), dgt.ToString(), dg, Color.white); n -= (n / div) * div; div /= 10; }
+                string amount = Mathf.Clamp(hud != null ? hud.Data.Taros : 0, 0, 999999999).ToString("D9");
+                DrawFittedLegacyText(TarosDigitsRect, amount, bf ?? btn, Color.white);
+
             }
             GUI.EndGroup();
             // botones fuera del grupo

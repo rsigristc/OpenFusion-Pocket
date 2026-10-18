@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.openfusion.dualscreen">
+    <application>
+        <activity android:name="com.unity3d.player.UnityPlayerActivity" android:resizeableActivity="true" />
+    </application>
+</manifest>

@@ -12,7 +12,7 @@ using OpenFusion.Screens;
 
 namespace OpenFusion
 {
-    public sealed class GameClient : MonoBehaviour
+    public sealed partial class GameClient : MonoBehaviour
     {
         public WorldBootstrap Bootstrap;
         // La app siempre arranca con launcher, login y pantallas de personajes.
@@ -43,6 +43,7 @@ namespace OpenFusion
         }
         void Awake()
         { BindSender();
+            OpenFusion.World.DualScreenController.Ensure(gameObject);
             ChannelWarp.ReloadOnShardChange = false; ChannelWarp.ShardSwitch -= OnShardSwitch; ChannelWarp.ShardSwitch += OnShardSwitch;
             if (GetComponent<OpenFusion.World.TouchControls>() == null) gameObject.AddComponent<OpenFusion.World.TouchControls>();
             UseScreens = true;
@@ -210,7 +211,9 @@ namespace OpenFusion
             Shard_ = await Login.EnterShardAsync(ticket, string.IsNullOrEmpty(ok.Id) ? Username : ok.Id, g => Bootstrap.StartEntities(g.Dispatcher, Tables.Xdt, Tables.HNpc));
  if (loading != null) loading.Hide();
             Report("Dentro del mundo como " + Shard_.Enter.Self.FirstName + " (id " + Shard_.Enter.Id + ")"); shotsAt = Time.time + 12f;
-            Shard_.Session.Disconnected += e => { shardAlive = false; Report("Desconectado del shard (MOVE enviados=" + moveSent + ", STOP=" + stopSent + ", " + (firstMoveT > 0 ? (Time.realtimeSinceStartup - firstMoveT).ToString("F1") + " s desde el primer MOVE" : "sin mover") + ")" + (e != null ? ": " + e.Message : "")); };
+            var worldSession = Shard_.Session;
+            worldSession.Disconnected += e => { shardAlive = false; pendingDisconnect = "Game server connection closed: " + worldSession.EndReason +
+                "\nRecent gameplay packets: " + worldSession.RecentTraffic; };
             await Shard_.Session.SendAsync(ClientPackets.LoadingComplete(Shard_.Enter.Id));
         }
 
@@ -291,29 +294,37 @@ namespace OpenFusion
                 }
             }
             float gy = Ground.Y(want, 40f) + 0.5f; if (want.y < gy) want.y = gy;   // la cámara no entra en el suelo
-            var camNew = Vector3.Lerp(cam.transform.position, want, 1f - Mathf.Exp(-CameraSmooth * Time.deltaTime));
+            var camNew = (cam.transform.position - want).sqrMagnitude < 0.000004f ? want : Vector3.Lerp(cam.transform.position, want, 1f - Mathf.Exp(-CameraSmooth * Time.deltaTime));
             var camOff = camNew - pivot; if (camOff.magnitude > camLimit + 0.01f) camNew = pivot + camOff.normalized * camLimit;   // el suavizado no deja la cámara detrás de una pared
             cam.transform.position = camNew;
             var aim = pivot + Vector3.up * Mathf.Max(0f, -camPitch) * 0.25f;   // al bajar la cámara se apunta más arriba: se ve el cielo
             cam.transform.rotation = Quaternion.LookRotation(aim - cam.transform.position, Vector3.up);
-            if (AimActive) p.rotation = Quaternion.Euler(0f, camYaw, 0f);   // SetAngle(RotationY): el avatar mira hacia donde apunta la cámara
+            AuditCamera(cam, p);
+            if (AimActive && !PlayerLife.Active) p.rotation = Quaternion.Euler(0f, camYaw, 0f);   // SetAngle(RotationY): el avatar mira hacia donde apunta la cámara
         }
 
         public float PadLookSpeed = 140f, TurnSpeed = 100f, ZoomKeySpeed = 8f;   // grados/s con sensibilidad 5; giro por teclas Q/E; zoom por teclas en m/s
         public float StepHeight = 0.5f; public bool BlockOnObjects = true;
         void Update()
         {
+            var disconnected = System.Threading.Interlocked.Exchange(ref pendingDisconnect, null);
+            if (disconnected != null) { Debug.LogWarning(disconnected); RecordStartup(disconnected); }
             EquipBonusTick();
             Watchdog.At("GameClient.Update");
             if (Input.GetKeyDown(KeyCode.F2)) { SendMovement = !SendMovement; Report("Envío de movimiento al servidor: " + (SendMovement ? "ACTIVADO" : "desactivado")); }
             if (OpenFusion.World.NpcUI.Sender == null && FindSelf == this) OpenFusion.World.NpcUI.Sender = ownedSender;
-            if (!tpHooked && Bootstrap != null && Bootstrap.Entities != null) { tpHooked = true; Bootstrap.Entities.Teleported += (x, y, z) => { tpPending = true; tpPos = PlayerAvatarFactory.ToClient(x, y, z); }; }
+            if (!tpHooked && Bootstrap != null && Bootstrap.Entities != null) { tpHooked = true; Bootstrap.Entities.Teleported += QueueServerRelocation; }
             var p = Bootstrap != null ? Bootstrap.Player : null; if (p == null || Shard_ == null) return;
             TestPackets(p);
             if (!shotsDone && Time.time > shotsAt) { shotsDone = true; StartCoroutine(OpenFusion.World.Shots.Run(p)); }
             if (Input.GetKeyDown(KeyCode.F9)) StartCoroutine(OpenFusion.World.Shots.Run(p));
             if (!hooked) { hooked = true; lastPos = p.position; }
-            if (tpPending) { tpPending = false; p.position = tpPos; lastPos = p.position; airborne = false; Report("[warp] teletransportado a " + tpPos); }
+            bool relocated = ApplyServerRelocation(p);
+            if (TickLifeAnimation(p)) {
+                if (moving && SendMovement && WorldConnected) _ = Send(PlayerMotionPackets.Stop(Now(), p.position));
+                moving = false; lastPos = p.position; return;
+            }
+            if (relocated) return; // Never send stale coordinates or treat a server warp as walking velocity.
             if (WorldBootstrap.Travelling || OpenFusion.World.BroomFlight.Active || OpenFusion.World.TransportWindow.Sending) { lastPos = p.position; moving = false; return; }
             if (DebugWalker && !OpenFusion.World.NpcUI.Active) Walk(p);
             if (!SendMovement || Time.time < nextSend) return;
@@ -525,7 +536,16 @@ namespace OpenFusion
         }
         [Header("Salto")] public float JumpVelocity = 5.68f, Gravity = 10f; // original: v0 = AvatarElement[1].m_iJumpHeight*0.01 (568), fGravity = 10, velocidad terminal = -fGravity
         float nextJumpPkt; public bool SendJump = true;
-        bool tpHooked, tpPending; Vector3 tpPos;
+        bool tpHooked; volatile bool tpPending; Vector3 tpPos; string pendingDisconnect;
+        public void QueueServerRelocation(int x, int y, int z) { tpPos = PlayerAvatarFactory.ToClient(x, y, z); tpPending = true; }
+        bool ApplyServerRelocation(Transform player)
+        {
+            if (!tpPending) return false;
+            tpPending = false; player.position = tpPos; lastPos = tpPos; moving = airborne = false; vy = 0; dashT = 0;
+            lastSendT = Time.time; nextSend = Time.time + SendInterval;
+            GetComponent<TouchControls>()?.CancelForSurfaceChange();
+            Report("[warp] applied authoritative position before movement: " + tpPos); return true;
+        }
         bool airborne; float vy, jumpT, landUntil, fidgetAt, fidgetEnd;
         // ---- habilidades de nano de movimiento (cnAvatarAttack.NanoSkillUse -> cnAvatarThirdPersonMove.Jump / RocketDash) ----
         float dashT, dashSpeed; public bool Dashing { get { return dashT > 0f; } }
@@ -535,6 +555,7 @@ namespace OpenFusion
         /// <summary>sP_FE2CL_PC_BUFF_UPDATE propio. iValue en unidades del servidor (cm / cm/s), igual que BaseAttrib.iJumpHeight / iRunSpeed.</summary>
         public static void ApplyBuff(int cstb, int tbu, int value) { var g = FindSelf; if (g != null) g.OnBuff(cstb, tbu, value); }
         public static GameClient FindSelf;
+        public bool WorldConnected => shardAlive && Shard_ != null && Shard_.Session != null;
         void OnBuff(int cstb, int tbu, int value)
         {
             if (!buffBase) { baseJump = JumpVelocity; baseRun = RunSpeed; buffBase = true; }
@@ -767,7 +788,10 @@ namespace OpenFusion
             ccGrounded = (c.collisionFlags & CollisionFlags.Below) != 0;
             // GetTerrainCorrection del original: nunca por debajo del terreno visible
             float ty = TerrainTop(p.position);
-            if (ty > float.NegativeInfinity && p.position.y < ty - 0.02f) { var q = p.position; q.y = ty; p.position = q; Physics.SyncTransforms(); ccGrounded = true; if (vy < 0f) vy = 0f; }
+            // The grounding probe moves down by 1 cm each frame. A 2 cm dead band
+            // here made a visible terrain without matching collider height produce
+            // a repeating sink/reset cycle, which the follow camera also inherited.
+            if (ty > float.NegativeInfinity && p.position.y < ty) { var q = p.position; q.y = ty; p.position = q; Physics.SyncTransforms(); ccGrounded = true; if (vy < 0f) vy = 0f; }
             if (ccLogs < 4 && dir.sqrMagnitude > 0f && (p.position - before).magnitude < DebugWalkSpeed * dt * 0.2f) { ccLogs++; Debug.Log("[cc] bloqueado en " + p.position + " flags=" + c.collisionFlags); }
             // agua (original, cnAvatarThirdPersonMove): el avatar se apoya en el colisionador "Water" y al tocarlo bWater = true (misma velocidad y gravedad, sin salto);
             // si no toca suelo y venía del agua, un rayo desde +2 m (alcance 4) que dé en agua a < 2.5 m mantiene el nado ("Force set water").

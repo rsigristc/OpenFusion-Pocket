@@ -2,7 +2,7 @@
 
 **A native Android client for FusionFall, rebuilt in Unity 2022.3 LTS.**
 
-[![Download V1.0](https://img.shields.io/badge/Download-V1.0-00bcd4)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/v1.0)
+[![Download v1.5](https://img.shields.io/badge/Download-v1.5_DS_Companion-00bcd4)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/v1.5)
 [![Support Me on Ko-fi](https://img.shields.io/badge/Support_Me-Ko--fi-ff5e5b)](https://ko-fi.com/rodrigosigrist)
 
 OpenFusion:Pocket is an unofficial community preservation project focused on making FusionFall more convenient to play on Android. Development and device testing currently focus on **FusionFall Retrobution**.
@@ -14,7 +14,7 @@ This repository contains the Unity project used for this native client. The earl
 ## Download and install
 
 1. Open [Releases](https://github.com/rsigristc/OpenFusion-Pocket/releases).
-2. Download **OpenFusion-Pocket-v1.0.apk** from **OpenFusion:Pocket V1.0**.
+2. Download **OpenFusion-Pocket-v1.5.apk** from **OpenFusion:Pocket v1.5 — DS Companion**.
 3. Allow installation from your browser or file manager when Android asks, then install the APK.
 4. Open the app, choose a server and sign in with an account for that server. An internet connection is required.
 
@@ -38,6 +38,14 @@ To update an existing installation signed with the same certificate, install ove
 
 These systems remain under active development. A feature being implemented does not mean every map, weapon, effect or server variation has been fully tested.
 
+## DS Companion
+
+Version **1.5** adds optional companion panels for **Map, Nanos, Equipment and Missions** on compatible physical dual-screen Android devices and unfolded foldables. They use the existing game state, original icons and server-validated actions. Chat and E-Mail currently open the original game interfaces.
+
+Choose **Automatic / Single Screen / Dual Screen** in Dual Screen settings, available in launcher Game Settings and in-game Settings. Ordinary phones and tablets retain the full single-screen interface. An external display alone is insufficient: physical secondary screens need usable dimensions and a touch confirmation in settings. Android fold/window evidence and usable space determine foldable support; folding or losing the display restores the normal interface without restarting the session.
+
+Device testing includes an AynThor and a Galaxy Z Fold. Support depends on Android display/posture/input reporting; this does not guarantee every dual-screen device or foldable. See the [v1.0 → v1.5 changelog](CHANGELOG.md) and [DS implementation notes](docs/DUAL_SCREEN.md).
+
 ## How resource loading works
 
 The APK contains the Android runtime, client code, shaders and embedded interface resources. The much larger game-content bundles are obtained from the selected server's resource endpoints and retained in the app's cache. Subsequent sessions reuse valid cached resources.
@@ -48,7 +56,7 @@ The app reads legacy Unity containers, serialized objects and packed game tables
 
 ## Development and AI transparency
 
-AI played a substantial role in development, including analyzing legacy formats and behavior, implementing code and troubleshooting issues. I directed the project, integrate changes, tests builds on hardware and works through the resulting issues. OpenAI Codex has been used extensively for technical assistance.
+AI played a substantial role in development, including analyzing legacy formats and behavior, implementing code and troubleshooting issues. I direct the project, integrate changes, test builds on hardware and work through the resulting issues. OpenAI Codex has been used extensively for technical assistance.
 
 This is a combination of human direction, testing and persistence with substantial AI assistance. It is not a claim that the implementation is flawless or independently certified. The source is published so others can inspect it, report problems and contribute improvements.
 
@@ -66,7 +74,7 @@ The latest asset audit found 20 unresolved target references in the source resou
 
 Use **Unity 2022.3.62f3** with Android Build Support, SDK, NDK and OpenJDK. See [Building from source](docs/BUILDING.md), [Contributing](CONTRIBUTING.md) and [Reporting security issues](SECURITY.md).
 
-The launcher's **About** screen links directly to this repository. **Updates** checks the latest stable GitHub release and shows its changelog. You choose when to download and install; Android may ask you to allow installations from this app. See [Updater and release maintenance](docs/UPDATER.md) for the update manifest and future publishing workflow. The refreshed V1.0 APK uses Android build code **2**.
+The launcher's **About** screen links directly to this repository. **Updates** checks the latest stable GitHub release and shows its changelog. You choose when to download and install; Android may ask you to allow installations from this app. See [Updater and release maintenance](docs/UPDATER.md) for the update manifest and future publishing workflow. The v1.5 APK uses Android build code **3**, following the updater-enabled v1.0 build **2**.
 
 - `Assets/Scripts/OpenFusion/`: legacy readers, networking, launcher and gameplay systems.
 - `Assets/Shaders/`: rendering adaptations.

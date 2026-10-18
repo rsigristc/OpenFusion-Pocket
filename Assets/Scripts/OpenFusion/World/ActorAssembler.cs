@@ -10,6 +10,17 @@ using OpenFusion.Unity25;
 
 namespace OpenFusion.World
 {
+    public sealed class AvatarGeneratedAssets : MonoBehaviour
+    {
+        public Mesh Mesh; public Material[] Materials; public int Owner;
+        public bool OwnsResources => Owner == GetInstanceID();
+        void OnDestroy() {
+            if (!OwnsResources) return; // Portrait clones borrow these resources from the live avatar.
+            if (Mesh != null) UnityEngine.Object.Destroy(Mesh);
+            if (Materials != null) foreach (var material in Materials) if (material != null) UnityEngine.Object.Destroy(material);
+        }
+    }
+
     public sealed class ActorColors
     {
         public Color Skin = new Color(0.7f, 0.5f, 0.1f, 1f), Hair = new Color(0.3f, 0.1f, 0.05f, 1f);   // valores por defecto del ActorSkinCombiner
@@ -67,8 +78,9 @@ namespace OpenFusion.World
             {
                 var merged = ActorMerge.Merge(parts, look.Female);
                 var smr = combNode != null && res.Nodes.TryGetValue(combNode.TransformId, out var cgo) ? (cgo.GetComponent<SkinnedMeshRenderer>() != null ? cgo.GetComponent<SkinnedMeshRenderer>() : cgo.AddComponent<SkinnedMeshRenderer>()) : root.AddComponent<SkinnedMeshRenderer>();
-                if (smr.sharedMesh != null) UnityEngine.Object.Destroy(smr.sharedMesh);
+                // The prefab mesh belongs to DongBuilder.meshCache. Replacing this renderer's reference must never destroy that shared cache entry.
                 smr.sharedMesh = UnityConverters.ToMesh(merged.Mesh);
+                var owned = root.AddComponent<AvatarGeneratedAssets>(); owned.Owner = owned.GetInstanceID(); owned.Mesh = smr.sharedMesh; owned.Materials = mats.ToArray();
                 smr.bones = merged.ActorBoneIndex.Select(i => actorBones[Mathf.Clamp(i, 0, actorBones.Length - 1)]).ToArray();
                 smr.sharedMaterials = mats.ToArray(); smr.rootBone = root.transform.Find("Bip01") ?? actorBones[0]; smr.updateWhenOffscreen = true;
             }

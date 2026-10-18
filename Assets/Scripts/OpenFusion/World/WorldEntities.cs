@@ -12,7 +12,7 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class WorldEntities : MonoBehaviour
+    public sealed partial class WorldEntities : MonoBehaviour
     {
         public float FrameBudgetMs = 4f;        // tiempo máximo por frame dedicado a procesar paquetes
         public int MaxSpawnsPerFrame = 3;
@@ -43,12 +43,13 @@ namespace OpenFusion.World
             if (GetComponent<NpcUI>() == null) gameObject.AddComponent<NpcUI>().Init(this, models); this.catalog = catalog; this.models = models; this.avatars = avatars; this.hnpcs = hnpcs; this.root = root != null ? root : transform;
             if (dispatcher != null) Detach();
             dispatcher = d;
+            d.Raw += PlayerPacket; d.Malformed += PlayerMalformed;
             d.SelfEnter += OnSelf; d.PcEnter += OnPcEnter; d.PcExit += OnPcExit; d.PcMove += OnPcMove; d.PcStop += OnPcStop; d.PcJump += OnPcJump;
             d.NpcEnter += OnNpcEnter; d.NpcExit += OnNpcExit; d.NpcMove += OnNpcMove; d.Teleport += OnTeleport; d.WarpFail += OnWarpFail;
         }
         void Detach()
         {
-            var d = dispatcher; d.SelfEnter -= OnSelf; d.PcEnter -= OnPcEnter; d.PcExit -= OnPcExit; d.PcMove -= OnPcMove; d.PcStop -= OnPcStop; d.PcJump -= OnPcJump;
+            var d = dispatcher; d.Raw -= PlayerPacket; d.Malformed -= PlayerMalformed; d.SelfEnter -= OnSelf; d.PcEnter -= OnPcEnter; d.PcExit -= OnPcExit; d.PcMove -= OnPcMove; d.PcStop -= OnPcStop; d.PcJump -= OnPcJump;
             d.NpcEnter -= OnNpcEnter; d.NpcExit -= OnNpcExit; d.NpcMove -= OnNpcMove; d.Teleport -= OnTeleport; d.WarpFail -= OnWarpFail;
         }
         void OnDestroy() { if (dispatcher != null) Detach(); }
@@ -59,7 +60,7 @@ namespace OpenFusion.World
         public void Enqueue(Action change) => queue.Enqueue(change);
         void OnSelf(EnterSucc e) => queue.Enqueue(() => SpawnSelf(e));
         void OnPcEnter(PcAppearance a) => queue.Enqueue(() => SpawnPlayer(a));
-        void OnPcExit(int id) => queue.Enqueue(() => { Remove(players, id); apps.Remove(id); RemoteCombatAnim.Forget(id); });
+        void OnPcExit(int id) => queue.Enqueue(() => { Remove(players, id); apps.Remove(id); missingPlayers.Remove(id); playerExits++; RemoteCombatAnim.Forget(id); });
         void OnPcMove(PcMove m) => queue.Enqueue(() => { if (m.Id != SelfId && players.TryGetValue(m.Id, out var go)) { go.GetComponent<NpcAnimator>()?.SetKey(m.Key); go.GetComponent<RemoteMover>()?.OnMove(PlayerAvatarFactory.ToClient(m.X, m.Y, m.Z), new Vector3(m.VX, m.VZ, m.VY), m.Speed * 0.01f, m.Angle); } });
         void OnPcStop(PcStop s) => queue.Enqueue(() => { if (s.Id != SelfId && players.TryGetValue(s.Id, out var go)) go.GetComponent<RemoteMover>()?.OnStop(PlayerAvatarFactory.ToClient(s.X, s.Y, s.Z)); });
         void OnPcJump(PcJump j) => queue.Enqueue(() => { if (j.Id != SelfId && players.TryGetValue(j.Id, out var go)) go.GetComponent<RemoteMover>()?.OnJump(PlayerAvatarFactory.ToClient(j.X, j.Y, j.Z), new Vector3(j.VX * 0.01f, j.VZ * 0.01f, j.VY * 0.01f), j.Speed * 0.01f, j.Angle); });
@@ -88,6 +89,7 @@ namespace OpenFusion.World
 
         void Update()
         {
+            UpdatePlayers();
             var sw = Stopwatch.StartNew(); int spawns = 0;
             while (queue.TryDequeue(out var a))
             {
@@ -216,12 +218,17 @@ namespace OpenFusion.World
         {
             if (a.Id == SelfId) return;
             Remove(players, a.Id);
-            var go = avatars?.Create(a, root, own: false) ?? Marker("Player#" + a.Id, Color.cyan);
+            var go = avatars?.Create(a, root, own: false) ?? new GameObject("Player#" + a.Id);
             if (go == null) return;
+            missingPlayers.Remove(a.Id);
+            go.transform.SetParent(root, true);
+            var position = PlayerAvatarFactory.ToClient(a.X, a.Y, a.Z); position.y = Ground.Y(position); go.transform.position = position;
+            go.transform.rotation = Quaternion.Euler(0, a.Angle, 0);
             var mv = go.AddComponent<RemoteMover>(); mv.Init(go.transform.position);
-            { var pm = go.GetComponentInChildren<Animation>(true); if (pm != null) { var pna = go.AddComponent<NpcAnimator>(); pna.Player = true; pna.AniStyle = StyleOf(a); pna.Init(pm.gameObject, null, null); pm.gameObject.AddComponent<AvatarEmoteGuard>(); } }
+            PrepareRemotePlayer(go, a);
             go.AddComponent<RemotePc>().Id = a.Id; apps[a.Id] = a; RemoteCombatAnim.Forget(a.Id);
-            players[a.Id] = go;
+            players[a.Id] = go; playerSpawns++;
+            UnityEngine.Debug.Log("[players] spawn id=" + a.Id + " position=" + go.transform.position + " model=" + HasPlayerModel(go) + " tracked=" + players.Count);
         }
 
         /// Como NpcContainer.Add: hp <= 0 no se crea; tipo desconocido se registra; humanoide (m_iHNpc) por piezas; el resto, modelo de mob/ con escala y texturas.
@@ -416,6 +423,13 @@ namespace OpenFusion.World
         // ---- herida / muerte (NpcAnimation.DamageMotion / DeadMotion) ----
         public bool Dying; float dyingStart, deathLen = 1.5f;
         public float DeathRemaining() { return Dying ? Mathf.Max(0f, dyingStart + deathLen - Time.time) : 0f; }
+        float actionUntil;
+        public bool PlayAction(string clip)
+        {
+            if (an == null || Dying || string.IsNullOrEmpty(clip) || !Has(clip)) return false;
+            var st = an[clip]; st.time = 0; st.speed = 1; st.wrapMode = WrapMode.Once;
+            actionUntil = Time.time + Mathf.Max(.1f, st.length); an.CrossFade(clip, .1f); cur = clip; return true;
+        }
         public void Wound() { if (an == null || Dying || !Has("wound")) return; an.Rewind("wound"); an.Play("wound"); }
         public void Die(Transform killer, float radius, float height)
         {
@@ -633,6 +647,7 @@ namespace OpenFusion.World
         void Update()
         {
             if (an == null || Dying || External) return;
+            if (!Player && Time.time < actionUntil) return;
             if (Player && Dead) { DeadTick(); return; }
             if (Vehicle > 0) { VehicleTick(); return; }
             if (Inven && !moving && Has("inven")) { if (cur != "inven" || !an.IsPlaying("inven")) { an["inven"].wrapMode = WrapMode.Loop; an.CrossFade("inven", 0.1f); cur = "inven"; } return; }

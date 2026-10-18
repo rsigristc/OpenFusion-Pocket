@@ -153,6 +153,7 @@ namespace OpenFusion.World
             if (Skin.Button(ExitRect, "", Skin.Get(Skin.Inven, "closebut"), en)) DoCancel();
             var key = Skin.Get(SK, "keybutton");
             if (tab == 0 && Skin.Button(AdvRect, "ADVANCED GRAPHICS", key, en)) advanced = true;
+            if (Skin.Button(new Rect(100, 600, 180, 25), "DUAL SCREEN", key, en)) DualScreenController.ShowSettings();
             if (Skin.Button(ApplyRect, "APPLY CHANGE", key, en && !bApply)) DoApply();
             if (Skin.Button(SaveRect, "SAVE AND EXIT", key, en)) DoSave();
             if (advanced) DrawAdvanced(e);
