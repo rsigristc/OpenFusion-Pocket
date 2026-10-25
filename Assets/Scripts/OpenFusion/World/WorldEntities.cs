@@ -69,6 +69,7 @@ namespace OpenFusion.World
         /// NPC_EXIT: un mob muerto por ataque se deja terminar su animacion de muerte (AppearEffect.Delete: 2 s de margen) antes de borrarlo.
         void ExitNpc(int id)
         {
+            missingNpcVisuals.Remove(id);
             GameObject go; int killer;
             if (npcs.TryGetValue(id, out go) && go != null)
             {
@@ -90,6 +91,7 @@ namespace OpenFusion.World
         void Update()
         {
             UpdatePlayers();
+            UpdateNpcVisuals();
             var sw = Stopwatch.StartNew(); int spawns = 0;
             while (queue.TryDequeue(out var a))
             {
@@ -234,23 +236,31 @@ namespace OpenFusion.World
         /// Como NpcContainer.Add: hp <= 0 no se crea; tipo desconocido se registra; humanoide (m_iHNpc) por piezas; el resto, modelo de mob/ con escala y texturas.
         void SpawnNpc(NpcAppearance n)
         {
-            Remove(npcs, n.Id);
+            missingNpcVisuals.Remove(n.Id);Remove(npcs, n.Id);
             if (n.Hp <= 0) return;
             var m = catalog?.Npc(n.Type); if (m == null) { UnityEngine.Debug.LogWarning("NPC de tipo desconocido " + n.Type); return; }
+            var npcDefinition = NpcRow(n.Type);
             var holder = new GameObject("NPC#" + n.Id + " t" + n.Type); holder.transform.SetParent(root, false);
-            { var np = PlayerAvatarFactory.ToClient(n.X, n.Y, n.Z); np.y = Ground.Y(np); holder.transform.position = np; } holder.transform.rotation = Quaternion.Euler(0f, n.Angle + 180, 0f);
-            GameObject model = null;
-            if (m.HNpcIndex >= 0 && hnpcs?.TableElement != null && m.HNpcIndex < hnpcs.TableElement.Length && avatars != null)
-            { var look = ActorLook.FromHNpc(hnpcs.TableElement[m.HNpcIndex]); model = avatars.Assembler.Build(look, ActorColors.From(look), holder.transform); }
-            else if (models != null) model = models.Instantiate(m, holder.transform);
-            if (diagNpc++ < 6) UnityEngine.Debug.Log("[ent] npc " + n.Type + " " + m + ": " + Describe(holder) + (model == null ? " SIN MODELO" : ""));
-            if (model == null) { UnityEngine.Debug.LogWarning("Modelo de NPC no disponible: " + m); Marker(holder, Color.yellow); }
-            else { ActivateAll(model); HideIfLocation(model); model.transform.localPosition = Vector3.zero; model.transform.localRotation = Quaternion.identity; { var row = NpcRow(n.Type); string[] hs = null; if (row != null && row.m_iHNpc != 0 && row.m_iMesh > 0 && NpcTable?.m_pNpcMeshData != null && row.m_iMesh < NpcTable.m_pNpcMeshData.Length) { var me = NpcTable.m_pNpcMeshData[row.m_iMesh]; if (me != null) hs = new[] { me.m_pstrMMeshModelString, me.m_pstrMTextureString, me.m_pstrMTextureString2 }; } holder.AddComponent<NpcAnimator>().Init(model, row, hs); if (row != null) { var inf = holder.AddComponent<NpcInfo>(); inf.Id = n.Id; inf.NpcNumber = row.m_iNpcNumber; inf.Team = row.m_iTeam; inf.Level = row.m_iNpcLevel; inf.Style = row.m_iNpcStyle; inf.MaxHp = Mathf.Max(row.m_iHP, n.Hp, 1); inf.Hp = n.Hp; inf.Effect = row.m_iEffect; inf.TableHeight = row.m_iHeight * 0.01f; inf.Type = row.m_iNpcType; inf.MapIcon = row.m_iMapIcon; inf.Service = row.m_iServiceNumber; inf.Radius = row.m_iRadius * 0.01f; var sd = NpcTable?.m_pNpcStringData; if (sd != null && row.m_iNpcName >= 0 && row.m_iNpcName < sd.Length && sd[row.m_iNpcName] != null) { inf.Name = sd[row.m_iNpcName].m_strName ?? ""; inf.Greeting = sd[row.m_iNpcName].m_strComment ?? ""; } var idt = NpcTable?.m_pNpcIconData; if (idt != null && row.m_iIcon1 >= 0 && row.m_iIcon1 < idt.Length && idt[row.m_iIcon1] != null) { inf.IconNumber = idt[row.m_iIcon1].m_iIconNumber; inf.IconType = idt[row.m_iIcon1].m_iIconType; } } if (row != null && row.m_iBarkerType != 0 && NpcTable?.m_pNpcBarkerData != null && row.m_iBarkerNumber > 0 && row.m_iBarkerNumber < NpcTable.m_pNpcBarkerData.Length) { var be = NpcTable.m_pNpcBarkerData[row.m_iBarkerNumber]; if (be != null) holder.AddComponent<NpcBarker>().Init(new[] { be.m_strName, be.m_strComment, be.m_strComment1, be.m_strComment2 }, () => Self != null ? Self.transform : null); } } if (diagBones < 3) StartCoroutine(BoneDiag(model, "npc " + n.Type)); }
-            SeasonalEvents.Instance?.TrackNpc(model, m, models, n.Id);
-            holder.AddComponent<RemoteMover>().Init(holder.transform.position);
-            { var ni = holder.GetComponent<NpcInfo>(); BlobShadow.Attach(holder, Mathf.Clamp((ni != null ? ni.Radius : 0.5f) * 2.6f, 1.0f, 8f)); }
+            { var np = PlayerAvatarFactory.ToClient(n.X, n.Y, n.Z); if(npcDefinition==null || npcDefinition.m_iNpcType<100)np.y = Ground.Y(np); holder.transform.position = np; } holder.transform.rotation = Quaternion.Euler(0f, n.Angle + 180, 0f);
+            InitializeNpcInfo(holder,n,npcDefinition);
+            var model=BuildNpcVisual(holder,m,n.Type);
+            if(model==null && (npcDefinition==null || npcDefinition.m_iNpcType<100))
+            {
+                UnityEngine.Debug.LogWarning("[npc-model] unavailable type="+n.Type+" path="+m.Model+"; retry enabled");
+                AddNpcPlaceholder(holder);missingNpcVisuals[n.Id]=Time.unscaledTime+.25f;
+            }
+            var mover=holder.AddComponent<RemoteMover>(); mover.Flying=npcDefinition!=null && npcDefinition.m_iNpcType>=100; mover.Init(holder.transform.position);
+            if(mover.Flying)foreach(var renderer in holder.GetComponentsInChildren<Renderer>(true))renderer.enabled=false;
+            if(!mover.Flying){ var ni = holder.GetComponent<NpcInfo>(); BlobShadow.Attach(holder, Mathf.Clamp((ni != null ? ni.Radius : 0.5f) * 2.6f, 1.0f, 8f)); }
             { var ni2 = holder.GetComponent<NpcInfo>(); if (ni2 != null) AttachIconFx(holder, ni2); }
             npcs[n.Id] = holder;
+        }
+
+        // Mission markers exist independently of their streamed visual model.
+        void InitializeNpcInfo(GameObject holder,NpcAppearance n,NpcTableElement row)
+        {
+            if(row==null)return;
+            var inf = holder.AddComponent<NpcInfo>(); inf.Id = n.Id; inf.NpcNumber = row.m_iNpcNumber; inf.Team = row.m_iTeam; inf.Level = row.m_iNpcLevel; inf.Style = row.m_iNpcStyle; inf.MaxHp = Mathf.Max(row.m_iHP, n.Hp, 1); inf.Hp = n.Hp; inf.Effect = row.m_iEffect; inf.TableHeight = row.m_iHeight * 0.01f; inf.Type = row.m_iNpcType; inf.MapIcon = row.m_iMapIcon; inf.Service = row.m_iServiceNumber; inf.Radius = row.m_iRadius * 0.01f; var sd = NpcTable?.m_pNpcStringData; if (sd != null && row.m_iNpcName >= 0 && row.m_iNpcName < sd.Length && sd[row.m_iNpcName] != null) { inf.Name = sd[row.m_iNpcName].m_strName ?? ""; inf.Greeting = sd[row.m_iNpcName].m_strComment ?? ""; } var idt = NpcTable?.m_pNpcIconData; if (idt != null && row.m_iIcon1 >= 0 && row.m_iIcon1 < idt.Length && idt[row.m_iIcon1] != null) { inf.IconNumber = idt[row.m_iIcon1].m_iIconNumber; inf.IconType = idt[row.m_iIcon1].m_iIconType; }
         }
 
         Material iconMat;
@@ -272,7 +282,12 @@ namespace OpenFusion.World
         {
             var cap = GameObject.CreatePrimitive(PrimitiveType.Capsule); var col = cap.GetComponent<Collider>(); if (col != null) Destroy(col);
             cap.transform.SetParent(host.transform, false); cap.transform.localPosition = new Vector3(0f, 1f, 0f);
-            var r = cap.GetComponent<Renderer>(); if (r != null) r.material.color = c;
+            var r = cap.GetComponent<Renderer>(); if (r != null)
+            {
+                var shader=Shader.Find("OpenFusion/Legacy");
+                if(shader!=null){var material=new Material(shader);material.SetColor("_Color",c);r.sharedMaterial=material;cap.AddComponent<WorldPlaceholderMaterial>().Owned=material;}
+                else r.enabled=false;
+            }
         }
     }
 
@@ -323,6 +338,7 @@ namespace OpenFusion.World
     /// Movimiento remoto: corrige hacia la posición del servidor y extrapola con la velocidad recibida (como GotoDir/SetPosition del cliente).
     public sealed class RemoteMover : MonoBehaviour
     {
+        public void RebindAnimation() { anim=null;animTried=false;lastInit=false; }
         float nextGround; Vector3 target, dir; float speed, vy, yaw, npcSpeed; bool hasYaw, npcMoving; public bool Flying; const float Gravity = 10f, Catchup = 12f, TurnRate = 540f;
 
         public void Init(Vector3 p) { target = p; }

@@ -62,8 +62,12 @@ namespace OpenFusion.World
             const int L = 4; if (b == null || b.Length < L + 1680) return; var body = b;
             qn.Enqueue(() =>
             {
+                ResetAcquisition(); Array.Clear(NanoOwned, 0, NanoOwned.Length); Array.Clear(NanoSkill, 0, NanoSkill.Length);
                 Guide = BitConverter.ToInt16(body, L + 86);
                 for (int i = 0; i < 37; i++) { int o = L + 1444 + i * 6; NanoOwned[i] = BitConverter.ToInt16(body, o); NanoSkill[i] = BitConverter.ToInt16(body, o + 2); }
+                var bankLog = new List<string>(); for (int i = 1; i < 37; i++) if (NanoOwned[i] != 0) bankLog.Add(i + ":" + NanoSkill[i]);
+                Debug.Log("[nano-acquire] login bank nano:skill=" + string.Join(",", bankLog));
+                for (int i = 1; i < 37; i++) if (NanoOwned[i] != 0 && NanoSkill[i] == 0) QueueAcquiredNano(i, false);
                 nanoList = null;
             });
         }
@@ -72,25 +76,27 @@ namespace OpenFusion.World
         {
             if (type == PacketIds.P_FE2CL_REP_PC_NANO_CREATE_SUCC && b.Length >= 26)
             {   // iPC_FusionMatter @0, iQuestItemSlotNum @4, QuestItem @8, Nano @20 (iID, iSkillID, iStamina)
-                var body = b; qn.Enqueue(() => { int id = BitConverter.ToInt16(body, 20); if (id > 0 && id < NanoMax) { NanoOwned[id] = (short)id; NanoSkill[id] = BitConverter.ToInt16(body, 22); } });
+                var body = b; qn.Enqueue(() => { int id = BitConverter.ToInt16(body, 20); if (id > 0 && id < NanoMax) { bool fresh = NanoOwned[id] == 0; NanoOwned[id] = (short)id; NanoSkill[id] = BitConverter.ToInt16(body, 22); nanoList = null; if (fresh || NanoSkill[id] == 0) QueueAcquiredNano(id, fresh); } });
             }
             else if (type == PacketIds.P_FE2CL_REP_NANO_TUNE_SUCC && b.Length >= 4)
             {
                 var body = b; qn.Enqueue(() =>
                 {
                     int id = BitConverter.ToInt16(body, 0); if (id > 0 && id < NanoMax) NanoSkill[id] = BitConverter.ToInt16(body, 2);
+                    Debug.Log("[nano-acquire] tune reply nano=" + id + " skill=" + BitConverter.ToInt16(body, 2) + " bytes=" + body.Length);
                     // sP_FE2CL_REP_NANO_TUNE_SUCC (168 B): iPC_FusionMatter @4, aiItemSlotNum[10] @8 (-1 = sin usar), aItem[10] @48 (12 B)
                     if (body.Length >= 168)
                     {
                         if (hud != null) hud.Data.FusionMatter = BitConverter.ToInt32(body, 4);
                         for (int i = 0; i < 10; i++) { int sl = BitConverter.ToInt32(body, 8 + 4 * i); if (sl >= 0 && sl < 50) Items[sl] = It(body, 48 + 12 * i); }
                     }
+                    AcquisitionTuneAck(id, BitConverter.ToInt16(body, 2));
                     machineBusy = false; nanoPop = -1; nanoList = null;
                 });
             }
             else if (type == PacketIds.P_FE2CL_REP_NANO_EQUIP_SUCC || type == PacketIds.P_FE2CL_REP_NANO_UNEQUIP_SUCC || type == PacketIds.P_FE2CL_REP_NANO_TUNE_FAIL)
             {   // la GUI se vuelve a habilitar y la ficha se cierra (los slots los actualiza el HUD de nanos)
-                qn.Enqueue(() => { machineBusy = false; nanoPop = -1; });
+                qn.Enqueue(() => { machineBusy = false; nanoPop = -1; if (type == PacketIds.P_FE2CL_REP_NANO_TUNE_FAIL && acquisitionWaiting) { acquisitionWaiting = false; acquisitionError = "The server rejected the selected power. Please select again."; Debug.LogWarning("[nano-acquire] tune rejected nano=" + acquiredNano); } });
             }
             else if (type == PacketIds.P_FE2CL_REP_NANO_BOOK_SUBSET && b.Length >= 76)
             {   // PCUID @0 (8), bookSize @8, elementOffset @12, element[10] @16 (sNano 6 B)
@@ -98,13 +104,18 @@ namespace OpenFusion.World
                 {
                     int size = (int)BitConverter.ToUInt32(body, 8), off = BitConverter.ToInt32(body, 12); if (size > nanoBankSize && size <= NanoMax) nanoBankSize = size;
                     for (int i = off == 0 ? 1 : 0; i < 10 && i + off < size && i + off < NanoMax; i++) { int o = 16 + i * 6; NanoOwned[i + off] = BitConverter.ToInt16(body, o); NanoSkill[i + off] = BitConverter.ToInt16(body, o + 2); }
+                    for (int i = Math.Max(1, off); i < off + 10 && i < size && i < NanoMax; i++) if (NanoOwned[i] != 0 && NanoSkill[i] == 0) QueueAcquiredNano(i, false);
                     nanoList = null;
                 });
             }
         }
         void NanoUpdate()
         {
+#if POCKET_INPUT_PREVIEW
+            AcquisitionProofTick();
+#endif
             Action a; while (qn.TryDequeue(out a)) { try { a(); } catch (Exception ex) { Debug.LogWarning("[inv] nano " + ex.Message); } }
+            AcquisitionTick();
             if (open && !Machine && Preview != null && !Typing)
             {   // flechas del teclado como las del panel
                 float kd = (Input.GetKey(KeyCode.LeftArrow) ? 1f : 0f) - (Input.GetKey(KeyCode.RightArrow) ? 1f : 0f); if (kd != 0f) Preview.Yaw += kd * 60f * Time.unscaledDeltaTime;

@@ -5,6 +5,23 @@ namespace OpenFusion.World
 {
     public static class Ground
     {
+        /// A bounded, upward-facing physical support near the avatar's feet.
+        /// Unlike Y(), exclude actors/triggers and choose the closest surface, not
+        /// the highest roof. Useful when warp coordinates begin inside a platform.
+        public static bool TrySupport(Vector3 feet, Transform actor, float rise, float drop, float slope, out float height)
+        {
+            height=feet.y;float nearest=float.PositiveInfinity;bool found=false;
+            var hits=Physics.RaycastAll(feet+Vector3.up*(rise+.02f),Vector3.down,rise+drop+.04f,~((1<<2)|(1<<30)),QueryTriggerInteraction.Ignore);
+            foreach(var hit in hits)
+            {
+                if(hit.collider==null || hit.collider is CharacterController || actor!=null && (hit.transform==actor || hit.transform.IsChildOf(actor)))continue;
+                if(hit.normal.y<Mathf.Cos(slope*Mathf.Deg2Rad))continue;
+                float delta=hit.point.y-feet.y;if(delta>rise+.001f || delta < -drop-.001f)continue;
+                float distance=Mathf.Abs(delta);if(distance>=nearest)continue;
+                nearest=distance;height=hit.point.y;found=true;
+            }
+            return found;
+        }
         /// Altura del suelo más cercana a p.y bajo/alrededor de p (terreno o colisionador). Devuelve p.y si no hay nada.
         public static float Y(Vector3 p, float search = 60f)
         {

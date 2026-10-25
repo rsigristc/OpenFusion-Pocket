@@ -25,7 +25,7 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class NanocomHud : MonoBehaviour
+    public sealed partial class NanocomHud : MonoBehaviour
     {
         // ====================================================================== API publica ======================================================================
         public bool Visible = true;
@@ -210,6 +210,7 @@ namespace OpenFusion.World
                 else if (type == PacketIds.P_FE2CL_PC_CASH_BUFF_UPDATE) { if (b.Length >= 40) CashUpdate(I(b, 0), I(b, 4), BitConverter.ToUInt64(b, 16), I(b, 36)); }   // eCSTB@0 eTBU@4 TimeBuff@8 (iTimeDuration @16) iConditionBitFlag@36
                 else if (type == PacketIds.P_FE2CL_CHAR_TIME_BUFF_TIME_OUT) { if (b.Length >= 12 && I(b, 0) == 1 && ents != null && I(b, 4) == ents.SelfId) { int fl = I(b, 8); SetConditionFlags(fl); if ((fl & 1) == 0) GameClient.ApplyBuff(1, 2, 0); if ((fl & 2) == 0) GameClient.ApplyBuff(3, 2, 0); } }   // eCT==1 (PC)
                 else if (type == PacketIds.P_FE2CL_REP_PC_TASK_START_SUCC) { if (b.Length >= 8) TaskStart(I(b, 0), I(b, 4)); }
+                else if (type == PacketIds.P_FE2CL_REP_PC_TASK_START_FAIL) { if (b.Length >= 8) { startRequests.Remove(I(b, 0)); ents?.Missions?.StartFailed(I(b, 0)); Debug.LogWarning("[missions] start rejected task=" + I(b, 0) + " error=" + I(b, 4)); } }
                 else if (type == PacketIds.P_FE2CL_REP_PC_TASK_END_SUCC) { if (b.Length >= 4) TaskEnd(I(b, 0)); }
                 else if (type == PacketIds.P_FE2CL_REP_PC_TASK_END_FAIL) { if (b.Length >= 8) TaskEndFail(I(b, 0), I(b, 4)); }
                 else if (type == PacketIds.P_FE2CL_REP_PC_TASK_STOP_SUCC) { if (b.Length >= 4) TaskStop(I(b, 0)); }
@@ -222,7 +223,7 @@ namespace OpenFusion.World
                 }
                 else if (type == PacketIds.P_FE2CL_REP_PC_CHANGE_LEVEL_SUCC)
                 {   // iLevel @0, iFusionMatter @4. PlayerHud no lo procesa: se refleja en hud.Data (el original tambien actualiza iFusionMatter e iMaxFusionMatter aqui)
-                    if (b.Length >= 8 && hud != null) { hud.Data.Level = I(b, 0); hud.Data.FusionMatter = I(b, 4); }
+                    if (b.Length >= 8 && hud != null) { hud.Data.Level = I(b, 0); hud.Data.FusionMatter = I(b, 4); if(ents?.Missions!=null)ents.Missions.Level=hud.Data.Level; }
                 }
             }
             catch (Exception e) { Debug.LogWarning("[nanocom] paquete " + type + ": " + e.Message); }
@@ -235,14 +236,15 @@ namespace OpenFusion.World
             if (b == null || b.Length < EnterBodySize) { Debug.LogWarning("[nanocom] ENTER_SUCC con " + (b == null ? -1 : b.Length) + " B (esperados " + EnterBodySize + ")"); return; }
             for (int i = 0; i < 50; i++) { int o = 4 + 844 + 12 * i; qId[i] = Sh(b, o + 2); qOpt[i] = I(b, o + 4); }
             SetConditionFlags(I(b, 4 + 1676));
-            active.Clear(); nodes.Clear(); curSel = null; selectedMission = 0; ViewWayPoint = false;
+            active.Clear(); nodes.Clear(); ResetObjectiveRequests(); curSel = null; selectedMission = 0; ViewWayPoint = false;
             for (int k = 0; k < 9; k++)
             {
                 int o = 4 + 2032 + 52 * k; int taskId = I(b, o); if (taskId <= 0) continue;
                 MissionElement me; if (!taskById.TryGetValue(taskId, out me)) { Debug.LogWarning("[nanocom] mision en curso con tarea desconocida " + taskId); continue; }
                 if (me.m_iHMissionType == 2 && k != 0) continue;           // "nano mission must 0 slot"
                 var node = ResetNode(taskId, me); InsertActive(node);
-                for (int l = 0; l < 3; l++) for (int m = 0; m < 3; m++) if (At(me.m_iCSUEnemyID, l) == I(b, o + 4 + 4 * m)) node.RemainEnemy[l] = I(b, o + 16 + 4 * m);   // m_aKillNPCID[3] @4, m_aKillNPCCount[3] @16
+                RestoreEnemyCounts(node, b, o);
+                Debug.Log("[missions] restored task=" + taskId + " type=" + me.m_iHTaskType + " destination=" + me.m_iHTerminatorNPCID + " remaining=" + string.Join(",", node.RemainEnemy));
             }
             int cur = I(b, 4 + 2500);
             if (cur != 0) { selectedMission = cur; curSel = FindSelected(); }
@@ -282,7 +284,7 @@ namespace OpenFusion.World
             if (curSel != null)
             {
                 int wp = curSel.Me.m_iSTGrantWayPoint;
-                if (wp > 0) { Vector3? p = ClientNpcPosOf(wp); if (p.HasValue && p.Value != Vector3.zero) { ViewWayPoint = true; WayPoint = p.Value; } }
+                if (wp > 0) { ViewWayPoint=false; Vector3? p = ClientNpcPosOf(wp); if (p.HasValue && p.Value != Vector3.zero) { ViewWayPoint = true; WayPoint = p.Value; } }
                 else ViewWayPoint = false;
                 if (prev != curSel && SendCurrentMission && NpcUI.Sender != null)
                 {
@@ -308,11 +310,13 @@ namespace OpenFusion.World
         void TaskStart(int taskNum, int remain)   // ProcessStartSucc
         {
             MissionElement me; if (!taskById.TryGetValue(taskNum, out me)) return;
+            startRequests.Remove(taskNum); endRequests.Remove(taskNum); acknowledgedEnds.Remove(taskNum);
             var n = ResetNode(taskNum, me);
             if (ents != null && ents.Missions != null) ents.Missions.OnTaskStart(taskNum);
             if (me.m_iSTGrantTimer > 0) { n.Life = remain; n.StartedAt = Time.realtimeSinceStartup; }
             SetBubbleChat(0, me);
             InsertActive(n);
+            Debug.Log("[missions] started task=" + taskNum + " type=" + me.m_iHTaskType + " destination=" + me.m_iHTerminatorNPCID);
             bool nanoShown = false;
             if (me.m_iHMissionType == 2)
             {   // mision de nano: mensaje "New Nano Mission!" solo en la primera tarea de la mision
@@ -327,6 +331,10 @@ namespace OpenFusion.World
         void TaskEnd(int taskNum)   // ProcessEndSucc
         {
             MissionElement me; if (!taskById.TryGetValue(taskNum, out me)) return;
+            endRequests.Remove(taskNum);
+            if(!active.Exists(n=>n.Me.m_iHTaskID==taskNum))return;
+            if (!acknowledgedEnds.Add(taskNum)) return;
+            Debug.Log("[missions] server completed task=" + taskNum + " next=" + me.m_iSUOutgoingTask);
             RemoveActiveMission(me.m_iHMissionID);
             if (ents != null && ents.Missions != null) ents.Missions.OnTaskEnd(taskNum);
             if ((IsFinalTask(me) || me.m_iSUOutgoingTask == 0) && ents != null && ents.Missions != null) ents.Missions.MarkCompleted(me.m_iHMissionID);
@@ -421,6 +429,7 @@ namespace OpenFusion.World
 
         void TaskStop(int taskNum)   // DelActiveMissionSucc
         {
+            endRequests.Remove(taskNum); startRequests.Remove(taskNum);
             MissionElement me; if (!taskById.TryGetValue(taskNum, out me)) return;
             if (ents != null && ents.Missions != null) ents.Missions.OnTaskStop(taskNum);
             for (int i = 0; i < active.Count; i++) if (active[i].Me.m_iHTaskID == taskNum)
@@ -433,10 +442,12 @@ namespace OpenFusion.World
         }
         void KillMissionNpc(int npcId)   // KillMissionNPC (solo la parte del contador)
         {
-            for (int i = 0; i < active.Count; i++) for (int j = 0; j < 3; j++) if (At(active[i].Me.m_iCSUEnemyID, j) == npcId) active[i].RemainEnemy[j]--;
+            if (npcId <= 0) return;
+            for (int i = 0; i < active.Count; i++) for (int j = 0; j < 3; j++)
+                if (At(active[i].Me.m_iCSUEnemyID, j) == npcId && active[i].RemainEnemy[j] > 0) active[i].RemainEnemy[j]--;
             textVersion++;
         }
-        void SetQuestItem(int slot, short id, int opt) { if (slot < 0 || slot >= 50) return; qId[slot] = id; qOpt[slot] = opt; textVersion++; }
+        void SetQuestItem(int slot, short id, int opt) { if (slot < 0 || slot >= 50) return; qId[slot] = id; qOpt[slot] = Mathf.Max(0,opt); ents?.Missions?.UpdateQuestItem(slot,id,qOpt[slot]); textVersion++; }
         int QuestItemCount(int itemId) { for (int i = 0; i < 50; i++) if (qId[i] == itemId && itemId != 0) return qOpt[i]; return 0; }   // SearchQuestItem
 
         float RemainTime(TaskNode n) { return n.Life - (Time.realtimeSinceStartup - n.StartedAt); }
@@ -537,6 +548,7 @@ namespace OpenFusion.World
             if (curSel != null && curSel.Me != null && curSel.Me.m_iSTGrantTimer > 0 && active.Count > 0 && (int)Mathf.Max(0f, RemainTime(curSel)) != builtSecs) textVersion++;
             if (builtVersion != textVersion) RebuildMissionText();
             var self = SelfT();
+            TickMissionObjectives();
             if (self != null && Time.time - checkAt > CheckInterval)
             {
                 checkAt = Time.time; RefreshNpcs(); UpdateDong(self.position); UpdateFutureZone(self.position);
@@ -911,24 +923,30 @@ namespace OpenFusion.World
         public void RequestTaskStart(int taskId, int npcInstId)
         {
             MissionElement me; if (taskId <= 0 || NpcUI.Sender == null || !taskById.TryGetValue(taskId, out me)) return;
+            if (RequestPending(startRequests,taskId)) return;
+            startRequests[taskId] = Time.realtimeSinceStartup + 10f;
             if (ents != null && ents.Missions != null) ents.Missions.RequestedStart(taskId);   // arrRequestStartTask.Add
             if (npcInstId == 0 && me.m_iHNPCID > 0) npcInstId = NpcInstanceOf(me.m_iHNPCID);
             int escort = me.m_iHTaskType == 6 && me.m_iCSUDEFNPCID > 0 ? NpcInstanceOf(me.m_iCSUDEFNPCID) : 0;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_TASK_START, 12); BitConverter.GetBytes(taskId).CopyTo(p, 4); BitConverter.GetBytes(npcInstId).CopyTo(p, 8); BitConverter.GetBytes(escort).CopyTo(p, 12);
-            try { NpcUI.Sender(p); ResetNode(taskId, me); } catch (Exception ex) { Debug.LogWarning("[nanocom] TASK_START: " + ex.Message); }
+            try { NpcUI.Sender(p); } catch (Exception ex) { startRequests.Remove(taskId); ents?.Missions?.StartFailed(taskId); Debug.LogWarning("[nanocom] TASK_START: " + ex.Message); }
         }
         /// <summary>REQ_PC_TASK_END { iTaskNum, iNPC_ID, sbyte iBox1Choice, sbyte iBox2Choice, iEscortNPC_ID }.</summary>
         public void RequestTaskEnd(int taskId, int npcInstId, int box1, int box2)
         {
             MissionElement me; if (taskId <= 0 || NpcUI.Sender == null || !taskById.TryGetValue(taskId, out me)) return;
-            int escort = me.m_iHTaskType == 6 && me.m_iCSUDEFNPCID > 0 ? npcInstId : 0;
+            if(!active.Exists(n=>n.Me.m_iHTaskID==taskId))return;
+            if (RequestPending(endRequests,taskId)) return;
+            int escort = me.m_iHTaskType == 6 && me.m_iCSUDEFNPCID > 0 ? NpcInstanceOf(me.m_iCSUDEFNPCID) : 0;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_TASK_END, 16); BitConverter.GetBytes(taskId).CopyTo(p, 4); BitConverter.GetBytes(npcInstId).CopyTo(p, 8);
             p[12] = (byte)box1; p[13] = (byte)box2; BitConverter.GetBytes(escort).CopyTo(p, 16);
-            try { NpcUI.Sender(p); } catch (Exception ex) { Debug.LogWarning("[nanocom] TASK_END: " + ex.Message); }
+            endRequests[taskId] = Time.realtimeSinceStartup + 10f;
+            try { NpcUI.Sender(p); Debug.Log("[missions] end requested task=" + taskId + " npc=" + npcInstId + " escort=" + escort); } catch (Exception ex) { endRequests.Remove(taskId); Debug.LogWarning("[nanocom] TASK_END: " + ex.Message); }
         }
         void TaskEndFail(int taskNum, int err)   // ProcessEndFail (codigos 1/11/12: la mision se pierde y se inicia la tarea de fallo)
         {
             MissionElement me; if (!taskById.TryGetValue(taskNum, out me)) return;
+            Debug.LogWarning("[missions] end rejected task=" + taskNum + " error=" + err);
             if (err == 1 || err == 11 || err == 12)
             {
                 if (me.m_iHTaskType == 6 && me.m_iCSUDEFNPCID > 0) EscortGroup(me.m_iCSUDEFNPCID, false);

@@ -33,6 +33,12 @@ namespace OpenFusion.World
         // arrRequestStartTask: tareas pedidas al servidor que aun no han respondido (bloquean otra peticion de la misma mision); caducan a los 10 s por si no hay respuesta
         readonly Dictionary<int, float> requested = new Dictionary<int, float>();
         public void RequestedStart(int taskId) { requested[taskId] = UnityEngine.Time.realtimeSinceStartup; }
+        public void StartFailed(int taskId) { requested.Remove(taskId); }
+        public void UpdateQuestItem(int slot, short id, int amount)
+        {
+            if (slot < 0 || slot >= q.QItemId.Length || slot >= q.QItemOpt.Length) return;
+            q.QItemId[slot] = id; q.QItemOpt[slot] = System.Math.Max(0,amount);
+        }
         bool StartPending(int missionId)
         {
             if (requested.Count == 0) return false; List<int> old = null; bool hit = false; float now = UnityEngine.Time.realtimeSinceStartup;

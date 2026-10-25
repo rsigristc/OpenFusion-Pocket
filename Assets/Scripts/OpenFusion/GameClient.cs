@@ -312,6 +312,7 @@ namespace OpenFusion
                 camLogged = true; var fly = cam.GetComponent<OpenFusion.World.OpenFusionCamera>(); if (fly != null) fly.enabled = false;
                 Report("Cámara '" + cam.name + "' en " + cam.transform.position + " -> sigo a " + p.name + " en " + p.position + (fly != null ? " (OpenFusionCamera desactivada)" : ""));
             }
+            if (InventoryWindow.TryAcquisitionCamera(cam)) return;
             if (OpenFusion.World.NpcUI.Active && OpenFusion.World.NpcUI.Instance.TryGetCamera(out var npcPos, out var npcRot)) { float k = 1f - Mathf.Exp(-8f * Time.deltaTime); cam.transform.position = Vector3.Lerp(cam.transform.position, npcPos, k); cam.transform.rotation = Quaternion.Slerp(cam.transform.rotation, npcRot, k); return; }
             // cámara orbital: botón derecho = girar/inclinar (también hacia abajo para ver el cielo), rueda = zoom
             if (!camInit) { camInit = true; camDist = CamDefaultDist; camPitch = CamDefaultPitch; camYaw = 0f; }
@@ -381,6 +382,7 @@ namespace OpenFusion
                 if (moving && SendMovement && WorldConnected) _ = Send(PlayerMotionPackets.Stop(Now(), p.position));
                 moving = false; lastPos = p.position; return;
             }
+            ResolveRelocationSupport(p);
             if (relocated) return; // Never send stale coordinates or treat a server warp as walking velocity.
             if (WorldBootstrap.Travelling || OpenFusion.World.BroomFlight.Active || OpenFusion.World.TransportWindow.Sending) { lastPos = p.position; moving = false; return; }
             if (DebugWalker && !OpenFusion.World.NpcUI.Active) Walk(p);
@@ -598,10 +600,33 @@ namespace OpenFusion
         bool ApplyServerRelocation(Transform player)
         {
             if (!tpPending) return false;
-            tpPending = false; player.position = tpPos; lastPos = tpPos; moving = airborne = false; vy = 0; dashT = 0;
+            tpPending = false;
+            bool controllerEnabled=cc!=null && cc.enabled;if(controllerEnabled)cc.enabled=false;
+            player.position = tpPos;
+            if(controllerEnabled)cc.enabled=true;Physics.SyncTransforms();
+            lastPos = tpPos; moving = airborne = false; vy = 0; dashT = 0;ccGrounded=false;relocationSupportPending=true;relocationSupportAttempts=0;
             lastSendT = Time.time; nextSend = Time.time + SendInterval;
             GetComponent<TouchControls>()?.CancelForSurfaceChange();
             Report("[warp] applied authoritative position before movement: " + tpPos); return true;
+        }
+        bool relocationSupportPending; int relocationSupportAttempts;
+        void ResolveRelocationSupport(Transform player)
+        {
+            if(!relocationSupportPending || WorldBootstrap.Travelling)return;
+            Physics.SyncTransforms();var before=player.position;
+            if(Ground.TrySupport(before,player,1f,2f,CcSlope,out float floor))
+            {
+                relocationSupportPending=false;
+                if(floor>before.y)
+                {
+                    bool enabled=cc!=null && cc.enabled;if(enabled)cc.enabled=false;
+                    player.position=new Vector3(before.x,floor,before.z);
+                    if(enabled)cc.enabled=true;Physics.SyncTransforms();
+                    lastPos=player.position;ccGrounded=true;vy=0;
+                    Report("[warp] platform support lifted feet by "+(floor-before.y).ToString("F3")+"m after destination colliders loaded");
+                }
+            }
+            else if(++relocationSupportAttempts>=10)relocationSupportPending=false;
         }
         bool airborne; float vy, jumpT, landUntil, fidgetAt, fidgetEnd;
         // ---- habilidades de nano de movimiento (cnAvatarAttack.NanoSkillUse -> cnAvatarThirdPersonMove.Jump / RocketDash) ----
@@ -849,6 +874,10 @@ namespace OpenFusion
             // here made a visible terrain without matching collider height produce
             // a repeating sink/reset cycle, which the follow camera also inherited.
             if (ty > float.NegativeInfinity && p.position.y < ty) { var q = p.position; q.y = ty; p.position = q; Physics.SyncTransforms(); ccGrounded = true; if (vy < 0f) vy = 0f; }
+            // CharacterController skin can leave the foot pivot slightly below a
+            // platform collider; terrain-only correction did not cover platforms.
+            if(!airborne && Ground.TrySupport(p.position,p,CcSkin+.02f,.1f,CcSlope,out float surface) && surface>p.position.y)
+            { var q=p.position;q.y=surface;p.position=q;Physics.SyncTransforms();ccGrounded=true;if(vy<0f)vy=0f; }
             if (ccLogs < 4 && dir.sqrMagnitude > 0f && (p.position - before).magnitude < DebugWalkSpeed * dt * 0.2f) { ccLogs++; Debug.Log("[cc] bloqueado en " + p.position + " flags=" + c.collisionFlags); }
             // agua (original, cnAvatarThirdPersonMove): el avatar se apoya en el colisionador "Water" y al tocarlo bWater = true (misma velocidad y gravedad, sin salto);
             // si no toca suelo y venía del agua, un rayo desde +2 m (alcance 4) que dé en agua a < 2.5 m mantiene el nado ("Force set water").

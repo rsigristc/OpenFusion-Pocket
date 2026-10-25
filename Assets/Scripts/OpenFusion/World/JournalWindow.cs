@@ -213,7 +213,9 @@ namespace OpenFusion.World
             for (int i = 0; i < 4; i++) { rwIcon[i] = rwIcon2[i] = null; rwName[i] = rwName2[i] = "\n"; }
             if (me == null) return;
             finalMission = nh.JournalFinalTask(me.m_iHMissionID) ?? me;
-            var rd = mt.m_pRewardData; int ri = finalMission.m_iSUReward; reward = rd != null && ri >= 0 && ri < rd.Length ? rd[ri] : null;
+            var rd = mt.m_pRewardData; var rewardTask = mode == 2 ? me : finalMission;
+            int ri = WarpFlow.LevelExpansion == 1 ? rewardTask.m_iKorSuccRewardID : rewardTask.m_iSUReward;
+            reward = rd != null && ri >= 0 && ri < rd.Length ? rd[ri] : null;
             switch (me.m_iHMissionType) { case 1: title = Msg(6); break; case 2: title = Msg(7); break; case 3: title = Msg(8); break; }
             difficulty = Loc.T("Level") + " " + me.m_iCTRReqLvMin;
             switch (me.m_iHDifficultyType) { case 0: difficulty += " " + Msg(13); break; case 1: difficulty += " " + Msg(14); break; case 2: difficulty += " " + Msg(15); break; }

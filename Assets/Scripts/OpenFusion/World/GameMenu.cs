@@ -27,10 +27,10 @@ namespace OpenFusion.World
         public static bool MouseOverHud { get; private set; }
         /// <summary>Menu visible/deslizando o ventana abierta: el avatar no recibe entrada (cnMainGame.ShowNanoMenu -> SetAvatarInputEnable(false)).</summary>
         /// <summary>Con Settings abierto se oculta todo el HUD (el original muestra la ventana a pantalla completa).</summary>
-        public static bool HudHidden { get { return WelcomePopup.Active || Current == Win.Settings || Current == Win.Map || Current == Win.Journal || Current == Win.Guide || Current == Win.EMail || Current == Win.MyStuff || Current == Win.Bank || Current == Win.Vendor || Current == Win.Trade || TransportWindow.Active || GuideChangerWindow.Active || EnchantWindow.Active || CombineWindow.Active || RulesWindow.Active || BarberWindow.Shown; } }
+        public static bool HudHidden { get { return InventoryWindow.NanoAcquisitionActive || WelcomePopup.Active || Current == Win.Settings || Current == Win.Map || Current == Win.Journal || Current == Win.Guide || Current == Win.EMail || Current == Win.MyStuff || Current == Win.Bank || Current == Win.Vendor || Current == Win.Trade || TransportWindow.Active || GuideChangerWindow.Active || EnchantWindow.Active || CombineWindow.Active || RulesWindow.Active || BarberWindow.Shown; } }
         static bool NonLifeBlocking => SysMessageBox.Active || Open || Slide > 0f || BarberWindow.Active || GuideChangerWindow.Active || TransportWindow.Active || RaceSystem.Active || RulesWindow.Active || EnchantWindow.Active || CombineWindow.Active;
         static bool OtherBlocking => PlayerLife.Active || NonLifeBlocking;
-        public static bool Blocking => TutorialTraining.OverlayBlocking || OtherBlocking || Current != Win.None;
+        public static bool Blocking => InventoryWindow.NanoAcquisitionActive || TutorialTraining.OverlayBlocking || OtherBlocking || Current != Win.None;
         public static bool NanoStationOnly => !OtherBlocking && Current == Win.MyStuff && InventoryWindow.Machine;
         public static bool EquipmentInfoOnly => !OtherBlocking && Current == Win.MyStuff && InventoryWindow.Instance != null && InventoryWindow.Instance.DualItemPreview;
         public static bool DeathOnly => PlayerLife.Active && !NonLifeBlocking && Current == Win.None;
@@ -44,6 +44,7 @@ namespace OpenFusion.World
         }
         public static bool OpenWindow(Win w)
         {
+            if (InventoryWindow.NanoAcquisitionActive) return false;
             if(!TutorialTraining.WindowAllowed(w)) return false;
             if (w == Win.None) return false;
             if (!Implemented.Contains(w)) { Debug.Log("[menu] la ventana " + w + " aun no esta portada"); return false; }
@@ -89,6 +90,7 @@ namespace OpenFusion.World
         // ============================================================ entrada / estado ============================================================
         void Update()
         {
+            if (InventoryWindow.NanoAcquisitionActive) return;
             float dt = Time.unscaledDeltaTime;
             if (Slide > 0f) Slide = Mathf.Max(0f, Slide - dt * 2f);
             if (warpCool > 0f) warpCool -= dt;

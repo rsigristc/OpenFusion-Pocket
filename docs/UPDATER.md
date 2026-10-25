@@ -31,3 +31,7 @@ Version 1.5 uses Android build code **3**, following v1.0 build 2. The package I
 ## v2.0
 
 Version 2.0 uses Android build code **4** and retains the package/signing identity. Its stable release includes the source tag, APK, `update.json` and `SHA256SUMS.txt`; the bilingual release body is used by the in-app changelog.
+
+## v2.1
+
+Version 2.1 uses Android build code **5** and retains the package/signing identity. It includes the mission, teleport, NPC-model recovery and Nano acquisition changes described in [the bilingual release notes](releases/v2.1.md), including the remaining live initial-power acknowledgement check. Normal release builds exclude the `POCKET_INPUT_PREVIEW` diagnostic replay hook. The APK, update manifest and checksums are published together; the release body supplies the in-app changelog.

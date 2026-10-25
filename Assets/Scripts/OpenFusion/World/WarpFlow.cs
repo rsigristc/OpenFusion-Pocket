@@ -53,9 +53,7 @@ namespace OpenFusion.World
 
         public void Init(PacketDispatcher d, XdtTableScript t, PlayerHud h)
         {
-            if (disp != null) { disp.WarpUseNpcSuccRaw -= OnSucc; disp.WarpFail -= OnFail; }
-            disp = d; hud = h;
-            if (disp != null) { disp.WarpUseNpcSuccRaw += OnSucc; disp.WarpFail += OnFail; }
+            Bind(d); hud = h;
             SysMessageBox.Ensure(gameObject).Init(t);   // cajas de mensajes numerados
             ChannelWarp.Ensure(gameObject).Init(d);     // canales y cambio de shard
             BuddyListPanel.Ensure(gameObject).Init(d);  // lista de buddies + BUDDY_WARP
@@ -66,13 +64,25 @@ namespace OpenFusion.World
                 if (chat.BuddyNameProvider == null) chat.BuddyNameProvider = uid => { var sm = SocialMenu.Instance; return sm != null ? sm.BuddyNameByUid(uid) : null; };
             }
         }
-        void OnDestroy() { if (disp != null) { disp.WarpUseNpcSuccRaw -= OnSucc; disp.WarpFail -= OnFail; } if (Instance == this) Instance = null; }
+        void Bind(PacketDispatcher d)
+        {
+            if (disp != null) { disp.WarpUseNpcSuccRaw -= OnSucc; disp.WarpFail -= OnFail; disp.Teleport -= OnRelocated; }
+            disp = d;
+            if (disp != null) { disp.WarpUseNpcSuccRaw += OnSucc; disp.WarpFail += OnFail; disp.Teleport += OnRelocated; }
+        }
+        void OnDestroy() { Bind(null); if (Instance == this) Instance = null; }
+
+        // GOTO and shortened successful warp responses also confirm relocation.
+        // Release the network wait without inventing absent inventory/currency data;
+        // WorldBootstrap.Travelling continues to block movement while maps load.
+        void OnRelocated(int x,int y,int z) { q.Enqueue(() => { Cancel(); Debug.Log("[warpflow] relocation confirmed; network wait cleared"); }); }
 
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
 
         void OnSucc(byte[] b)
         {
-            if (b == null || b.Length < 36) return;
+            if (b == null || b.Length < 12) return;
+            if (b.Length < 36) { q.Enqueue(Cancel); return; }
             int eil = I(b, 12), slot = I(b, 16), candy = I(b, 32);
             var it = new ItemBase { Type = BitConverter.ToInt16(b, 20), Id = BitConverter.ToInt16(b, 22), Opt = I(b, 24), TimeLimit = I(b, 28) };
             q.Enqueue(() =>

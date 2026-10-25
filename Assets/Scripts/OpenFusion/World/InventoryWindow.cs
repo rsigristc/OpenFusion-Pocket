@@ -60,7 +60,7 @@ namespace OpenFusion.World
             }
         }
         void Awake() { Instance = this; GameMenu.Implemented.Add(GameMenu.Win.MyStuff); }
-        void OnDestroy() { NanoDetach(); if (disp != null) disp.Unhandled -= OnPacket; if (Instance == this) Instance = null; Typing = false; }
+        void OnDestroy() { ResetAcquisition(); NanoDetach(); if (disp != null) disp.Unhandled -= OnPacket; if (Instance == this) Instance = null; Typing = false; }
         static void LoadFrom(QuestSave qs) { if (qs == null || qs.Inven == null) return; for (int i = 0; i < 50 && i < qs.Inven.Length; i++) Items[i] = qs.Inven[i]; snapDirty = true; }
 
         // ============================================================ red ============================================================
@@ -277,6 +277,7 @@ namespace OpenFusion.World
         static Matrix4x4 Mat(Vector2 origin, float s) { return Matrix4x4.TRS(new Vector3(origin.x, origin.y, 0f), Quaternion.identity, new Vector3(s, s, 1f)); }
         void OnGUI()
         {
+            if (NanoAcquisitionActive) { DrawAcquisition(); return; }
             if (!open) return; var e = Event.current; if (e == null || Screen.height <= 0) return;
             float W = Screen.width, H = Screen.height, Sc = Mathf.Min(GameOptions.UiScale, W / 1050f, H / 681f);
             var om = GUI.matrix; var oc = GUI.color; int od = GUI.depth; GUI.depth = -1500; GUI.color = Color.white;

@@ -1,5 +1,48 @@
 # Changelog
 
+# OpenFusion:Pocket v2.1
+
+## English — Changes since v2.0
+
+- Fixed **Practice Pranks** progression when entering KND Training Area and reaching the lair objectives.
+- Improved destination detection, enemy/collection counters and transitions between mission objectives, using server-confirmed progress.
+- Fixed characters briefly appearing partially buried or popping upward after teleporting onto a platform.
+- Fixed **Fusion Numbuh Two's magenta placeholder**: NPCs now recover their models when their resources finish loading, retaining their current health, position and movement state.
+- Added **Nano acquisition presentation** using Legacy's original models, animation clips, creation effects, bitmap fonts and power-selection interface.
+- Corrected the initial power-selection request and added recovery of unfinished selections when logging in. Already assigned powers are preserved.
+
+### Install / update
+
+Download **OpenFusion-Pocket-v2.1.apk**, or use the in-app updater. Android 6.0+ / API 23+, ARMv7 and ARM64. Version **2.1 / build 5** retains the existing package and signing identity: install over the previous version to keep app data and cached resources. Do not uninstall first.
+
+### Validation and remaining check
+
+Mission progression, teleport placement, boss-model recovery and the Nano presentation were checked on AynThor. Automated regressions cover mission objectives, delayed NPC resources, Nano selection requests and acknowledgements, along with existing gameplay, tutorial, DS and updater checks. **A live initial-power acknowledgement with the corrected request still needs confirmation when the next Nano without an assigned power is acquired.** Existing device/server limitations remain; this release does not claim complete Legacy parity.
+
+## Español — Cambios desde v2.0
+
+- Corregido el avance de **Practice Pranks** al entrar en KND Training Area y alcanzar los objetivos de la guarida.
+- Mejoradas la detección de destinos, los contadores de enemigos/objetos y las transiciones entre objetivos, utilizando el progreso confirmado por el servidor.
+- Corregida la aparición del personaje parcialmente enterrado o el salto de altura después de usar un teletransportador sobre una plataforma.
+- Corregido el **modelo magenta de Fusion Numbuh Two**: los NPC recuperan su modelo cuando terminan de cargar sus recursos, conservando vida, posición y estado de movimiento.
+- Añadida la **presentación de obtención de Nanos** con modelos, animaciones, efectos de creación, fuentes e interfaz de selección de poder originales de Legacy.
+- Ajustada la petición de selección inicial de poder y añadida la recuperación de elecciones pendientes al iniciar sesión. Se conservan los poderes ya asignados.
+
+### Instalar / actualizar
+
+Descarga **OpenFusion-Pocket-v2.1.apk** o utiliza el actualizador de la app. Android 6.0+ / API 23+, ARMv7 y ARM64. La versión **2.1 / build 5** conserva el paquete y la firma existentes: instala encima de la versión anterior para mantener datos y caché. No desinstales primero.
+
+### Validación y comprobación pendiente
+
+Se comprobaron en AynThor el avance de misiones, la colocación tras teletransportarse, la recuperación del modelo del jefe y la presentación del Nano. Las regresiones automatizadas cubren objetivos de misión, carga tardía de NPC, peticiones y confirmaciones de selección de poder, junto con las comprobaciones existentes de juego, tutorial, DS y actualizador. **Falta confirmar en el servidor real la selección inicial con la petición corregida al obtener el próximo Nano sin habilidad asignada.** Se mantienen las limitaciones existentes de dispositivos y servidores; esta versión no afirma equivalencia completa con Legacy.
+
+---
+
+Unofficial community project. Thanks to the original FusionFall developers, OpenFusion, Retrobution and community contributors. Full attribution: [CREDITS](https://github.com/rsigristc/OpenFusion-Pocket/blob/main/CREDITS.md).
+
+[Support Me on Ko-fi](https://ko-fi.com/rodrigosigrist)
+
+
 # OpenFusion:Pocket v2.0
 
 ## English — Changes since v1.5

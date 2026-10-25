@@ -16,6 +16,7 @@ namespace OpenFusion.World
         public int Id, NpcNumber, Type, MapIcon, Service, Effect, IconNumber = -1, IconType = -1, Team, Level, Hp, MaxHp = 1, Style; public float SortDist; public bool IsMob => Team != 1 && Type <= 110 && Type != 25; public string Name = "", Greeting = ""; public float Radius = 0.5f, TableHeight;
         public int Symbol; public float SymbolAt = -10f; public bool HasFx; public NpcIconBillboard Fx; public bool FxTried; public string Voice; public bool VoiceTried;
         public GameObject Marker, Indicator, SvcFx; public float SvcTryAt = -10f; public int MarkerSym; public float MarkerTryAt = -10f, IndTryAt = -10f;
+        public void InvalidateBounds() { hasB=false; }
         Bounds b; bool hasB; float bAt; Vector3 boundsOrigin;
         // cnAvatarAttack/NpcContainer.GetConeList: hablan los NPC con Team 1 de tipo <= 110 salvo 25 (el original no mira nada mas; el rango de vision m_iSightRange lo filtra). Se mantienen ademas los tipos de servicio 1..28 de versiones anteriores.
         public bool Clickable => (Type >= 1 && Type <= 28 && Type != 6 && Type != 25) || (Team == 1 && Type <= 110 && Type != 25);

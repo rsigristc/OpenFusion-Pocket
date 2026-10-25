@@ -32,6 +32,7 @@ namespace OpenFusion.EditorTools
                 PlatformInputRegressionChecks.Run();
                 DualScreenRegressionChecks.Run();
                 DualNanoRegressionChecks.Run();
+                NanoAcquisitionRegressionChecks.Run();
                 DualEquipmentRegressionChecks.Run();
                 DualGumballRegressionChecks.Run();
                 DualMissionRegressionChecks.Run();
@@ -48,9 +49,13 @@ namespace OpenFusion.EditorTools
                 RemotePlayerRegressionChecks.Run();
                 RenderIsolationRegressionChecks.Run();
                 CameraGroundingRegressionChecks.Run();
+                PlatformLandingRegressionChecks.Run();
                 UpdaterRegressionChecks.Run();
                 WeaponAudioRegressionChecks.Run();
                 await Retrobution303RegressionChecks.Run();
+                await MissionObjectiveRegressionChecks.Run();
+                await NpcRecoveryRegressionChecks.Run();
+                await NanoAcquisitionAssetChecks.Run();
                 await ConnectionRegressionChecks.Run();
                 await CharacterCreationRegressionChecks.Run();
                 await AndroidRegressionChecks.Run();
