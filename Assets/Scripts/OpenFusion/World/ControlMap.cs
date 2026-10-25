@@ -173,19 +173,19 @@ namespace OpenFusion.World
         {
             get
             {
-                Tick(); float v = -Sum(K.Down, K.Up);   // el original usa Down como "up" del eje Vertical (adelante = negativo)
+                if (!TutorialTraining.MovementAllowed || GamepadPointer.SuppressWorld) return 0; Tick(); float v = -Sum(K.Down, K.Up);   // el original usa Down como "up" del eje Vertical (adelante = negativo)
                 if (Mathf.Abs(v) > 0.01f) auto = false; else if (auto) v = 1f; return Mathf.Clamp(v, -1f, 1f);
             }
         }
         /// Paso lateral (+1 derecha).
-        public static float Strafe { get { Tick(); return Mathf.Clamp(Sum(K.Right, K.Left), -1f, 1f); } }
+        public static float Strafe { get { if (!TutorialTraining.MovementAllowed || GamepadPointer.SuppressWorld) return 0; Tick(); return Mathf.Clamp(Sum(K.Right, K.Left), -1f, 1f); } }
         /// Giro (+1 derecha): teclas LeftTurn/RightTurn.
-        public static float Turn { get { Tick(); return Mathf.Clamp(Sum(K.RightTurn, K.LeftTurn), -1f, 1f); } }
+        public static float Turn { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); return Mathf.Clamp(Sum(K.RightTurn, K.LeftTurn), -1f, 1f); } }
         /// Camara (+1 derecha / arriba). Ejes de camara del teclado y del stick (el raton lo lee GameClient).
-        public static float CameraX { get { Tick(); float v = Sum(K.CameraRight, K.CameraLeft); return Mathf.Clamp(FlipCameraY ? v : v, -1f, 1f); } }
-        public static float CameraY { get { Tick(); float v = Sum(K.CameraUp, K.CameraDown, true, -1f); if (FlipCameraY) v = -v; return Mathf.Clamp(v, -1f, 1f); } }
+        public static float CameraX { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); float v = Sum(K.CameraRight, K.CameraLeft); return Mathf.Clamp(FlipCameraY ? v : v, -1f, 1f); } }
+        public static float CameraY { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); float v = Sum(K.CameraUp, K.CameraDown, true, -1f); if (FlipCameraY) v = -v; return Mathf.Clamp(v, -1f, 1f); } }
         /// Zoom (+1 acercar): teclas ZoomIn/ZoomOut (GetAxisZoom no incluye el mando).
-        public static float Zoom { get { Tick(); return Mathf.Clamp(Sum(K.ZoomIn, K.ZoomOut, false), -1f, 1f); } }
+        public static float Zoom { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); return Mathf.Clamp(Sum(K.ZoomIn, K.ZoomOut, false), -1f, 1f); } }
 
         // ---------------------------------------------------------------- botones
         static readonly bool[] axCur = new bool[N], axPrev = new bool[N]; static int tickFrame = -1; static bool auto;
@@ -198,6 +198,8 @@ namespace OpenFusion.World
         }
         public static bool Held(K k, bool mouse = true)
         {
+            if (!TutorialTraining.ActionAllowed(k)) return false;
+            if (GamepadPointer.SuppressWorld) return false;
             Tick(); int i = (int)k; if (i >= N || Capturing) return false;
             if (TouchControls.Held(k)) return true;
             return Any(map[i].key) && (mouse || map[i].key != KeyCode.Mouse0) || Any(alt[i].key) && (mouse || alt[i].key != KeyCode.Mouse0) || Any(pad[i].key) || (AxisKey(i) && axCur[i]);
@@ -207,23 +209,30 @@ namespace OpenFusion.World
         // state. Android retains a synthetic mouse position after a UI tap.
         public static bool HeldNonPointer(K k)
         {
+            if (!TutorialTraining.ActionAllowed(k)) return false;
+            if (GamepadPointer.SuppressWorld) return false;
             Tick(); int i = (int)k; if (i >= N || Capturing) return false;
             return TouchControls.Held(k) || !IsPointerKey(map[i].key) && Any(map[i].key) ||
                 !IsPointerKey(alt[i].key) && Any(alt[i].key) || !IsPointerKey(pad[i].key) && Any(pad[i].key) || AxisKey(i) && axCur[i];
         }
         public static bool HeldPointer(K k)
         {
+            if (!TutorialTraining.ActionAllowed(k)) return false;
+            if (GamepadPointer.SuppressWorld) return false;
             EnsureLoaded(); int i = (int)k; if (i >= N || Capturing) return false;
             return IsPointerKey(map[i].key) && Any(map[i].key) || IsPointerKey(alt[i].key) && Any(alt[i].key) || IsPointerKey(pad[i].key) && Any(pad[i].key);
         }
-        public static bool Down(K k, bool mouse = true)
+        public static bool Down(K k, bool mouse = true, bool interfaceInput = false)
         {
+            if (!TutorialTraining.ActionAllowed(k)) return false;
+            if (GamepadPointer.SuppressWorld && !interfaceInput) return false;
             if (!loaded) Load(); int i = (int)k; if (i >= N || Capturing) return false; if (tickFrame != Time.frameCount) Tick();
             if (TouchControls.Down(k)) return true;
             return D(map[i].key, mouse) || D(alt[i].key, mouse) || D(pad[i].key, true) || (AxisKey(i) && axCur[i] && !axPrev[i]);
         }
         public static bool Up(K k, bool mouse = true)
         {
+            if (GamepadPointer.SuppressWorld) return false;
             if (!loaded) Load(); int i = (int)k; if (i >= N || Capturing) return false; if (tickFrame != Time.frameCount) Tick();
             if (TouchControls.Up(k)) return true;
             return U(map[i].key, mouse) || U(alt[i].key, mouse) || U(pad[i].key, true) || (AxisKey(i) && !axCur[i] && axPrev[i]);

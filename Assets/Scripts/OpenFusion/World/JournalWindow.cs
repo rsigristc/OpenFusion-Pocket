@@ -105,7 +105,8 @@ namespace OpenFusion.World
         static int Count(bool[] a) { int n = 0; for (int i = 0; i < a.Length; i++) if (a[i]) n++; return n; }
         void Complete()
         {   // COMPLETE MISSION: CheckComplete (mensaje 90 si la seleccion no es valida) + REQ_PC_TASK_END
-            if (nh == null || cur == null || reward == null) return;
+            if (nh == null || cur == null) return;
+            if (reward == null) { if (TutorialTraining.Active && cur.m_iSUReward == 0) { busy = 4f; nh.RequestTaskEnd(cur.m_iHTaskID, offerNpc, 0, 0); } return; }
             int c1 = Count(sel1), c2 = Count(sel2);
             bool ok = (reward.m_iBox1Choice <= 0 || (c1 > 0 && c1 <= reward.m_iBox1Choice)) && (reward.m_iBox2Choice <= 0 || (c2 > 0 && c2 <= reward.m_iBox2Choice));
             if (!ok) { notice = Msg(90); return; }

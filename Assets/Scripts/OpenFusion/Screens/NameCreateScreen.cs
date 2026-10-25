@@ -353,6 +353,7 @@ namespace OpenFusion.Screens
         void OnContinue()
         {
             if (busy || msg.Visible) return;
+            Debug.Log("[character creation] stage=validate_name mode=" + (generate ? "wheel" : "custom"));
             if (generate)
             {
                 if (completeName == "") { msg.Show("You must indicate a name to continue."); return; }                 // msg 199
@@ -365,8 +366,8 @@ namespace OpenFusion.Screens
                 if (parts.Length == 0) { msg.Show("You must indicate a name to continue."); return; }                                              // msg 199
                 if (parts.Length == 1) { msg.Show("You must indicate a first name and a last name to continue."); return; }   // msg 202
                 if (parts[0].Length > 8) { msg.Show("Custom first names cannot exceed eight characters."); return; }
-                if (parts[1].Length > 16) { msg.Show("Custom last names cannot exceed sixteen characters."); return; }
                 string first = parts[0], last = string.Join(" ", parts, 1, parts.Length - 1);
+                if (last.Length > 16) { msg.Show("Custom last names cannot exceed sixteen characters."); return; }
                 if (IsWheelName(first, last)) { msg.Show("That name cannot be used. \nPlease try another character name."); return; }   // msg 192
                 Submit(first, last, 0, 0, 0, false);
             }
@@ -405,12 +406,13 @@ namespace OpenFusion.Screens
                     msg.Show("THANKS! \nThe name you submitted is now being reviewed. While we are reviewing this name, you have been assigned a temporary name: Player " + ns.Uid, () => Finish(ns));   // msg 189
                 else Finish(ns);
             }
-            catch (LoginException le) { busy = false; msg.Show(ErrorText(le)); }
-            catch (Exception ex) { busy = false; msg.Show("Name check error.\n" + ex.Message); }
+            catch (LoginException le) { busy = false; Debug.LogWarning("[character creation] stage=" + le.Stage + " code=" + le.Code); msg.Show(ErrorText(le)); }
+            catch (Exception ex) { busy = false; Debug.LogWarning("[character creation] stage=name_error type=" + ex.GetType().Name); msg.Show("Name check error.\n" + ex.Message); }
         }
 
         static string ErrorText(LoginException le)
         {
+            if (le.Stage == "save_slot") return "The server could not reserve this character slot. Return to character selection and try again. (" + le.Code + ")";
             if (le.Stage == "save_name")
             {
                 if (le.Code == 1) return "Sorry!\nCustom names are not yet available.";

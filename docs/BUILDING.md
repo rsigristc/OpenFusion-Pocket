@@ -42,7 +42,7 @@ $unity = 'C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Unity.exe'
   -logFile "$($PWD.Path)\Logs\release-validation.log"
 ```
 
-Check the process exit code, `Logs/release-result.txt` and the fresh APK timestamp. Several checks contact live server/CDN endpoints; service availability affects those checks. A passing batch run does not replace Android device testing, GPU checks or complete mission playthroughs.
+Check the process exit code, `Logs/release-result.txt` and the fresh APK timestamp. Several checks contact live server/CDN endpoints; service availability affects those checks. The Retrobution 3.0.3 live resource audit also locates assets through a separately obtained parent cache at `../ffcache/238bd38f-3add-4dc5-a29a-06213461a206`; its downloaded current fixtures are stored under ignored `Logs/retrobution-303/live`. These game fixtures are not distributed in Git. A passing batch run does not replace Android device testing, GPU checks or complete mission playthroughs.
 
 Standalone projects under `tests/` are development aids. Some require local fixture files obtained from the game or extraction utilities and some have historical dependency assumptions. Their presence is not a claim that every standalone project runs without setup. See each project's source and the historical notes for fixture expectations.
 
@@ -51,13 +51,13 @@ Standalone projects under `tests/` are development aids. Some require local fixt
 ```powershell
 adb devices
 adb -s YOUR_DEVICE_SERIAL install -r Builds/OpenFusion-release.apk
-adb -s YOUR_DEVICE_SERIAL shell am start -n com.openfusion.android/com.unity3d.player.UnityPlayerActivity
+adb -s YOUR_DEVICE_SERIAL shell am start -n com.openfusion.android/com.openfusion.platform.PocketActivity
 adb -s YOUR_DEVICE_SERIAL logcat -s Unity
 ```
 
 `install -r` retains existing data when package and signing identity match. Local builds may use your local Android development certificate if no custom signing identity is configured. They are not guaranteed to update a release signed on another machine. No private keystore or signing password is distributed in this repository.
 
-The v1.5 DS Companion asset includes the GitHub updater and uses Android build code 3 (v1.0 used build 2). Its application ID remains `com.openfusion.android`, and its display name is OpenFusion:Pocket. After building, use `tools/prepare-release.ps1` to generate the APK, update manifest and checksums for publication. See [UPDATER.md](UPDATER.md) for the release workflow.
+The v2.0 asset includes the GitHub updater and uses Android build code 4 (v1.5 used build 3; v1.0 used build 2). Its application ID remains `com.openfusion.android`, and its display name is OpenFusion:Pocket. After building, use `tools/prepare-release.ps1` to generate the APK, update manifest and checksums for publication. See [UPDATER.md](UPDATER.md) for the release workflow.
 
 ## Useful references
 

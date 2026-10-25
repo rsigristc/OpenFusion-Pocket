@@ -115,7 +115,7 @@ namespace OpenFusion.World
 
         void OnGUI()
         {
-            if (!open) return; var e = Event.current; if (e == null || Screen.height <= 0) return;
+            if (!open || TouchProfileEditor.Active) return; var e = Event.current; if (e == null || Screen.height <= 0) return;
             if (!texTried) { texTried = true; tSky = UiKit.Tex("equipbar"); tProBar = UiKit.Tex("setting_progressbar_img"); tThumb = UiKit.Tex("setting_progressbar"); tChk1 = UiKit.Tex("set_check"); tChk2 = UiKit.Tex("set_check2"); }
             float W = Screen.width, H = Screen.height, Sc = Mathf.Min(H / PlayerHud.UiRefH, W / 1020f);
             var om = GUI.matrix; var oc = GUI.color; int od = GUI.depth; GUI.depth = -1500; GUI.color = Color.white;
@@ -330,10 +330,11 @@ namespace OpenFusion.World
             var label = new GUIStyle(GUI.skin.label) { fontSize = 19, alignment = TextAnchor.MiddleCenter, wordWrap = true };
             var toggle = new GUIStyle(GUI.skin.toggle) { fontSize = 17 };
             GUI.Label(new Rect(90, 35, 840, 45), "TOUCH CONTROLS", label);
+            if (GUI.Button(new Rect(660, 145, 250, 40), "Layout editor / profiles")) TouchProfileEditor.Show(false, Changed);
             bool hide = GUI.Toggle(new Rect(95, 100, 800, 36), TouchLayout.HideWithPad, "Hide when a gamepad is connected (restore on disconnect)", toggle);
             if (hide != TouchLayout.HideWithPad) { TouchLayout.HideWithPad = hide; Changed(); }
             GUI.Label(new Rect(95, 140, 400, 35), "Button size", label);
-            float size = GUI.HorizontalSlider(new Rect(510, 155, 360, 30), TouchLayout.Scale, .65f, 1.3f);
+            float size = GUI.HorizontalSlider(new Rect(410, 155, 220, 30), TouchLayout.Scale, .65f, 1.3f);
             if (Mathf.Abs(size - TouchLayout.Scale) > .001f) { TouchLayout.Scale = size; Changed(); }
             for (int i = 0; i < TouchLayout.Actions.Length; i++)
             {

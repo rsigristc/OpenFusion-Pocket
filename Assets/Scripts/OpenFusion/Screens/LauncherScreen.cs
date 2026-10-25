@@ -1,7 +1,7 @@
 // Launcher estilo OpenFusionLauncher (Tauri/Bootstrap dark) en IMGUI para Android. Sustituye al formulario World/MobileLogin.cs.
 // Home (logo, tagline, tabla de servidores, Add/Edit/Delete/Connect), modales Add/Edit, Delete, Log In/Register, Forgot, About y Settings.
 // Todo se dibuja en unidades de referencia (altura 681, UiKit.BeginTopLeft) con la fuente normal de IMGUI. Scroll tactil propio (arrastrar), sin GUI.ScrollView.
-// La contrasena NUNCA se guarda (ni en disco ni en logs); "Remember Me" solo guarda el nombre de usuario por servidor en PlayerPrefs.
+// Usernames may be remembered in PlayerPrefs; optional passwords use Android Keystore encryption after authenticated login.
 // SIN COMPILAR EN UNITY (solo comprobacion sintactica Roslyn).
 using System;
 using System.Linq;
@@ -72,7 +72,7 @@ namespace OpenFusion.Screens
         string adUuid, adName = "", adEndpoint = "", adHost = ""; int adTab;
         // Login / Register
         int loginTab; string loginUser = "", loginPass = "", regUser = "", regPass = "", regConfirm = "", regEmail = "", formErr, forgotEmail = "";
-        bool remember, emailReq; bool forgotBusy;
+        bool remember, rememberPassword, emailReq; string credentialIdentity; bool forgotBusy;
         MdDoc annDoc, confirmDoc; bool annLoading;
 
         // recursos / estilos (se crean en OnGUI)
@@ -92,6 +92,7 @@ namespace OpenFusion.Screens
 
         void OnDestroy()
         {
+            Application.deepLinkActivated -= ReceiveServerLink;
             foreach (var t in new[] { tBtnP, tBtnS, tBtnD, tBtnW, tModalBg, tModalFoot }) if (t != null) Destroy(t);
             if (tcs != null) tcs.TrySetCanceled();
         }
@@ -99,21 +100,20 @@ namespace OpenFusion.Screens
         // ---------------------------------------------------------------- Update: atras, inercia, toasts
         void Update()
         {
-            if (!Visible) return;
+            if (!Visible || OpenFusion.World.TouchProfileEditor.Active) return;
+            ProcessServerLink();
             if (!escBroken)
             {
                 try
                 {
-                    if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
+                    if (UnityEngine.Input.GetKeyDown(KeyCode.Escape) && OpenFusion.World.ControlMap.CancelCaptureFrame != Time.frameCount)
                     {
-                        if (confirmOpen) confirmOpen = false;
-                        else if (modal != Modal.None) CloseModal();
-                        else if (page == Page.Settings) page = Page.Home;
-                        else sel = -1;
+                        NavigateBack();
                     }
                 }
                 catch (Exception) { escBroken = true; }   // sin Input antiguo
             }
+            UpdateGamepadNavigation();
             Inertia(scrTable); Inertia(scrAnn); Inertia(scrPage); Inertia(scrUpdates);
             if (page == Page.Settings && stab == 2 && Time.unscaledTime >= nextCacheScan) RefreshBuildCache();
             { var cur = Sel(); foreach (var sv in servers) { float al; bgAlpha.TryGetValue(sv.uuid, out al); float tgt = page == Page.Home && sv == cur && Art(artBg, sv, false) != null ? 0.25f : 0f; bgAlpha[sv.uuid] = Mathf.MoveTowards(al, tgt, Time.unscaledDeltaTime * 0.5f); } }
@@ -180,7 +180,7 @@ namespace OpenFusion.Screens
         static string ApiUrl(ServerEntry s)
         {
             var e = (s.endpoint ?? "").Trim().TrimEnd('/');
-            return e.StartsWith("http://") || e.StartsWith("https://") ? e : "https://" + e;
+            return LauncherServerLink.NormalizeEndpoint(e) ?? "https://" + e;
         }
         static bool IsEndpoint(ServerEntry s) { return s != null && !string.IsNullOrEmpty(s.endpoint); }
 
@@ -303,7 +303,9 @@ namespace OpenFusion.Screens
         void OpenLogin(ServerEntry s)
         {
             modal = Modal.Login; modalToken++; loginTab = 0; confirmOpen = false; formErr = null; busy = false;
-            loginUser = PlayerPrefs.GetString(UserKey(s), ""); remember = PlayerPrefs.HasKey(UserKey(s)); loginPass = "";
+            loginUser = PlayerPrefs.GetString(UserKey(s), ""); remember = PlayerPrefs.HasKey(UserKey(s));
+            credentialIdentity = PocketPlatform.Identity(s.uuid, IsEndpoint(s) ? ApiUrl(s) : s.ip, loginUser);
+            loginPass = remember ? PocketPlatform.Load(credentialIdentity) : ""; rememberPassword = !string.IsNullOrEmpty(loginPass);
             regUser = ""; regPass = ""; regConfirm = ""; regEmail = ""; annDoc = null; scrAnn.y = 0f; emailReq = false;
             if (IsEndpoint(s)) { var _a = LoadAnn(s, modalToken); var _c = LoadCtx(s, modalToken); }
         }
@@ -356,10 +358,10 @@ namespace OpenFusion.Screens
                     }
                 }
                 if (this == null || token != modalToken) return;
-                // solo se recuerda el NOMBRE de usuario; la contrasena no se guarda en ningun sitio
+                // Password persistence is deferred until the login server confirms authentication.
                 if (remember) PlayerPrefs.SetString(UserKey(s), user); else PlayerPrefs.DeleteKey(UserKey(s));
                 PlayerPrefs.Save();
-                var res = new LauncherResult { ServerUrl = url, ServerId = s.uuid, ServerName = s.description, Username = user, Password = pass, LoginAddress = addr, VersionUuid = s.version };
+                var res = new LauncherResult { ServerUrl = url, ServerId = s.uuid, ServerName = s.description, Username = user, Password = pass, LoginAddress = addr, VersionUuid = s.version, SavePassword = rememberPassword, CredentialIdentity = PocketPlatform.Identity(s.uuid, IsEndpoint(s) ? ApiUrl(s) : s.ip, user) };
                 loginPass = ""; regPass = ""; regConfirm = "";
                 modal = Modal.None; modalToken++; Visible = false; thanks = false;
                 if (tcs != null) tcs.TrySetResult(res);
@@ -412,11 +414,7 @@ namespace OpenFusion.Screens
         }
         static bool ValidEndpoint(string raw)
         {
-            string s = NormEndpoint(raw); if (s.Length == 0) return false;
-            int i = s.IndexOf('/'); string host = i < 0 ? s : s.Substring(0, i), path = i < 0 ? null : s.Substring(i);
-            if (!Regex.IsMatch(host, "^[a-z0-9.-]+$", RegexOptions.IgnoreCase)) return false;
-            if (path != null && (path.Length < 2 || path.EndsWith("/") || path.IndexOf(' ') >= 0)) return false;
-            return true;
+            return LauncherServerLink.NormalizeEndpoint(raw) != null;
         }
         /// <summary>host[:puerto]; vacio = localhost. Devuelve null si es invalido; si no, "host:puerto" (puerto por defecto 23000).</summary>
         static string NormHost(string raw)
@@ -441,7 +439,7 @@ namespace OpenFusion.Screens
         {
             string name = string.IsNullOrWhiteSpace(adName) ? "My OpenFusion Server" : adName.Trim();
             var e = new ServerEntry { uuid = adUuid ?? Guid.NewGuid().ToString(), description = name };
-            if (adTab == 1) e.endpoint = NormEndpoint(adEndpoint).TrimEnd('/'); else e.ip = NormHost(adHost);   // al guardar se descarta lo otro
+            if (adTab == 1) e.endpoint = LauncherServerLink.NormalizeEndpoint(adEndpoint); else e.ip = NormHost(adHost);
             if (adUuid == null) { servers.Add(e); sel = servers.Count - 1; Toast("success", "Server added"); }
             else { int i = servers.FindIndex(x => x.uuid == adUuid); if (i >= 0) { servers[i] = e; Toast("success", "Server updated"); } }
             SaveServers(); SaveSel(); var _t = RefreshServer(e); CloseModal();
@@ -503,6 +501,7 @@ namespace OpenFusion.Screens
         bool Tap(Rect r, bool enabled = true)
         {
             var e = Event.current; int id = GUIUtility.GetControlID(FocusType.Passive, r); bool on = enabled && inputOn, hov = r.Contains(e.mousePosition), res = false;
+            if (NavigateControl(r, "tap", on)) res = true;
             if (!on) return false;
             if (e.type == EventType.MouseDown && hov && e.button == 0) { GUIUtility.hotControl = id; e.Use(); }
             else if (e.type == EventType.MouseUp && GUIUtility.hotControl == id) { GUIUtility.hotControl = 0; if (hov && !clickSuppress) res = true; e.Use(); }
@@ -512,6 +511,7 @@ namespace OpenFusion.Screens
         bool Btn(Rect r, string text, Kind k, bool enabled = true, int size = 17, string icon = null, bool iconLeft = false)
         {
             var e = Event.current; int id = GUIUtility.GetControlID(FocusType.Passive, r); bool on = enabled && inputOn, hov = r.Contains(e.mousePosition), res = false;
+            if (NavigateControl(r, "button:" + text + ":" + icon, on)) res = true;
             if (on)
             {
                 if (e.type == EventType.MouseDown && hov && e.button == 0) { GUIUtility.hotControl = id; e.Use(); }
@@ -554,6 +554,17 @@ namespace OpenFusion.Screens
             stField.fontSize = size; GUI.SetNextControlName(name);
             string v = pass ? GUI.PasswordField(r, val ?? "", '*', max, stField) : GUI.TextField(r, val ?? "", max, stField);
             if (placeholder != null && string.IsNullOrEmpty(v) && GUI.GetNameOfFocusedControl() != name) Lbl(new Rect(r.x + 8, r.y, r.width - 16, r.height), placeholder, size, A(CGray, 0.7f));
+            if (NavigateControl(r, "field:" + name, inputOn && GUI.enabled))
+            {
+                GUI.FocusControl(name);
+                navKeyboard = TouchScreenKeyboard.Open(v ?? "", TouchScreenKeyboardType.Default, false, false, pass);
+                navKeyboardName = name;
+            }
+            if (navKeyboard != null && navKeyboardName == name)
+            {
+                v = navKeyboard.text ?? ""; if (v.Length > max) v = v.Substring(0, max);
+                if (navKeyboard.status != TouchScreenKeyboard.Status.Visible) { navKeyboard = null; navKeyboardName = null; }
+            }
             return v;
         }
         string FieldRow(Rect r, string label, string val, int max, string name, bool pass, bool invalid, string ph = null)
@@ -613,10 +624,11 @@ namespace OpenFusion.Screens
             }
             else if (!inputOn) { s.down = false; s.finger = -1; }
             s.y = Mathf.Clamp(s.y, 0f, s.maxY);
+            NavigationScrollBegin(s, view);
             GUI.BeginGroup(view); GUI.BeginGroup(new Rect(0f, -s.y, view.width, Mathf.Max(contentH, view.height)));
             return new Rect(0f, 0f, view.width, contentH);
         }
-        static void ScrollEnd() { GUI.EndGroup(); GUI.EndGroup(); }
+        void ScrollEnd() { GUI.EndGroup(); GUI.EndGroup(); NavigationScrollEnd(); }
 
         // ---- area segura en unidades de referencia
         static Rect SafeArea()
@@ -629,8 +641,9 @@ namespace OpenFusion.Screens
         // ================================================================ OnGUI
         void OnGUI()
         {
-            if (!Visible) return;
+            if (!Visible || OpenFusion.World.TouchProfileEditor.Active) return;
             InitGui();
+            BeginNavigation();
             UiKit.BeginTopLeft();
             try
             {
@@ -649,6 +662,7 @@ namespace OpenFusion.Screens
                     case Modal.Updates: DrawUpdates(a); break;
                 }
                 inputOn = true; DrawToasts(a);
+                EndNavigation();
             }
             finally { UiKit.End(); }
         }
@@ -826,6 +840,7 @@ namespace OpenFusion.Screens
                     DrawVersions(new Rect(nmW, rr.y, verW, RowH), s, st);
                     DrawStatus(new Rect(nmW + verW, rr.y, stW, RowH), s, st);
                 }
+                if (NavigateControl(rr, "server:" + servers[i].uuid, inputOn)) { sel = i; SaveSel(); }
                 if (scrTable.tap.HasValue && rr.Contains(scrTable.tap.Value)) TapRow(i);
             }
             ScrollEnd();
@@ -952,23 +967,31 @@ namespace OpenFusion.Screens
                 var tr = new Rect(body.x + i * body.width / tabs, y, body.width / tabs, 40f); bool act = loginTab == i;
                 DrawTile(tr, act ? tModalFoot : tModalBg); UiKit.Outline(tr, CBorder, 1f);
                 Lbl(tr, i == 0 ? "Log In" : "Register", 17, CModalText, TextAnchor.MiddleCenter, act);
-                if (Tap(tr) && !act) { loginTab = i; formErr = null; GUI.FocusControl(null); }
+                if (Tap(tr) && !act) { loginTab = i; if(i==1){rememberPassword=false;loginPass="";} formErr = null; GUI.FocusControl(null); }
             }
             y += 50f; bool can; string focus = GUI.GetNameOfFocusedControl();
             if (loginTab == 0)
             {
+                string previousUser = loginUser;
                 loginUser = FieldRow(new Rect(x0, y, colW, 62f), "Username", loginUser, 64, "lg_user", false, false);
+                if (previousUser != loginUser) { if (rememberPassword) loginPass = ""; rememberPassword = false; credentialIdentity = PocketPlatform.Identity(s.uuid, IsEndpoint(s) ? ApiUrl(s) : s.ip, loginUser); }
                 loginPass = FieldRow(new Rect(x0 + colW + 12f, y, colW, 62f), "Password", loginPass, 128, "lg_pass", true, false);
                 y += 66f;
                 var cb = new Rect(x0, y + 6f, 28f, 28f);
                 UiKit.Fill(cb, Color.black); UiKit.Outline(cb, CInput, 1.5f); if (remember) Lbl(cb, "X", 18, COk, TextAnchor.MiddleCenter, true);
                 Lbl(new Rect(x0 + 38f, y, 170f, 40f), "Remember Me", 16, CModalText);
-                if (Tap(new Rect(x0, y, 210f, 40f))) remember = !remember;
+                if (Tap(new Rect(x0, y, 210f, 40f))) { remember = !remember; if (!remember) { rememberPassword = false; PocketPlatform.Forget(credentialIdentity); } }
+                if (PocketPlatform.Available) {
+                    var saved = new Rect(x0 + 220f, y + 7f, 23f, 23f); UiKit.Outline(saved, CInput, 1.5f);
+                    if (rememberPassword) Lbl(saved, "X", 16, COk, TextAnchor.MiddleCenter, true);
+                    Lbl(new Rect(saved.xMax + 6f, y, 210f, 40f), "Save password (encrypted)", 13, CModalText);
+                    if (Tap(new Rect(saved.x, y, 245f, 40f))) { rememberPassword = !rememberPassword; if (rememberPassword) remember = true; else PocketPlatform.Forget(credentialIdentity); }
+                }
                 if (ep)
                 {
-                    string ft = "Forgot your password?"; float fw = TextW(ft, 15, false); var fr = new Rect(x0 + iw - fw - 4f, y, fw + 4f, 40f);
+                    string ft = "Forgot your password?"; float fw = TextW(ft, 15, false); var fr = new Rect(x0 + iw - fw - 4f, y + 35f, fw + 4f, 30f);
                     Lbl(fr, ft, 15, CLink, TextAnchor.MiddleRight); UiKit.Fill(new Rect(fr.x + 2f, fr.y + 28f, fw, 1f), CLink);
-                    if (Tap(new Rect(fr.x - 10f, y, fr.width + 20f, 40f))) { modal = Modal.Forgot; modalToken++; forgotEmail = ""; formErr = null; inputOn = prevOn; GUI.enabled = ge; return; }
+                    if (Tap(new Rect(fr.x - 10f, fr.y, fr.width + 20f, fr.height))) { modal = Modal.Forgot; modalToken++; forgotEmail = ""; formErr = null; inputOn = prevOn; GUI.enabled = ge; return; }
                 }
                 can = loginUser.Trim().Length > 0 && loginPass.Length > 0;
             }
@@ -1056,13 +1079,16 @@ namespace OpenFusion.Screens
 
         void DrawAbout(Rect a)
         {
-            var body = ModalFrame(a, Mathf.Min(a.width - 16f, 560f), 294f, "About OpenFusion:Pocket");
+            var body = ModalFrame(a, Mathf.Min(a.width - 16f, 620f), 410f, "About OpenFusion:Pocket");
             float x0 = body.x + 16f, iw = body.width - 32f, y = body.y + 14f;
             LblM(new Rect(x0, y, iw, 22f), "Version " + Application.version + " (build " + PocketRelease.BuildCode + ")", 15, CModalText); y += 30f;
+            LblM(new Rect(x0, y, iw, 22f), "Unity " + Application.unityVersion + " / " + (IntPtr.Size * 8) + "-bit / " + SystemInfo.graphicsDeviceType, 14, CModalText); y += 26f;
+            LblM(new Rect(x0, y, iw, 22f), "Launcher feature reference: OpenFusionLauncher " + LauncherServerLink.UpstreamVersion, 13, CGray); y += 26f;
             LblM(new Rect(x0, y, iw, 22f), "Android adaptation: Rodrigo Sigrist / rsigristc", 14, CModalText); y += 28f;
-            LblM(new Rect(x0, y, iw, 22f), "©2020-2025 OpenFusion Contributors", 15, CModalText); y += 22f;
+            LblM(new Rect(x0, y, iw, 22f), "©2020-2026 OpenFusion Contributors", 15, CModalText); y += 22f;
             LblM(new Rect(x0, y, iw, 22f), "OpenFusion is licensed under MIT.", 15, CModalText);
             float by = body.yMax - 48f;
+            if (Btn(new Rect(x0, by - 92f, iw, 38f), "Collect diagnostics / Share", Kind.Primary, true, 15)) CollectDiagnostics();
             if (Btn(new Rect(x0, by - 46f, iw, 38f), "GitHub: rsigristc/OpenFusion-Pocket", Kind.Primary, true, 15, "github")) Application.OpenURL(PocketRelease.Repository);
             if (Btn(new Rect(x0, by, 170f, 38f), "Check for updates", Kind.Primary, true, 15)) OpenUpdates();
             if (Btn(new Rect(x0 + 178f, by, 56f, 38f), null, Kind.Primary, true, 18, "discord")) Application.OpenURL("https://discord.gg/DYavckB");
@@ -1164,7 +1190,7 @@ namespace OpenFusion.Screens
             {
                 case 2: contentH = 94f + Builds().Count * 140f + 8f; break;
                 case 3: contentH = 54f + servers.Count * 120f + 8f; break;
-                default: contentH = 420f; break;
+                default: contentH = stab == 1 ? 560f : 420f; break;
             }
             ScrollBegin(scrPage, view, contentH);
             float vw = view.width;
@@ -1184,7 +1210,12 @@ namespace OpenFusion.Screens
 
         void DrawPrefsTab(float vw)
         {
-            if (stab == 1 && Btn(new Rect(16f, 350f, vw - 32f, 42f), "Dual Screen settings", Kind.Primary, true, 16)) OpenFusion.World.DualScreenController.ShowSettings();
+            if (stab == 1) {
+                if (Btn(new Rect(16f, 350f, vw - 32f, 42f), "Dual Screen settings", Kind.Primary, true, 16)) OpenFusion.World.DualScreenController.ShowSettings();
+                if (Btn(new Rect(16f, 402f, vw - 32f, 42f), "Touch layout editor / profiles", Kind.Primary, true, 16)) OpenFusion.World.TouchProfileEditor.Show(true);
+                if (Btn(new Rect(16f, 454f, vw - 32f, 42f), "Graphics API (experimental Vulkan; restart required)", Kind.Primary, PocketPlatform.Available, 15)) PocketPlatform.RendererSettings();
+                Lbl(new Rect(16f, 505f, vw - 32f, 44f), "Launcher: D-pad / stick selects, A opens, B returns, L1 / R1 changes Settings tabs. In-game: L3 + R3 toggles cursor; LB switches DS surface.", 13, CModalText);
+            }
             if (prefsEdit == null) { prefsApplied = LoadPrefs(); prefsEdit = prefsApplied.Clone(); }
             bool launcher = stab == 0;
             float pw = Mathf.Min(vw - 24f, Mathf.Clamp(vw * 0.66f, 520f, 780f)), px = (vw - pw) * 0.5f, py = 28f;
@@ -1202,7 +1233,7 @@ namespace OpenFusion.Screens
             {
                 prefsEdit.keepAwake = Choice(new Rect(x0, y, iw, 62f), "Keep the screen on while playing", new[] { "No", "Yes" }, prefsEdit.keepAwake); y += 74f;
                 prefsEdit.fps = Choice(new Rect(x0, y, iw, 62f), "Frame rate limit", new[] { "30 FPS", "60 FPS", "Unlimited" }, prefsEdit.fps); y += 74f;
-                if (Btn(new Rect(x0, y, iw, 48f), "Forget remembered usernames", Kind.Danger, true, 16)) { foreach (var s in servers) PlayerPrefs.DeleteKey(UserKey(s)); PlayerPrefs.Save(); Toast("success", "Remembered usernames cleared"); }
+                if (Btn(new Rect(x0, y, iw, 48f), "Forget saved logins", Kind.Danger, true, 16)) { foreach (var s in servers) PlayerPrefs.DeleteKey(UserKey(s)); PocketPlatform.ForgetAll(); PlayerPrefs.Save(); Toast("success", "Saved logins cleared"); }
             }
             else
             {
@@ -1263,7 +1294,7 @@ namespace OpenFusion.Screens
         {
             if (Btn(new Rect(vw - 8f - 106f, 8f, 106f, 38f), "Refresh", Kind.Primary, true, 16, "rotate_right")) RefreshAll();
             if (Btn(new Rect(vw - 8f - 106f - 8f - 134f, 8f, 134f, 38f), "Log Out All", Kind.Danger, true, 16, "sign_out"))
-            { foreach (var s in servers) PlayerPrefs.DeleteKey(UserKey(s)); PlayerPrefs.Save(); Toast("success", "Remembered usernames cleared"); }
+            { foreach (var s in servers) PlayerPrefs.DeleteKey(UserKey(s)); PocketPlatform.ForgetAll(); PlayerPrefs.Save(); Toast("success", "Saved logins cleared"); }
             float y = 54f;
             for (int i = 0; i < servers.Count; i++)
             {

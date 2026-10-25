@@ -30,7 +30,7 @@ namespace OpenFusion.World
         public static bool HudHidden { get { return WelcomePopup.Active || Current == Win.Settings || Current == Win.Map || Current == Win.Journal || Current == Win.Guide || Current == Win.EMail || Current == Win.MyStuff || Current == Win.Bank || Current == Win.Vendor || Current == Win.Trade || TransportWindow.Active || GuideChangerWindow.Active || EnchantWindow.Active || CombineWindow.Active || RulesWindow.Active || BarberWindow.Shown; } }
         static bool NonLifeBlocking => SysMessageBox.Active || Open || Slide > 0f || BarberWindow.Active || GuideChangerWindow.Active || TransportWindow.Active || RaceSystem.Active || RulesWindow.Active || EnchantWindow.Active || CombineWindow.Active;
         static bool OtherBlocking => PlayerLife.Active || NonLifeBlocking;
-        public static bool Blocking => OtherBlocking || Current != Win.None;
+        public static bool Blocking => TutorialTraining.OverlayBlocking || OtherBlocking || Current != Win.None;
         public static bool NanoStationOnly => !OtherBlocking && Current == Win.MyStuff && InventoryWindow.Machine;
         public static bool EquipmentInfoOnly => !OtherBlocking && Current == Win.MyStuff && InventoryWindow.Instance != null && InventoryWindow.Instance.DualItemPreview;
         public static bool DeathOnly => PlayerLife.Active && !NonLifeBlocking && Current == Win.None;
@@ -38,11 +38,13 @@ namespace OpenFusion.World
 
         public static void SetOpen(bool v, bool sound = true)
         {
+            if(v && TutorialTraining.Active && (TutorialTraining.OverlayBlocking || TutorialTraining.Instance.Current<TutorialTraining.Lesson.Journal)) return;
             if (Open == v) return; Open = v; Slide = 1f;
             if (sound) Sfx.Ui(v ? "Open_Screen" : "Close_Screen");
         }
         public static bool OpenWindow(Win w)
         {
+            if(!TutorialTraining.WindowAllowed(w)) return false;
             if (w == Win.None) return false;
             if (!Implemented.Contains(w)) { Debug.Log("[menu] la ventana " + w + " aun no esta portada"); return false; }
             if (Open) SetOpen(false, false);
@@ -92,8 +94,9 @@ namespace OpenFusion.World
             if (warpCool > 0f) warpCool -= dt;
             if (regenPending) { regenPending = false; warping = false; if (ents != null) ents.RaiseTeleport(regenTeleX, regenTeleY, regenTeleZ); }
             if (warping) { warpT -= dt; if (warpT <= 0f) { warping = false; SendWarp(); } }
-            if ((Input.GetKeyDown(KeyCode.Escape) || ControlMap.Down(ControlMap.K.Esc, false)) && !busyPrev && !ControlMap.Capturing && ControlMap.CancelCaptureFrame != Time.frameCount)
+            if ((Input.GetKeyDown(KeyCode.Escape) || ControlMap.Down(ControlMap.K.Esc, false, true)) && !TouchProfileEditor.Active && !busyPrev && !ControlMap.Capturing && ControlMap.CancelCaptureFrame != Time.frameCount)
             {
+                if (TutorialTraining.ClosePrompt()) return;
                 if (Current != Win.None) CloseWindow();
                 else if (Open) SetOpen(false);
                 else SetOpen(true);
@@ -104,7 +107,7 @@ namespace OpenFusion.World
                 Hotkey(ControlMap.K.WorldMap, Win.Map); Hotkey(ControlMap.K.Help, Win.Guide); Hotkey(ControlMap.K.Option, Win.Settings);
             }
         }
-        void Hotkey(ControlMap.K k, Win w) { if (!ControlMap.Down(k, false)) return; if (Current == w) CloseWindow(); else if (Current == Win.None) OpenWindow(w); }
+        void Hotkey(ControlMap.K k, Win w) { if (!ControlMap.Down(k, false, true)) return; if (Current == w) CloseWindow(); else if (Current == Win.None) OpenWindow(w); }
         // estado "ocupado" del frame anterior: el chat/NPC/popup consumen ESC en su propio Update, que puede ejecutarse antes que este
         void LateUpdate() { busyPrev = BarberWindow.Active || GuideChangerWindow.Active || TransportWindow.Active || RaceSystem.Active || RulesWindow.Active || EnchantWindow.Active || CombineWindow.Active || ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || JournalWindow.PopupActive || EmailWindow.Typing || InventoryWindow.Busy || InventoryWindow.Typing || ModalWindow.Overlayed || SocialMenu.Active; }
 
@@ -184,7 +187,7 @@ namespace OpenFusion.World
             for (int i = 0; i < Names.Length; i++)
             {
                 var r = new Rect(19f + 1f, 166f + 21f + (26f + 3f) * i, 156f, 26f);
-                if (Skin.Button(r, Names[i], i == Names.Length - 1 ? red : btn, ready, true)) { Sfx.Button(); OpenWindow(Targets[i]); }
+                if (Skin.Button(r, Names[i], i == Names.Length - 1 ? red : btn, ready && TutorialTraining.WindowAllowed(Targets[i]), true)) { Sfx.Button(); OpenWindow(Targets[i]); }
             }
             if (Skin.Button(new Rect(162f, 158f, 23f, 23f), "", close, ready, true)) { Sfx.Button(); SetOpen(false); }
             GUI.EndGroup();
@@ -202,7 +205,7 @@ namespace OpenFusion.World
             float gy = -270f;   // EmoteMenuPos.y = Screen.height - 270 (relativo al pivote inferior)
             GUI.BeginGroup(new Rect(gx, gy, 172f, 238f));
             Skin.Box(new Rect(0f, 1f, 170f, 127f), box);
-            bool ready = Slide <= 0f && Open;
+            bool ready = Slide <= 0f && Open && !TutorialTraining.Active;
             bool cool = warpCool > 0f || warping;
             if (Skin.Button(new Rect(10f, 22f, 155f, 25f), "LEAVE GROUP", red, ready && inGroup, true)) { Sfx.Button(); Net(ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_GROUP_LEAVE, 1)); inGroup = false; }
             if (Skin.Button(new Rect(10f, 52f, 155f, 25f), "WARP AWAY", red, ready && !cool, true)) { Sfx.Button(); warping = true; warpT = RaceSystem.InsMap ? 20f : 10f; }

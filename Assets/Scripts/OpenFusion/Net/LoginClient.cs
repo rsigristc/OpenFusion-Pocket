@@ -22,6 +22,7 @@ namespace OpenFusion.Net
         public TimeSpan Timeout = TimeSpan.FromSeconds(15);
         public TimeSpan DuplicateWait = TimeSpan.FromMilliseconds(1500);   // pausa tras REQ_PC_EXIT_DUPLICATE (el original duerme 1500 ms)
         public int PortOffset = 0;                                // iServerPortSelected: se suma al puerto del shard
+        public Action<string> CreationLog; // stages, packet names/sizes and codes only; never names or credentials
         public Action<string> Log;                                // registro de paquetes enviados/recibidos (null = silencio)
     }
 
@@ -38,6 +39,7 @@ namespace OpenFusion.Net
         readonly Stream stream; readonly FramedStream framed; readonly SemaphoreSlim sendLock = new SemaphoreSlim(1, 1);
         readonly CancellationTokenSource cts = new CancellationTokenSource();
         readonly object gate = new object();
+        readonly Dictionary<long, NameSaved> reservedNames = new Dictionary<long, NameSaved>();
         readonly List<Waiter> waiters = new List<Waiter>(); readonly List<CharInfo> chars = new List<CharInfo>();
         readonly SemaphoreSlim charSignal = new SemaphoreSlim(0);
         int verC; Exception dead;
@@ -123,7 +125,15 @@ namespace OpenFusion.Net
             try
             {
                 async Task<KeyValuePair<uint, byte[]>> SendAndWait()
-                { await SendAsync(payload, ct).ConfigureAwait(false); return await w.Tcs.Task.ConfigureAwait(false); }
+                {
+                    bool creation = stage == "check_name" || stage == "save_name" || stage == "char_create";
+                    if (creation) Options.CreationLog?.Invoke("stage=" + stage + " sent");
+                    await SendAsync(payload, ct).ConfigureAwait(false);
+                    var reply = await w.Tcs.Task.ConfigureAwait(false);
+                    if (creation) Options.CreationLog?.Invoke("stage=" + stage + " reply=" + PacketIds.Name(reply.Key) + " bytes=" + reply.Value.Length +
+                        (reply.Key == PacketIds.P_LS2CL_REP_CHECK_CHAR_NAME_FAIL || reply.Key == PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_FAIL || reply.Key == PacketIds.P_LS2CL_REP_CHAR_CREATE_FAIL || reply.Key == PacketIds.P_LS2CL_REP_SHARD_SELECT_FAIL ? " code=" + ClientPackets.ParseErrorCode(reply.Value, stage) : ""));
+                    return reply;
+                }
                 try { return await NetworkDeadline.Wait(SendAndWait(), Options.Timeout, Dispose, ct).ConfigureAwait(false); }
                 catch (TimeoutException) { throw new LoginException(stage, -2, "The login server did not respond in time (" + stage + ")."); }
             }
@@ -183,16 +193,38 @@ namespace OpenFusion.Net
         }
         public async Task<NameSaved> SaveNameAsync(int slot, int gender, int fnCode, int lnCode, int mnCode, string first, string last, CancellationToken ct = default)
         {
-            var r = await Request("save_name", ClientPackets.SaveCharName(slot, gender, fnCode, lnCode, mnCode, first, last), new[] { PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_SUCC, PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_FAIL }, ct).ConfigureAwait(false);
-            if (r.Key == PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_FAIL) throw Fail("save_name", r.Value, "no se pudo reservar el nombre");
-            return ClientPackets.ParseSaveNameSucc(r.Value);
+            var r = await Request("save_name", ClientPackets.SaveCharName(slot, gender, fnCode, lnCode, mnCode, first, last), new[] { PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_SUCC, PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_FAIL, PacketIds.P_LS2CL_REP_CHECK_CHAR_NAME_FAIL, PacketIds.P_LS2CL_REP_SHARD_SELECT_FAIL }, ct).ConfigureAwait(false);
+            if (r.Key != PacketIds.P_LS2CL_REP_SAVE_CHAR_NAME_SUCC) throw Fail(r.Key == PacketIds.P_LS2CL_REP_CHECK_CHAR_NAME_FAIL ? "check_name" : r.Key == PacketIds.P_LS2CL_REP_SHARD_SELECT_FAIL ? "save_slot" : "save_name", r.Value, "no se pudo reservar el nombre");
+            var saved = ClientPackets.ParseSaveNameSucc(r.Value);
+            lock (gate) reservedNames[saved.Uid] = saved;
+            return saved;
+        }
+        public NameSaved ReservedName(int slot)
+        {
+            lock (gate) {
+                foreach (var entry in reservedNames.Values) if (entry.Slot == slot) return entry;
+                var pending = chars.Find(c => c.Slot == slot && c.NeedsCustomization);
+                if (pending == null) return null;
+                var a = pending.Appearance;
+                var name = new NameSaved { Uid = a.Uid, Slot = pending.Slot, Gender = a.Style.Gender, FirstName = a.FirstName, LastName = a.LastName };
+                reservedNames[name.Uid] = name;
+                return name;
+            }
         }
         public async Task<CharInfo> CreateCharacterAsync(long uid, World.PlayerStyle st, int shirtId, int pantsId, int shoesId, int shirtIdx, int pantsIdx, int shoesIdx, int faceIdx = -1, int hairIdx = -1, CancellationToken ct = default)
         {
-            var r = await Request("char_create", ClientPackets.CharCreate(uid, st, shirtId, pantsId, shoesId, shirtIdx, pantsIdx, shoesIdx, 0, faceIdx, hairIdx), new[] { PacketIds.P_LS2CL_REP_CHAR_CREATE_SUCC, PacketIds.P_LS2CL_REP_CHAR_CREATE_FAIL }, ct).ConfigureAwait(false);
-            if (r.Key == PacketIds.P_LS2CL_REP_CHAR_CREATE_FAIL) throw Fail("char_create", r.Value, "creación rechazada");
+            NameSaved reserved;
+            lock (gate) reservedNames.TryGetValue(uid, out reserved);
+            var r = await Request("char_create", ClientPackets.CharCreate(uid, st, shirtId, pantsId, shoesId, shirtIdx, pantsIdx, shoesIdx, 0, faceIdx, hairIdx, reserved), new[] { PacketIds.P_LS2CL_REP_CHAR_CREATE_SUCC, PacketIds.P_LS2CL_REP_CHAR_CREATE_FAIL, PacketIds.P_LS2CL_REP_SHARD_SELECT_FAIL }, ct).ConfigureAwait(false);
+            if (r.Key != PacketIds.P_LS2CL_REP_CHAR_CREATE_SUCC) throw Fail("char_create", r.Value, "creación rechazada");
             var ci = ClientPackets.ParseCharCreateSucc(r.Value);
-            lock (gate) { bool has = false; foreach (var c in chars) if (c.Appearance != null && ci.Appearance != null && c.Appearance.Uid == ci.Appearance.Uid) has = true; if (!has) chars.Add(ci); }
+            if (ci.Appearance == null || ci.Appearance.Uid != uid) throw new LoginException("char_create", -1, "The server returned a different character. Reconnect before trying again.");
+            lock (gate) {
+                if (reservedNames.TryGetValue(uid, out var saved)) { ci.Slot = saved.Slot; reservedNames.Remove(uid); }
+                int existing = chars.FindIndex(c => c.Appearance != null && c.Appearance.Uid == uid);
+                if (existing >= 0) { if (ci.Slot < 1) ci.Slot = chars[existing].Slot; chars[existing] = ci; }
+                else chars.Add(ci);
+            }
             return ci;
         }
         /// Borra un personaje (REQ_CHAR_DELETE{iPC_UID} -> CHAR_DELETE_SUCC{iSlotNum}). Devuelve el slot vaciado.
@@ -205,7 +237,7 @@ namespace OpenFusion.Net
             return slot;
         }
         /// Guarda la bandera del tutorial (SAVE_CHAR_TUTOR); el original la envía al saltarse el tutorial.
-        public Task SaveTutorFlagAsync(long uid, int flag, CancellationToken ct = default) { return SendAsync(ClientPackets.SaveCharTutor(uid, flag), ct); }
+        public Task SaveTutorFlagAsync(long uid, int flag, CancellationToken ct = default) { return NetworkDeadline.Wait(SendAsync(ClientPackets.SaveCharTutor(uid, flag), ct), Options.Timeout, Dispose, ct); }
 
         // ---------- game server ----------
         /// Abre la conexión al shard con la clave FEKey del login, envía REQ_PC_ENTER y espera ENTER_SUCC/ENTER_FAIL. La sesión queda leyendo en segundo plano.

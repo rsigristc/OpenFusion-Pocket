@@ -12,7 +12,7 @@ namespace OpenFusion.World
     {
         public static NanoMessages Instance;
         public enum Kind { User = 0, Npc = 9, Nano = 10, Etc = 8 }
-        sealed class Msg { public string Title, Text, Icon; public Kind Kind; public float Timer; }
+        sealed class Msg { public string Title, Text, Icon; public Kind Kind; public float Timer; public bool Tutorial; }
         readonly List<Msg> list = new List<Msg>();
         float newT = 1f;
         public bool Visible = true;
@@ -35,6 +35,21 @@ namespace OpenFusion.World
             Instance.list.Add(m);
         }
         public static void Announce(string text, float seconds) { Post("Dexter", text, Kind.Npc, Mathf.Clamp(seconds, 4f, 20f), "dexter_icon"); }
+        // A new lesson supersedes its previous reminder rather than queueing stale
+        // instructions. This presentation never consumes a saved first-use flag.
+        public static void Tutorial(string speaker,string text,int npc,float seconds)
+        {
+            var self=Instance;if(self==null)return;
+            string icon=null;
+            var nt=self.tables?.m_pNpcTable;
+            if(nt?.m_pNpcData!=null)foreach(var row in nt.m_pNpcData)if(row!=null&&row.m_iNpcNumber==npc){
+                int index=row.m_iIcon1;var icons=nt.m_pNpcIconData;
+                if(icons!=null&&index>=0&&index<icons.Length&&icons[index]!=null){var entry=icons[index];string pre=entry.m_iIconType==4?"npcicon_":entry.m_iIconType==8?"mobicon_":entry.m_iIconType==10?"hnpcicon_":null;if(pre!=null)icon=pre+entry.m_iIconNumber.ToString("00");}break;
+            }
+            self.list.Clear();self.guideMentor=-1;self.newT=1;
+            self.list.Add(new Msg{Title=speaker,Text=text,Icon=icon,Kind=Kind.Npc,Timer=seconds,Tutorial=true});Sfx.Ui("Comm_SlideIn");
+        }
+        void OnDestroy(){if(disp!=null)disp.SelfEnter-=OnSelfEnter;if(Instance==this)Instance=null;}
 
 
         // ---- Mensaje de guia al entrar (cnMissionManager l.1990-2012): npc guia segun iGuide (mentor), texto LoginNomail/LoginMail de GuideTable ----
@@ -47,6 +62,7 @@ namespace OpenFusion.World
         void OnSelfEnter(EnterSucc e) { guideMentor = e.Quest != null ? e.Quest.Mentor : 0; guideAt = 4f; }   // hilo de red: solo marcar
         void TickGuide()
         {
+            if(TutorialTraining.Active){guideMentor=-1;return;}
             if (guideMentor < 0) return; if (guideAt > 0f) { guideAt -= Time.deltaTime; return; }
             int g = guideMentor; guideMentor = -1;
             try
@@ -90,22 +106,24 @@ namespace OpenFusion.World
 
         void OnGUI()
         {
-            if (GameMenu.HudHidden) return;
+            if (GameMenu.HudHidden && !(TutorialTraining.Active && list.Count>0 && list[0].Tutorial && GameMenu.Current==GameMenu.Win.Journal)) return;
             if (!Visible || list.Count == 0 || Event.current == null || Event.current.type != EventType.Repaint || Screen.height <= 0) return;
             if (!fontsTried) { fontsTried = true; chalet = BitmapFontLoader.Load(LabelFontJson); title = BitmapFontLoader.Load(TitleFontJson); }
             float W = Screen.width, Sc = GameOptions.UiScale;
             float t2 = newT * newT, s = Mathf.Sin(t2 * Mathf.PI * 0.5f); s *= s;
-            const float mw = 372f, mh = 122f;
+            var m = list[0];
+            float extra=m.Tutorial?Mathf.Max(0,(chalet!=null?chalet.Height(m.Text,164):Mathf.Ceil(m.Text.Length/24f)*15)-70):0;
+            const float mw = 372f;float mh=122f+extra;
             // diseno anclado a la derecha: x_pantalla = W + (xd - W) * Sc, con xd = W - 187 - 372 + s*372 + 65 en unidades de diseno desplazadas desde W
             float xd = W - 187f - mw + s * mw + 65f, wd = (1f - s) * mw;
             var g = new Rect(W + (xd - W) * Sc, 0f, wd * Sc, mh * Sc);
-            var m = list[0];
             var old = GUI.color; int od = GUI.depth; GUI.depth = 7; GUI.color = Color.white;
             GUI.BeginGroup(g);
             try
             {
                 Rect npcBox = new Rect(51f, 3f, 321f, 119f), userBox = new Rect(101f, 3f, 271f, 119f), full = new Rect(0f, 0f, 372f, 122f);
                 Rect titleR = new Rect(130f, 2f, 200f, 30f), textR = new Rect(120f, 25f, 180f, 70f), npcIcon = new Rect(60f, 15f, 64f, 64f), nanoIcon = new Rect(55f, 10f, 64f, 64f);
+                if(m.Tutorial){npcBox.height+=extra;textR.height+=extra+8;}
                 switch (m.Kind)
                 {
                     case Kind.Npc: Box(npcBox, "nanocom_message_npc", Sc); Icon(npcIcon, m.Icon, Sc); break;

@@ -1,6 +1,6 @@
 // OpenFusion/Toon — SkinnedToonShading_*, ToonShading_*, Skin_DirLight_AmbLight_* (2 605 materiales, 26 % del juego).
 // Reconstruido a partir de los vertex programs ARB (asm) y de los SetTexture del ShaderLab original.
-// SIN COMPILAR EN UNITY. No cubre aún las variantes Rim/RimMatcap (Custom/*) -> se ignoran _RimColor/_RimPower.
+// Custom/* Rim variants use the map/event global _RimColor and the original Fresnel power/intensity.
 //
 // Pasada BASE (vertex): P' = P + N*_FatFactor ; u = clamp( N.L + saturate((1 - N.V) * dot(V, -L)), 0.01, 0.99 )
 //   (N, V, L en espacio de vista en el original; aquí en mundo: equivalente) ; uv = uv*ST
@@ -20,6 +20,12 @@ Shader "OpenFusion/Toon"
         _Outline ("Outline width", Range(0, 0.03)) = 0.005
         _FatFactor ("Fat Factor", Range(-0.01, 0.01)) = 0
         _Cutoff ("Alpha cutoff", Float) = 0
+        _RimPower ("Rim power", Float) = 10
+        _RimIntensity ("Rim intensity", Float) = 0.5
+        _EmissionStrength ("Emission strength", Float) = 1
+        _Transparency ("Transparency", Range(0,1)) = 1
+        [Toggle(_OF_RIM)] _RimOn ("Rim light", Float) = 0
+        [Toggle(_OF_RIM_EMISSIVE)] _RimEmissive ("Rim emissive variant", Float) = 0
         [Enum(UnityEngine.Rendering.CullMode)] _Cull ("Cull", Float) = 2
         [Toggle(_OF_RAMP)] _Ramp ("Toon ramp (si no: Skin_DirLight lambert)", Float) = 1
         [Toggle(_OF_OUTLINE)] _OutlineOn ("Outline pass", Float) = 1
@@ -34,8 +40,10 @@ Shader "OpenFusion/Toon"
         CBUFFER_START(UnityPerMaterial)
             float4 _MainTex_ST; float4 _Color; float4 _AmbColor; float4 _Emission; float4 _OutlineColor;
             float _Outline; float _FatFactor; float _Cutoff;
+            float _RimPower; float _RimIntensity; float _EmissionStrength; float _Transparency;
         CBUFFER_END
         float4 _OF_Light0Dir;   // xyz = hacia la luz (mundo)
+        float4 _RimColor;       // Global: ordinary dong colour or the active event's rim colour.
         float _OF_ToonOff;      // opcion TOON OUTLINE (GameOptions): 1 = sin contorno
         struct Attr { float4 pos : POSITION; float3 nrm : NORMAL; float2 uv : TEXCOORD0; };
         ENDHLSL
@@ -51,14 +59,23 @@ Shader "OpenFusion/Toon"
             #pragma vertex vert
             #pragma fragment frag
             #pragma shader_feature_local _OF_RAMP
+            #pragma shader_feature_local _OF_RIM
+            #pragma shader_feature_local _OF_RIM_EMISSIVE
             #pragma multi_compile_fog
-            struct Vary { float4 pos : SV_POSITION; float2 uv : TEXCOORD0; float ramp : TEXCOORD1; half4 col : COLOR0; half fog : TEXCOORD2; };
+            struct Vary { float4 pos : SV_POSITION; float2 uv : TEXCOORD0; float ramp : TEXCOORD1; half4 col : COLOR0; half fog : TEXCOORD2;
+            #if defined(_OF_RIM)
+                float3 posWS : TEXCOORD3; float3 normalWS : TEXCOORD4;
+            #endif
+            };
             Vary vert(Attr v)
             {
                 Vary o;
                 float3 p = v.pos.xyz + v.nrm * _FatFactor;
                 o.pos = TransformObjectToHClip(p); o.uv = TRANSFORM_TEX(v.uv, _MainTex); o.fog = ComputeFogFactor(o.pos.z);
                 float3 n = normalize(TransformObjectToWorldNormal(v.nrm));
+            #if defined(_OF_RIM)
+                o.posWS = TransformObjectToWorld(p); o.normalWS = n;
+            #endif
                 float3 L = normalize(_OF_Light0Dir.xyz);
             #if defined(_OF_RAMP)
                 float3 V = normalize(GetCameraPositionWS() - TransformObjectToWorld(p));
@@ -76,11 +93,24 @@ Shader "OpenFusion/Toon"
                 half4 t = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
             #if defined(_OF_RAMP)
                 half4 c = saturate(t * _Color * 2);
-                half4 r = SAMPLE_TEXTURE2D(_ShaderMap, sampler_ShaderMap, float2(i.ramp, 1));
+                half4 r = SAMPLE_TEXTURE2D(_ShaderMap, sampler_ShaderMap, float2(i.ramp, 0.5));
                 c *= r;
             #else
                 half4 c; c.rgb = saturate(t.rgb * i.col.rgb * 2); c.a = t.a;
             #endif
+            #if defined(_OF_RIM)
+                float facing = saturate(dot(normalize(i.normalWS), normalize(GetCameraPositionWS() - i.posWS)));
+                half3 rim = pow(1.0 - facing, max(_RimPower, 0.001)) * _RimIntensity * _RimColor.rgb;
+                #if defined(_OF_RIM_EMISSIVE)
+                    c.rgb = t.rgb * _Color.rgb * _EmissionStrength + rim; c.a = _Transparency;
+                #else
+                    half4 ramp = SAMPLE_TEXTURE2D(_ShaderMap, sampler_ShaderMap, float2(i.ramp, 0.5));
+                    c = t * _Color * 2; c.rgb = c.rgb * ramp.rgb * _EmissionStrength + rim; c.a *= _Transparency;
+                #endif
+            #endif
+                // Legacy's fixed-point framebuffer clamps alpha before blending;
+                // URP's HDR intermediate must not blend doubled toon alpha (>1).
+                c.a = saturate(c.a);
                 if (_Cutoff > 0) clip(c.a - _Cutoff);
                 c.rgb = MixFog(c.rgb, i.fog);
                 return c;

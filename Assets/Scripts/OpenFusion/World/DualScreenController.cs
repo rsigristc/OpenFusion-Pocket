@@ -13,7 +13,7 @@ namespace OpenFusion.World
         // Station dialogs/windows stay on the Unity surface; DS remains available for inspection.
         public static bool SecondaryBlocked => (GameMenu.Blocking && !GameMenu.NanoStationOnly && !GameMenu.DeathOnly && !GameMenu.EquipmentInfoOnly) ||
             (NpcUI.Active && !NpcUI.NanoStationActive) || WelcomePopup.Active || ChatHud.Typing;
-        public static bool SecondaryCommandAllowed(string action) => !SecondaryBlocked &&
+        public static bool SecondaryCommandAllowed(string action) => !TutorialTraining.Active && !SecondaryBlocked &&
             (!(GameMenu.Blocking || NpcUI.Active) || action == "tab" || action == "nanoSelect" || action == "nanoScroll" || action == "missionSelect" || action == "missionMode" || action == "missionScroll" ||
                 action == "pan" || action == "zoom" || action == "world" || action == "local" || action == "filter" ||
                 (GameMenu.NanoStationOnly && !NpcUI.Active &&
@@ -82,7 +82,7 @@ namespace OpenFusion.World
             {
                 Capabilities = JsonUtility.FromJson<DualScreenCapabilities>(bridge.CallStatic<string>("status")) ?? new DualScreenCapabilities();
                 var client = GameClient.FindSelf;
-                bool ready = client != null && client.Bootstrap != null && client.Bootstrap.Entities != null && client.Bootstrap.Entities.Self != null && !WorldBootstrap.Travelling;
+                bool ready = !TutorialTraining.Active && client != null && client.Bootstrap != null && client.Bootstrap.Entities != null && client.Bootstrap.Entities.Self != null && !WorldBootstrap.Travelling;
                 var inventory = InventoryWindow.Instance;
                 bool station = inventory != null && inventory.DualStation;
                 if (!Active && station && inventory.DualLegacySelection > 0) SelectedNano = inventory.DualLegacySelection;
@@ -126,7 +126,8 @@ namespace OpenFusion.World
             if ((c.action == "nano" || c.action == "nanoCard" || c.action == "nanoEquip" || c.action == "nanoUnequip" || c.action == "nanoTune") &&
                 (GameClient.FindSelf == null || !GameClient.FindSelf.WorldConnected))
             { Debug.Log("[DS input] rejected=" + c.action + " reason=disconnected"); return; }
-            if (c.action == "tab") { if (c.value == "Map" || c.value == "Nanos" || c.value == "Equipment" || c.value == "Journal") { SecondaryTab = c.value; nextPanel = 0; Debug.Log("[DS] secondary=" + SecondaryTab); } return; }
+            if (c.action == "tab") { if (c.value == "Map" || c.value == "Nanos" || c.value == "Equipment" || c.value == "Journal" || c.value=="EMail") { SecondaryTab = c.value; nextPanel = 0; Debug.Log("[DS] secondary=" + SecondaryTab); } return; }
+            if(c.action.StartsWith("mail",StringComparison.Ordinal)){EmailWindow.Instance?.DualMailCommand(c.action,c.value);nextPanel=0;return;}
             if (c.action == "missionMode") { if (c.value == "0" || c.value == "1") JournalWindow.Instance?.DualMissionMode(c.value == "1"); nextPanel = 0; return; }
             if (c.action == "missionScroll") { if ((c.value == "0" || c.value == "1") && c.x == Mathf.RoundToInt(c.x) && c.y == Mathf.RoundToInt(c.y)) JournalWindow.Instance?.DualMissionScroll(c.value == "1", (int)c.x, (int)c.y); return; }
             if (c.action == "missionSelect" || c.action == "missionFollow" || c.action == "missionAbandon") {

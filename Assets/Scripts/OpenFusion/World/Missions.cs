@@ -48,6 +48,7 @@ namespace OpenFusion.World
         int QuestItem(int id) { for (int i = 0; i < q.QItemId.Length; i++) if (q.QItemId[i] == id && id != 0) return q.QItemOpt[i]; return 0; }
 
         /// 0 = se puede empezar; otro valor = no (como CheckToStartTaskCondition).
+        public bool CanStart(int taskId) => CheckStart(taskId)==0;
         int CheckStart(int taskId)
         {
             if (taskId <= 0 || !taskById.TryGetValue(taskId, out var m)) return -1;

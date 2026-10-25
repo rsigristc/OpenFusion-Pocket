@@ -20,7 +20,8 @@ namespace OpenFusion.World
 
         public static bool IsFreeZone(Vector3 p) { var q = new Vector2(p.x, p.z); return FutureZone.Contains(q) || TutorialZone.Contains(q); }
 
-        public void Apply(Vector3 camPos, Color fog)
+        bool seasonal; Texture2D seasonalSky, seasonalStar, normalStar;
+        public void Apply(Vector3 camPos, Color fog, ModelFactory models = null)
         {
             if (!built) return;
             bool f = IsFreeZone(camPos);
@@ -28,6 +29,21 @@ namespace OpenFusion.World
             starTarget = free ? 1f : 0.5f;   // FusionStar.LateUpdate: la escala del plano tiende a 1 en zona libre y a 0.5 en zona de pago
             tint = new Color(fog.r, fog.g, fog.b, 1f);
             for (int i = 0; i < mats.Length; i++) mats[i].SetColor("_Tint", tint);
+            bool halloween = SeasonalEvents.Instance != null && SeasonalEvents.Instance.Halloween;
+            if (halloween)
+            {
+                if (seasonalSky == null) seasonalSky = models?.Texture("tutorialassets/sky_night_back.psd");
+                if (seasonalStar == null) seasonalStar = models?.Texture("tutorialassets/fusionstar-1.dds");
+                if (seasonalSky != null) foreach (var material in mats) material.mainTexture = seasonalSky;
+                if (seasonalStar != null && star != null) star.GetComponent<Renderer>().sharedMaterial.mainTexture = seasonalStar;
+                seasonal = true;
+            }
+            else if (seasonal)
+            {
+                LoadTextures();
+                if (star != null) star.GetComponent<Renderer>().sharedMaterial.mainTexture = normalStar;
+                seasonal = false; seasonalSky = seasonalStar = null;
+            }
         }
 
         void Build()
@@ -89,6 +105,7 @@ namespace OpenFusion.World
         void BuildStar()
         {
             var sh = Shader.Find("OpenFusion/SkyStar"); var tex = Resources.Load<Texture2D>("OpenFusion/Sky/fusionstar");
+            normalStar = tex;
             if (sh == null || tex == null) { Debug.LogWarning("[sky] falta el shader SkyStar o la textura fusionstar"); return; }
             tex.wrapMode = TextureWrapMode.Clamp;
             var go = new GameObject("FusionStar"); go.transform.SetParent(transform, false); go.transform.localPosition = new Vector3(0f, 8f, 12f); star = go.transform;

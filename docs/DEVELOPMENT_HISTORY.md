@@ -130,3 +130,20 @@ Camera grounding validation: full BatchDS regressions and Android build passed (
 ## v1.5 — DS Companion release
 
 Publication was explicitly authorized after the user confirmed Missions and reported much better camera stability on AynThor. Full release regressions and Android packaging passed in Logs/unity-v1.5-release.log (0 errors, 12 warnings); standalone Java fold-layout, physical-touch-proof and resource-gauge checks passed. The release is version 1.5 / Android code 3, package com.openfusion.android, API 23+, ARMv7 + ARM64. APK certificate SHA-256 matches the downloaded public v1.0 asset. APK size: 93,463,255 bytes; SHA-256: 27ecc729c0500543650dfd87c9c21276b98f651ad75ed8460f21c2898ca694a4. tools/prepare-release.ps1 generated its update manifest and checksum file. Device coverage remains partial; native companion Chat/E-Mail are not included. No claim of complete map/tutorial/server compatibility is made.
+
+
+### Local input and optional renderer preview (not published)
+
+Added opt-in Android Keystore / AES-GCM password persistence after successful login, strict world-only touch-overlay gating, a safe-area layout editor with three profiles and a colored two-stick controller preset, and a native gamepad UI cursor reusing existing touch actions. Added startup-only experimental Vulkan with OpenGL as default and recovery after incomplete startup. Credentials are scoped by server endpoint/account and stored as authenticated ciphertext in no-backup files; registration does not inherit password-saving consent. Existing Settings Apply/Cancel semantics and native touch/focus/surface cancellation are preserved. PlatformInputRegressionChecks and all release regressions passed; the APK and native packaging compiled without errors. See INPUT_PREVIEW.md for the artifact hash, controls and pending Android tests. No GitHub publication; current ADB endpoint is unavailable and the new connection port has been requested.
+
+
+### Local intro and Tech Square training preview
+
+Fixed inactive cinematic model hierarchies and verified rendered actors/advancing animation with real assets in Unity Play Mode. Added an isolated local Tech Square lesson controller using the existing client dispatcher, combat, Journal and Nano systems; online character state is discarded from the practice snapshot, and all practice outbound traffic is intercepted. Completion is confined to the explicit finish/confirmed-skip boundary. Cinematic tableaux/flythroughs remain condensed. See INPUT_PREVIEW.md for validation and limitations. No GitHub publication is authorized.
+
+
+## v2.0 — controller, onboarding, E-Mail and seasonal support
+
+Publication explicitly authorized after the post-v1.5 local previews. Version 2.0 / Android code 4 includes the changes and remaining limits in `docs/releases/v2.0.md`. The release build runs without the local `POCKET_INPUT_PREVIEW` credential smoke define. All configured regression suites and Android packaging passed (`Logs/v2.0/build.log`: 0 errors, 17 warnings). The APK declares API 23+, ARMv7 + ARM64, `com.openfusion.android`, versionName 2.0 and versionCode 4.
+
+APK SHA-256: `6ed276d4b54572f32fba5f763eb3cd2c9feb1f55aadb62dc61b20ddfffbde079`; size: 116921609 bytes. APK signature verification passed; certificate SHA-256 `71a51c8ccbdd854b9be97b958ab19d558ed735c093806b265c59ee914bc177a0` matches the downloaded public v1.5 APK. `tools/prepare-release.ps1` generated matching update metadata and checksums. The prior local previews were installed/tested on AynThor; this final release build has not yet been installed on a physical device. The unresolved third-party launcher icon display is explicitly noted rather than claimed fixed.

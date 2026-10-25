@@ -27,9 +27,11 @@ namespace OpenFusion.World
         /// Faltan archivos del dong (aún no descargados): quien orquesta descargas (WorldBootstrap) debe pedirlos; se reintenta a los 2 s.
         public event Action<int, int> DongMissing;
         public AssetStore Store => store; public DongBuilder Builder => builder;
+        ModelFactory skyModels;
         public ModelFactory CreateModelFactory(IAssetLocator locator)
         {
             var mf = new ModelFactory(store, locator, builder);
+            skyModels = mf;
             // EPElementController (efectos ES[n] de jumppads/launchers): el constructor de dongs los pide por índice
             builder.EffectFactory = id => { var rf = mf.Locate("Prefabs/Particle/EffectScripts/ES[" + id + "].prefab"); if (!rf.Ok) return null; var go = builder.BuildPrefabAt(rf, null); if (go == null) return null; WorldEntities.ActivateAll(go); go.SetActive(true); return go; };
             return mf;
@@ -155,19 +157,24 @@ namespace OpenFusion.World
         void ApplyColors(Vector3 p)
         {
             reg.PositionColor(p.x, p.z, out var fog, out var sky, out var light, out var fogDepth, out var rim);
-            Shader.SetGlobalColor("_RimColor", new Color(rim[0], rim[1], rim[2], 1f));
+            var fogColor = new Color(fog[0], fog[1], fog[2], 1f);
+            var skyColor = new Color(sky[0], sky[1], sky[2], 1f);
+            var lightColor = new Color(light[0], light[1], light[2], 1f);
+            var rimColor = new Color(rim[0], rim[1], rim[2], 1f);
+            float density = SeasonalEvents.Ambience(ref fogColor, ref skyColor, ref lightColor, ref rimColor, fogDepth, reg.Zone == ZoneType.Paid);
+            Shader.SetGlobalColor("_RimColor", rimColor);
             // cnPlayerCamera.DefaultAmbience: fogDensity = fogDepth * 0.005, fog = fogDepth > 0 (la niebla exponencial de la escena 2.5; el modo no se guarda en el dong).
-            RenderSettings.fog = UseFog && fogDepth > 0f; RenderSettings.fogMode = FogExp2 ? FogMode.ExponentialSquared : FogMode.Exponential; RenderSettings.fogDensity = fogDepth * 0.005f * FogDensityScale;
+            RenderSettings.fog = UseFog && fogDepth > 0f; RenderSettings.fogMode = FogExp2 ? FogMode.ExponentialSquared : FogMode.Exponential; RenderSettings.fogDensity = density * FogDensityScale;
             RenderSettings.reflectionIntensity = 0f;   // el original no tiene reflejos de entorno: evita el brillo (Fresnel) que se movía con la vista
-            RenderSettings.fogColor = new Color(fog[0], fog[1], fog[2], 1f);
+            RenderSettings.fogColor = fogColor;
             // niebla = fondo de cámara: el borde se funde con el cielo (el original muestra el cian de la niebla)
-            RenderSettings.ambientLight = new Color(light[0], light[1], light[2], 1f) * 0.5f;
-            GraphicsFx.SetFilter(new Color(light[0] * 0.6f + 0.4f, light[1] * 0.6f + 0.4f, light[2] * 0.6f + 0.4f, 1f));   // GlowEffect.filterColor = DefaultAmbience: light * 0.6 + blanco * 0.4
+            RenderSettings.ambientLight = lightColor * 0.5f;
+            GraphicsFx.SetFilter(new Color(lightColor.r * 0.6f + 0.4f, lightColor.g * 0.6f + 0.4f, lightColor.b * 0.6f + 0.4f, 1f));
             if (Cam != null)
             {
-                Cam.clearFlags = CameraClearFlags.SolidColor; Cam.backgroundColor = new Color(fog[0], fog[1], fog[2], 1f);
+                Cam.clearFlags = CameraClearFlags.SolidColor; Cam.backgroundColor = fogColor;
                 // cielo 6 caras del original, teñido con el color de niebla (cnPlayerCamera: skybox.SetColor("_Tint", fog))
-                if (UseSky) { if (sky6 == null) sky6 = LegacySky.Create(Cam); if (sky6 != null) sky6.Apply(Cam.transform.position, new Color(fog[0], fog[1], fog[2], 1f)); }
+                if (UseSky) { if (sky6 == null) sky6 = LegacySky.Create(Cam); if (sky6 != null) sky6.Apply(Cam.transform.position, fogColor, skyModels); }
             }
             // fogDepth: el original lo usa en sus shaders de niebla (fogslope.tif); aquí queda como global para los shaders OpenFusion
             Shader.SetGlobalFloat("_OF_FogDepth", fogDepth);

@@ -32,6 +32,7 @@ namespace OpenFusion
         // El mundo se carga DESPUÉS del login, centrado en la posición guardada del personaje (el original también carga antes de pedir el shard).
         static readonly object logLock = new object();
         // W24: cambio de shard (OTHER_SHARD_SUCC): se recarga la escena y se reentra sin menu de login con las credenciales y el personaje de la sesion anterior (CnCharSelectionMode.Play con el shard nuevo).
+        static bool tutorialCompletionPending, tutorialSnapshotPending;
         static LauncherResult lastLaunch; static long lastCharUid; static bool resumePending; static long resumeUid;
         void OnShardSwitch(int shard, int channel)
         {
@@ -44,6 +45,7 @@ namespace OpenFusion
         void Awake()
         { BindSender();
             OpenFusion.World.DualScreenController.Ensure(gameObject);
+            OpenFusion.World.GamepadPointer.Ensure(gameObject);
             ChannelWarp.ReloadOnShardChange = false; ChannelWarp.ShardSwitch -= OnShardSwitch; ChannelWarp.ShardSwitch += OnShardSwitch;
             if (GetComponent<OpenFusion.World.TouchControls>() == null) gameObject.AddComponent<OpenFusion.World.TouchControls>();
             UseScreens = true;
@@ -84,6 +86,19 @@ namespace OpenFusion
                 UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
             });
         }
+        void ReturnToLauncher()
+        {
+            if (this == null) return;
+            Report("Session closed. Returning to launcher.");
+            tutorialCompletionPending = false; resumePending = false; resumeUid = lastCharUid = 0; lastLaunch = null;
+            Password = Username = ""; shardAlive = false;
+            try { Login?.Dispose(); } catch { }
+            try { Shard_?.Session.Dispose(); } catch { }
+            if (Bootstrap != null && Bootstrap.Loader != null) Bootstrap.Loader.Paused = true;
+            // Recreate the startup scene so cameras, character stages, DS and UI share
+            // the same clean lifecycle as a normal launch, without ending the app.
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+        }
         void StartupStage(LoadingScreen screen, string title)
         { RecordStartup(title); Report("[startup] " + title); if (screen != null) screen.ShowStage(title); }
         void RecordStartup(string stage)
@@ -112,6 +127,7 @@ namespace OpenFusion
                 loading = LoadingScreen.Ensure(); loading.Bind(Bootstrap);
                 var launcher = GetComponent<LauncherScreen>() ?? gameObject.AddComponent<LauncherScreen>();
                 resuming = resumePending && lastLaunch != null; resumePending = false;
+                if (!resuming) tutorialCompletionPending = tutorialSnapshotPending = false;
                 var lr = resuming ? lastLaunch : await launcher.Run(); lastLaunch = lr;
                 if (!string.IsNullOrEmpty(lr.ServerUrl)) Bootstrap.ServerUrl = lr.ServerUrl;
                 else { Report("Los servidores 'Simple' (sin API) aún no están soportados: el cliente necesita la API para descargar los recursos."); return; }
@@ -131,7 +147,7 @@ namespace OpenFusion
             if (resuming) await Task.Delay(1500);   // da tiempo al servidor a registrar la desconexion del shard anterior (si no, AlreadyLoggedIn)
             Report("Conectando al login server " + host + ":" + portNum + "…");
             StartupStage(loading, "CONNECTING TO LOGIN SERVER");
-            var opts = new LoginOptions { VerA = VersionA, VerB = VersionB, VerC = VersionC };
+            var opts = new LoginOptions { VerA = VersionA, VerB = VersionB, VerC = VersionC, CreationLog = m => Debug.Log("[character creation] " + m) };
             if (LogPackets) opts.Log = m => Debug.Log("net " + m);
             Login = await LoginSession.ConnectAsync(host, portNum, opts);
 
@@ -144,6 +160,10 @@ namespace OpenFusion
                 ok = await Login.LoginWithCookieAsync(ck.username ?? Username, ck.cookie);   // TEGid = usuario, authid = cookie: suposición
             }
             else ok = await Login.LoginAsync(Username, Password);
+            if (lastLaunch != null && lastLaunch.SavePassword) {
+                lastLaunch.SavePassword = false;
+                if (!PocketPlatform.Save(lastLaunch.CredentialIdentity, Password)) Debug.LogWarning("[login] Secure credential storage was unavailable; password was not saved.");
+            }
             Report("Sesión iniciada: " + ok.Id + ", " + ok.CharCount + " personajes");
             StartupStage(loading, "LOADING CHARACTER SELECTION ASSETS");
             GuideChangerWindow.PaymentFlag = ok.PaymentFlag;   // CnCharSelectionMode.iPaymentFlag (boton time machine, icono de guia)
@@ -179,24 +199,40 @@ namespace OpenFusion
                 var createScr = GetComponent<CharCreateScreen>() ?? gameObject.AddComponent<CharCreateScreen>();
                 int slotForCreate = Login.Characters.Count == 0 ? 1 : -1;   // sin personajes: directo a crear, como el original
                 ch = resumeCh;
+                if (resuming && tutorialCompletionPending) {
+                    tutorialCompletionPending=false;
+                    if (ch == null || ch.TutorialFlag != 1) throw new InvalidOperationException("The server did not confirm tutorial completion. No local rewards were copied to your online character. Return to launcher and reconnect.");
+                    ch.WorldPositionKnown=false;tutorialSnapshotPending=true;
+                    Debug.Log("[training completion] server confirmed tutorial flag; requesting authoritative spawn, inventory and Nano bank");
+                }
                 while (ch == null)
                 {
                     int createSlot = slotForCreate; slotForCreate = -1;
                     if (createSlot < 0)
                     {
                         var r = await sel.Run(Login, Bootstrap, Tables);
-                        if (r.Action == SelectAction.Quit) { Report("Sesión cerrada."); Login.Dispose(); return; }
-                        if (r.Action == SelectAction.Play) { ch = r.Char; break; }
+                        if (r.Action == SelectAction.Quit) { ReturnToLauncher(); return; }
+                        if (r.Action == SelectAction.Play && !r.Char.NeedsCustomization) { ch = r.Char; break; }
                         createSlot = r.Slot;
                     }
-                    var nm = await nameScr.Run(Login, createSlot, Tables); if (nm == null) { if (Login.Characters.Count == 0) slotForCreate = 1; continue; }
-                    var created = await createScr.Run(Login, nm, Bootstrap, Tables); if (created == null) { slotForCreate = Login.Characters.Count == 0 ? 1 : -1; continue; }
+                    var nm = Login.ReservedName(createSlot) ?? await nameScr.Run(Login, createSlot, Tables); if (nm == null) continue;
+                    var created = await createScr.Run(Login, nm, Bootstrap, Tables); if (created == null) continue;
                     // vuelve a la selección con el personaje nuevo (el original sigue con el tutorial)
                 }
+                if (TutorialIntroScreen.ShouldPlay(ch, TutorialIntroScreen.Seen(Bootstrap.ServerUrl, ch.Appearance.Uid))) {
+                    StartupStage(loading, "LOADING INTRODUCTION");
+                    await Bootstrap.PrepareIntroductionAsync();
+                    if (loading != null) loading.Hide();
+                    var intro = GetComponent<TutorialIntroScreen>() ?? gameObject.AddComponent<TutorialIntroScreen>();
+                    if (!await intro.Run(Bootstrap.Models, Tables.Xdt, Bootstrap.ServerUrl, ch.Appearance.Uid)) { ReturnToLauncher(); return; }
+                    if (this == null) return;
+                }
+                if (ch.TutorialFlag == 0) { await RunTraining(ch, loading); return; }
                 var np = new Vector3(ch.X / 100f, ch.Z / 100f, ch.Y / 100f);
                 StartupStage(loading, "LOADING WORLD" );
-                await Bootstrap.LoadWorldAsync(np);
-                if (loading != null) { loading.Show("FREE ZONE"); loading.SetProgress("Entering the game…", 1f, 1f); }
+                if (ch.WorldPositionKnown) await Bootstrap.LoadWorldAsync(np);
+                else StartupStage(loading, "REQUESTING NEW CHARACTER POSITION");
+                if (ch.WorldPositionKnown && loading != null) { loading.Show("FREE ZONE"); loading.SetProgress("Entering the game…", 1f, 1f); }
             }
 
             // 4. personaje -> shard -> entrada. Los manejadores del mundo se enganchan ANTES de leer, para no perder PC_AROUND/NPC_AROUND.
@@ -208,8 +244,29 @@ namespace OpenFusion
                 var av = Tables.Xdt.m_pAvatarTable != null ? Tables.Xdt.m_pAvatarTable.m_pAvatarData : null;
                 if (av != null && av.Length > 1 && av[1] != null && av[1].m_iRunSpeed > 0) { RunSpeed = av[1].m_iRunSpeed; DebugWalkSpeed = RunSpeed / 100f; if (av[1].m_iJumpHeight > 0) JumpVelocity = av[1].m_iJumpHeight * 0.01f; Report("Velocidad de carrera del servidor: " + RunSpeed + " (" + DebugWalkSpeed + " m/s)"); }
             } catch (Exception e) { Report("No se pudo leer la velocidad de carrera: " + e.Message); }
-            Shard_ = await Login.EnterShardAsync(ticket, string.IsNullOrEmpty(ok.Id) ? Username : ok.Id, g => Bootstrap.StartEntities(g.Dispatcher, Tables.Xdt, Tables.HNpc));
- if (loading != null) loading.Hide();
+            var entered = await Login.EnterShardAsync(ticket, string.IsNullOrEmpty(ok.Id) ? Username : ok.Id, g => {
+                if (tutorialSnapshotPending) g.Dispatcher.SelfEnterRaw += body => {
+                    var snapshot = WorldPackets.ParseEnterSucc(body); var data = new HudData(); HudPackets.ApplyEnterSucc(body,data);
+                    Debug.Log("[training rewards] authoritative server snapshot: equippedWeapon="+snapshot.Self.Equip[0].Id+" inventoryItems="+snapshot.Quest.Inven.Count(i=>i.Id>0)+" equippedNanos="+string.Join(",",data.NanoSlots)+" completedInitialMissions="+(snapshot.Quest.Flags[0]&3));
+                    tutorialSnapshotPending=false;
+                };
+                Bootstrap.StartEntities(g.Dispatcher, Tables.Xdt, Tables.HNpc);
+                // Preserve incoming entity snapshots in their existing FIFO until the
+                // authoritative starting map and its shared assets are available.
+                if (!ch.WorldPositionKnown) Bootstrap.Entities.enabled = false;
+            });
+            try {
+                if (UseScreens && !ch.WorldPositionKnown) {
+                    StartupStage(loading, "LOADING WORLD");
+                    var self = entered.Enter.Self;
+                    await Bootstrap.LoadWorldAsync(PlayerAvatarFactory.ToClient(self.X, self.Y, self.Z));
+                    Bootstrap.Entities.enabled = true;
+                }
+            } catch { entered.Session.Dispose(); throw; }
+            // Keep gameplay/DS/input inactive until the initial map is available.
+            // GameSession answers heartbeats independently while the map loads.
+            Shard_ = entered;
+            if (loading != null) loading.Hide();
             Report("Dentro del mundo como " + Shard_.Enter.Self.FirstName + " (id " + Shard_.Enter.Id + ")"); shotsAt = Time.time + 12f;
             var worldSession = Shard_.Session;
             worldSession.Disconnected += e => { shardAlive = false; pendingDisconnect = "Game server connection closed: " + worldSession.EndReason +
@@ -258,7 +315,7 @@ namespace OpenFusion
             if (OpenFusion.World.NpcUI.Active && OpenFusion.World.NpcUI.Instance.TryGetCamera(out var npcPos, out var npcRot)) { float k = 1f - Mathf.Exp(-8f * Time.deltaTime); cam.transform.position = Vector3.Lerp(cam.transform.position, npcPos, k); cam.transform.rotation = Quaternion.Slerp(cam.transform.rotation, npcRot, k); return; }
             // cámara orbital: botón derecho = girar/inclinar (también hacia abajo para ver el cielo), rueda = zoom
             if (!camInit) { camInit = true; camDist = CamDefaultDist; camPitch = CamDefaultPitch; camYaw = 0f; }
-            if (OpenFusion.World.TouchControls.Active)
+            if (TutorialTraining.CameraAllowed && OpenFusion.World.TouchControls.Active)
             {   // táctil: un dedo gira la cámara, pellizco = zoom
                 var lk = OpenFusion.World.TouchControls.Look; camYaw += lk.x; camPitch = Mathf.Clamp(camPitch - lk.y, CamMinPitch, CamMaxPitch);
                 float pz = OpenFusion.World.TouchControls.Pinch; if (Mathf.Abs(pz) > 0.0001f) camDist = Mathf.Clamp(camDist - pz * 0.04f, CamMinDist, CamMaxDist);
@@ -273,14 +330,14 @@ namespace OpenFusion
             AimActive = AimValid && aimOn;
             aimOffX = Mathf.Lerp(aimOffX, AimActive ? aimSide * AimOffsetMax : 0f, Time.deltaTime * 7.35f);
             float camSens = OpenFusion.World.ControlMap.CameraSensitivity / 5f;
-            if (Input.touchCount == 0 && Input.GetMouseButton(1)) { camYaw += Input.GetAxis("Mouse X") * CameraTurn * camSens; camPitch = Mathf.Clamp(camPitch - Input.GetAxis("Mouse Y") * CameraTurn * camSens * (OpenFusion.World.ControlMap.FlipCameraY ? -1f : 1f), CamMinPitch, CamMaxPitch); }
-            if (!OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking && !OpenFusion.World.NpcUI.Active)
+            if (TutorialTraining.CameraAllowed && Input.touchCount == 0 && Input.GetMouseButton(1)) { camYaw += Input.GetAxis("Mouse X") * CameraTurn * camSens; camPitch = Mathf.Clamp(camPitch - Input.GetAxis("Mouse Y") * CameraTurn * camSens * (OpenFusion.World.ControlMap.FlipCameraY ? -1f : 1f), CamMinPitch, CamMaxPitch); }
+            if (TutorialTraining.CameraAllowed && !OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking && !OpenFusion.World.NpcUI.Active)
             {   // teclas/stick de camara, giro y zoom (ConfigurableInput: CameraX/CameraY/HorizontalTurn/CameraZoom)
                 float ck = Time.deltaTime; camYaw += (OpenFusion.World.ControlMap.CameraX * PadLookSpeed * camSens + OpenFusion.World.ControlMap.Turn * TurnSpeed) * ck;
                 camPitch = Mathf.Clamp(camPitch - OpenFusion.World.ControlMap.CameraY * PadLookSpeed * camSens * ck, CamMinPitch, CamMaxPitch);
                 float zk = OpenFusion.World.ControlMap.Zoom; if (Mathf.Abs(zk) > 0.01f) camDist = Mathf.Clamp(camDist - zk * ZoomKeySpeed * ck, CamMinDist, CamMaxDist);
             }
-            float wheel = Input.GetAxis("Mouse ScrollWheel"); if (Mathf.Abs(wheel) > 0.0001f) camDist = Mathf.Clamp(camDist - wheel * ZoomPerNotch, CamMinDist, CamMaxDist);   // arriba = acercar (el signo del original depende del InputManager, no verificable)
+            float wheel = GamepadPointer.Active ? 0f : Input.GetAxis("Mouse ScrollWheel"); if (Mathf.Abs(wheel) > 0.0001f) camDist = Mathf.Clamp(camDist - wheel * ZoomPerNotch, CamMinDist, CamMaxDist);   // arriba = acercar (el signo del original depende del InputManager, no verificable)
             var rotC = Quaternion.Euler(camPitch, camYaw, 0f); var pivot0 = p.position + Vector3.up * CamPivotHeight; var pivot = pivot0 + rotC * new Vector3(aimOffX, 0f, 0f);
             if (Mathf.Abs(aimOffX) > 0.01f) { RaycastHit ph; var po = pivot - pivot0; if (Physics.Raycast(pivot0, po, out ph, po.magnitude, CameraCollisionMask, QueryTriggerInteraction.Ignore)) pivot = pivot0 + po.normalized * Mathf.Max(0f, ph.distance - 0.1f); }   // el hombro no atraviesa paredes
             var want = pivot + rotC * new Vector3(0f, 0f, -camDist); float camLimit = camDist;
@@ -670,12 +727,12 @@ namespace OpenFusion
         {
             walkT = p;
             ReapplyIdleOnce(p);
-            var raw = (OpenFusion.World.ChatHud.Typing || OpenFusion.World.GameMenu.Blocking) ? Vector3.zero : new Vector3(OpenFusion.World.TouchControls.AxisRaw("Horizontal"), 0f, OpenFusion.World.TouchControls.AxisRaw("Vertical"));
+            var raw = (!TutorialTraining.MovementAllowed || OpenFusion.World.ChatHud.Typing || OpenFusion.World.GameMenu.Blocking) ? Vector3.zero : new Vector3(OpenFusion.World.TouchControls.AxisRaw("Horizontal"), 0f, OpenFusion.World.TouchControls.AxisRaw("Vertical"));
             var dir = raw.sqrMagnitude > 0.01f ? Quaternion.Euler(0f, camYaw, 0f) * raw.normalized : Vector3.zero;   // relativo a la cámara
             if (pAnim == null) SetAnim(p, "stand1");   // inicializa pAnim
             if (dashT > 0f) { DashStep(p); return; }
             Vector3 mdir = dir; if (Vehicle > 0) mdir = VehicleDir(dir, raw, p); else lastWalkVel = dir * DebugWalkSpeed * WalkScale;
-            if (!airborne && !swimming && !OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking && (OpenFusion.World.ControlMap.Down(OpenFusion.World.ControlMap.K.Jump, false) || OpenFusion.World.TouchControls.ConsumeJump()))
+            if (TutorialTraining.ActionAllowed(ControlMap.K.Jump) && !airborne && !swimming && !OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking && (OpenFusion.World.ControlMap.Down(OpenFusion.World.ControlMap.K.Jump, false) || OpenFusion.World.TouchControls.ConsumeJump()))
             {
                 airborne = true; vy = (Vehicle > 0 && buffBase) ? baseJump : JumpVelocity; jumpT = Time.time; nextJumpPkt = Time.time + 0.3f; PlayOnce("jumpstart");
                 if (SendJump && SendMovement)
@@ -815,7 +872,7 @@ namespace OpenFusion
         }
         void ReapplyIdleOnce(Transform p) { }
 
-        async Task Send(byte[] pkt) { if (!shardAlive || Shard_ == null || Shard_.Session == null) return; try { CombatAudit.Sent(pkt); await Shard_.Session.SendAsync(pkt); } catch (Exception e) { Debug.LogWarning("envío: " + e); } }
+        async Task Send(byte[] pkt) { if (TutorialTraining.Active) { TutorialTraining.Instance.Handle(pkt); return; } if (!shardAlive || Shard_ == null || Shard_.Session == null) return; try { CombatAudit.Sent(pkt); await Shard_.Session.SendAsync(pkt); } catch (Exception e) { Debug.LogWarning("envío: " + e); } }
 
         void OnDestroy()
         {

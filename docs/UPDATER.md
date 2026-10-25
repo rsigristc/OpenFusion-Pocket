@@ -27,3 +27,7 @@ The updater-enabled V1.0 uses Android build code **2**, replacing the original V
 ## v1.5 — DS Companion
 
 Version 1.5 uses Android build code **3**, following v1.0 build 2. The package ID and signing certificate remain unchanged. This stable release includes the DS Companion panels and gameplay/stability fixes listed in [CHANGELOG.md](../CHANGELOG.md). Its release body supplies the in-app changelog; the APK, update manifest and checksum file are published together.
+
+## v2.0
+
+Version 2.0 uses Android build code **4** and retains the package/signing identity. Its stable release includes the source tag, APK, `update.json` and `SHA256SUMS.txt`; the bilingual release body is used by the in-app changelog.

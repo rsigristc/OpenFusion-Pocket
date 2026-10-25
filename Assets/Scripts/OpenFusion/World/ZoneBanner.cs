@@ -12,7 +12,9 @@ namespace OpenFusion.World
     public sealed class ZoneBanner : MonoBehaviour
     {
         public float MaxTime = 3f;
-        NanocomHud nano; string last, text; float t0; int move; bool active; BitmapFont font; bool fontTried;
+        NanocomHud nano; string last, text; float t0, readyAt; int move; bool active; BitmapFont font; bool fontTried;
+        bool Ready => !WorldBootstrap.Travelling && !WelcomePopup.Active && !(OpenFusion.Screens.LoadingScreen.I != null && OpenFusion.Screens.LoadingScreen.I.Visible) &&
+            GameClient.FindSelf != null && GameClient.FindSelf.WorldConnected && GameClient.FindSelf.Bootstrap?.Entities?.Self != null;
 
         public static ZoneBanner Ensure(GameObject host) { var z = host.GetComponent<ZoneBanner>(); if (z == null) z = host.AddComponent<ZoneBanner>(); return z; }
         public void Init(NanocomHud n) { nano = n; last = null; }
@@ -20,6 +22,8 @@ namespace OpenFusion.World
 
         void Update()
         {
+            if(!Ready){active=false;last=null;readyAt=Time.unscaledTime+.5f;return;}
+            if(Time.unscaledTime<readyAt)return;
             if (nano != null) { string d = nano.DongName; if (!string.IsNullOrEmpty(d) && d != "unknown" && d != last) { last = d; Show(d); } }
             if (active && Time.time - t0 > MaxTime) active = false;
         }
@@ -27,7 +31,7 @@ namespace OpenFusion.World
         void OnGUI()
         {
             var ev = Event.current; if (ev == null || ev.type != EventType.Repaint || !active || string.IsNullOrEmpty(text)) return;
-            if (GameMenu.HudHidden) return;
+            if (GameMenu.HudHidden || !Ready) return;
             if (!fontTried) { fontTried = true; font = BitmapFontLoader.Load("JEFFE___16__1012"); }
             if (font == null) return;
             float W = Screen.width, H = Screen.height; int len = text.Length;

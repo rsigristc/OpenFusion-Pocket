@@ -45,6 +45,20 @@ namespace OpenFusion.Materials
             else if (sh.Kind == ShaderKind.Toon)
             {
                 bool ramp = sh.Props != null && Array.IndexOf(sh.Props, "_ShaderMap") >= 0; SetKw(m, "_OF_RAMP", "_Ramp", ramp); SetKw(m, "_OF_OUTLINE", "_OutlineOn", sh.OutlinePass);
+                bool rim = sh.Props != null && Array.IndexOf(sh.Props, "_RimPower") >= 0;
+                bool emissiveRim = s.ShaderName == "Custom/RimEmissiveColoredTransparentTextureShaderNoScroll";
+                SetKw(m, "_OF_RIM", "_RimOn", rim); SetKw(m, "_OF_RIM_EMISSIVE", "_RimEmissive", emissiveRim);
+                if (rim && !s.ShaderName.StartsWith("Custom/", StringComparison.Ordinal))
+                {
+                    if (!s.Floats.ContainsKey("_RimPower")) m.SetFloat("_RimPower", 4);
+                    if (!s.Floats.ContainsKey("_RimIntensity")) m.SetFloat("_RimIntensity", 2);
+                }
+                if (emissiveRim)
+                {
+                    if (s.Floats.TryGetValue("_Emission", out var emission)) m.SetFloat("_EmissionStrength", emission);
+                    if (!s.Floats.ContainsKey("_RimPower")) m.SetFloat("_RimPower", 3);
+                    if (!s.Floats.ContainsKey("_RimIntensity")) m.SetFloat("_RimIntensity", 3);
+                }
             }
             else
             {

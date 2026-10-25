@@ -41,6 +41,7 @@ namespace OpenFusion.Screens
         /// <summary>Devuelve el CharInfo que responde CHAR_CREATE_SUCC, o null si se pulsa EXIT (el nombre ya está reservado: el llamador decide qué hacer).</summary>
         public Task<CharInfo> Run(LoginSession login, NameSaved name, WorldBootstrap boot, GameTables tables)
         {
+            Shader.SetGlobalColor("_RimColor", new Color(195f / 255f * .2f, 206f / 255f * .2f, 224f / 255f * .2f, 1));
             if (tcs != null && !tcs.Task.IsCompleted) return tcs.Task;
             this.login = login; this.name = name; this.boot = boot; tcs = new TaskCompletionSource<CharInfo>(); busy = false; msg.Visible = false;
             var x = tables != null ? tables.Xdt : null;
@@ -410,8 +411,8 @@ namespace OpenFusion.Screens
                 CharInfo ci = await login.CreateCharacterAsync(name.Uid, st, Pick(Shirt), Pick(Pants), Pick(Shoes), sel[Shirt], sel[Pants], sel[Shoes], sel[Face], sel[Hair]);
                 busy = false; Finish(ci);
             }
-            catch (LoginException le) { busy = false; msg.Show("Character creation failed. (" + le.Code + ")\n" + le.Message); }
-            catch (Exception ex) { busy = false; msg.Show("Character creation failed.\n" + ex.Message); }
+            catch (LoginException le) { busy = false; Debug.LogWarning("[character creation] stage=" + le.Stage + " code=" + le.Code); msg.Show("Character creation failed. (" + le.Code + ")\n" + le.Message); }
+            catch (Exception ex) { busy = false; Debug.LogWarning("[character creation] stage=appearance_error type=" + ex.GetType().Name); msg.Show("Character creation failed.\n" + ex.Message); }
         }
     }
 }

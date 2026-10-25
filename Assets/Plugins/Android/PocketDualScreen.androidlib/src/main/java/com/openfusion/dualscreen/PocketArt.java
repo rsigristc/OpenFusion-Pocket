@@ -203,6 +203,8 @@ final class MapFilterTile extends View {
 }
 
 final class NavigationTile extends View {
+    private int unread;
+    void setUnread(int count){int value=Math.max(0,count);if(value!=unread){unread=value;invalidate();setContentDescription(label+". "+unread+" unread messages.");}}
     private final String label; private final int icon;
     private final float d; private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG); private final Path path=new Path(); private final RectF r=new RectF();
     NavigationTile(Context c,String name,int index) { super(c); label=name; icon=index; d=c.getResources().getDisplayMetrics().density; setClickable(true); setContentDescription(name); }
@@ -221,5 +223,6 @@ final class NavigationTile extends View {
         if(p.measureText(title)>w-12*d) p.setTextSize(Math.max(size*.7f,size*(w-12*d)/Math.max(1,p.measureText(title))));
         p.setColor(!isEnabled()?Color.GRAY:isSelected()?PocketArt.INK:Color.WHITE);
         c.save(); c.clipRect(6*d,h-20*d,w-6*d,h); c.drawText(title,(w-p.measureText(title))/2,h-8*d,p); c.restore();
+        if(unread>0){float bx=w-15*d,by=12*d;p.setColor(Color.RED);c.drawCircle(bx,by,10*d,p);p.setColor(Color.WHITE);p.setTextSize(10*d);String count=unread>99?"99+":Integer.toString(unread);c.drawText(count,bx-p.measureText(count)/2,by+3*d,p);}
     }
 }

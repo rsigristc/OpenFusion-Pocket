@@ -69,13 +69,21 @@ namespace OpenFusion.EditorTools
                 host = new GameObject("WelcomeRegression"); var popup = host.AddComponent<WelcomePopup>();
                 popup.ServerUrl = "https://api.ffretrobution.net";
                 popup.MainFileUrl = "http://cdn.ffretrobution.net/retrobution-20261014-2/main.unity3d";
+                var expectedPages = new List<string>();
+                foreach (var newsUrl in WelcomeNews.Endpoints(popup.ServerUrl, popup.MainFileUrl))
+                {
+                    try { expectedPages = WelcomeNews.Images(newsUrl, await Text(newsUrl)); }
+                    catch (Exception) { continue; }
+                    if (expectedPages.Count > 0) break;
+                }
+                Require(expectedPages.Count > 0, "Live Retrobution news must advertise at least one image.");
                 var routine = (IEnumerator)typeof(WelcomePopup).GetMethod("Fetch", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(popup, null);
                 try { while (routine.MoveNext()) { if (routine.Current is AsyncOperation op) await Wait(op); else throw new Exception("Unexpected welcome coroutine yield."); } }
                 finally { (routine as IDisposable)?.Dispose(); }
                 var pages = (List<Texture2D>)typeof(WelcomePopup).GetField("pages", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(popup);
-                Require(WelcomePopup.Active && pages.Count == 2 && pages.All(p => p.width == 1032 && p.height == 650), "The two Retrobution news pages must be downloaded and decoded.");
+                Require(WelcomePopup.Active && pages.Count == expectedPages.Count && pages.All(p => p.width > 0 && p.height > 0), "Every currently advertised Retrobution news page must be downloaded and decoded.");
                 Require(GameMenu.HudHidden, "Welcome must hide all game HUD layers.");
-                results.Add("PASS: live welcome coroutine fetched and decoded both Retrobution pages (1032x650), popup opened.");
+                results.Add("PASS: live welcome coroutine fetched and decoded all " + expectedPages.Count + " currently advertised Retrobution pages, popup opened.");
                 typeof(WelcomePopup).GetMethod("Exit", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(popup, null);
                 Require(!WelcomePopup.Active && pages.Count == 0, "Closing welcome must release textures and modal state.");
                 results.Add("PASS: closing welcome releases page textures and gameplay lock.");

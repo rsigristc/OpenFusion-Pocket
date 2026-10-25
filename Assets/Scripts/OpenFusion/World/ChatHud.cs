@@ -114,7 +114,7 @@ namespace OpenFusion.World
         }
         /// <summary>bChatEnable (chat abierto para escribir).</summary>
         public bool IsOpen { get { return open; } }
-        public void Open() { if (open) return; open = true; Typing = true; iCurHistory = history.Count; ScrollToBottomOnOpen(); StartKeyboard(); blinkT0 = Time.unscaledTime; }
+        public void Open() { if (open || !TutorialTraining.ChatAllowed) return; open = true; Typing = true; iCurHistory = history.Count; ScrollToBottomOnOpen(); StartKeyboard(); blinkT0 = Time.unscaledTime; }
         public void Close() { if (!open) return; open = false; Typing = false; StopKeyboard(); }
 
         // ---------------- constantes de maquetacion (CnGuiChat; Start() sobreescribe los valores serializados) ----------------

@@ -94,7 +94,7 @@ final class MissionPane extends LinearLayout {
     private void rebuildDetails(boolean done){
         details.removeAllViews();if(selected==null){details.addView(text("Select a mission to see its details.",13,Color.WHITE));return;}
         FrameLayout heading=new FrameLayout(getContext());heading.setMinimumHeight(dp(42));heading.addView(new Icon(selected.optString("banner"),true),new FrameLayout.LayoutParams(-1,-1));
-        TextView title=text(selected.optString("name"),14,Color.WHITE);title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);heading.addView(title,new FrameLayout.LayoutParams(-1,-2));details.addView(heading,new LayoutParams(-1,-2));
+        TextView title=text(selected.optString("name"),14,Color.WHITE);title.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);heading.addView(title,new FrameLayout.LayoutParams(-1,-2));details.addView(heading,new LayoutParams(-1,dp(54)));
         LinearLayout npc=new LinearLayout(getContext());npc.setGravity(android.view.Gravity.CENTER_VERTICAL);details.addView(npc,new LayoutParams(-1,-2));
         npc.addView(new Icon(selected.optString("npcImage")),new LayoutParams(dp(50),dp(50)));LinearLayout who=column();npc.addView(who,new LayoutParams(0,-2,1));
         who.addView(text(selected.optString("npc"),12,PocketArt.LIME));who.addView(text(selected.optString("difficulty"),10,PocketArt.CYAN));who.addView(text(selected.optString("location"),10,Color.WHITE));

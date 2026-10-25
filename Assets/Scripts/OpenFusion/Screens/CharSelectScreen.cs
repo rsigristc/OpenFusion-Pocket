@@ -34,6 +34,7 @@ namespace OpenFusion.Screens
         // ============================================================== API ==============================================================
         public Task<SelectResult> Run(LoginSession login, WorldBootstrap boot, GameTables tables)
         {
+            Shader.SetGlobalColor("_RimColor", new Color(11f / 255f, 68f / 255f, 130f / 255f, 1));
             if (running && tcs != null) return tcs.Task;
             this.login = login; this.boot = boot;
             tcs = new TaskCompletionSource<SelectResult>(TaskCreationOptions.RunContinuationsAsynchronously);

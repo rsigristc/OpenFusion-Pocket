@@ -3,6 +3,7 @@
 // Each finger owns its action until release, independently of the simulated mouse.
 using System.Collections.Generic;
 using UnityEngine;
+using OpenFusion.Screens;
 
 namespace OpenFusion.World
 {
@@ -34,7 +35,9 @@ namespace OpenFusion.World
             float cv = name == "Horizontal" ? ControlMap.Strafe : ControlMap.Forward; return Mathf.Abs(cv) < 0.4f ? 0f : Mathf.Sign(cv);
         }
 
-        enum Role { None, Joy, Look, Action, Chat }
+        enum Role { None, Joy, Look, LookStick, Action, Chat }
+        static readonly Color[] ControllerColors = { new Color(1,.3f,.3f), new Color(.3f,1,.4f), new Color(.3f,.6f,1), Color.yellow };
+        static readonly string[] ControllerLabels = { "B\nATK", "A\nJUMP", "X\nWEAPON", "Y\nVEHICLE" };
         sealed class Tch { public Role Role; public ControlMap.K Action; public Vector2 Start, Pos, Prev; public float T0; public float Moved; }
         readonly Dictionary<int, Tch> tch = new Dictionary<int, Tch>();
         bool on; int joyId = -1; Vector2 joyCenter, joyThumb; Texture2D disc, ring;
@@ -66,6 +69,8 @@ namespace OpenFusion.World
         static float ViewWidth => Screen.width > 0 ? Screen.width : 1280f;
         static float ViewHeight => Screen.height > 0 ? Screen.height : 720f;
         static Rect SafeArea { get { var r = Screen.safeArea; return r.width > 0 && r.height > 0 ? r : new Rect(0, 0, ViewWidth, ViewHeight); } }
+        public static Rect LayoutArea { get { var r=SafeArea;return new Rect(r.x,ViewHeight-r.yMax,r.width,r.height); } }
+        public Rect LayoutRect(int index) => index==TouchLayout.Joystick ? JoyRect : index==TouchLayout.CameraStick ? CameraStickRect : ActionRect(index);
         float Dp { get { if (dpScale <= 0f) { float dpi = Screen.dpi > 1f ? Screen.dpi : 160f; dpScale = Mathf.Min(dpi / 160f, ViewHeight / 540f, ViewWidth / 960f); } return dpScale; } }
         Vector2 ToGui(Vector2 p) { return new Vector2(p.x, ViewHeight - p.y); }   // Input (abajo-izq) -> GUI (arriba-izq)
         Rect ActionRect(int index)
@@ -73,7 +78,8 @@ namespace OpenFusion.World
             // Fixed cells keep the user's muscle memory when another button is hidden.
             var safe = SafeArea; float d = Mathf.Min(Dp * TouchLayout.Scale, (safe.height - 185f * Dp) / 325f), size = 58f * d, gap = 7f * d;
             float right = safe.xMax - 12f * Dp, bottom = ViewHeight - safe.yMin - 125f * Dp;
-            return new Rect(right - (index % 3 + 1) * (size + gap), bottom - (index / 3 + 1) * (size + gap), size, size);
+            var fallback = new Rect(right - (index % 3 + 1) * (size + gap), bottom - (index / 3 + 1) * (size + gap), size, size);
+            return TouchLayout.ActionRect(index, new Rect(safe.x, ViewHeight - safe.yMax, safe.width, safe.height), fallback);
         }
         Rect ChatRect { get { return new Rect(SafeArea.xMax - 62f * Dp, 210f * Dp, 52f * Dp, 42f * Dp); } }
         int HitAction(Vector2 g)
@@ -86,13 +92,20 @@ namespace OpenFusion.World
             var k = TouchLayout.Actions[index];
             return TouchLayout.Enabled(index) && !(DualScreenController.ShowSecondaryNanos && (k == ControlMap.K.Nano1 || k == ControlMap.K.Nano2 || k == ControlMap.K.Nano3));
         }
-        bool InJoyZone(Vector2 g) { return g.x < ViewWidth * 0.38f && g.y > ViewHeight * 0.35f; }
-        bool Blocked { get { return ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking; } }
+        Rect JoyRect { get { var safe=SafeArea;var area=new Rect(safe.x,ViewHeight-safe.yMax,safe.width,safe.height);return TouchLayout.ActionRect(TouchLayout.Joystick,area,new Rect(safe.x+58*Dp,ViewHeight-safe.yMin-168*Dp,110*Dp,110*Dp)); } }
+        bool InJoyZone(Vector2 g) { return TouchLayout.FixedJoystick ? JoyRect.Contains(g) : g.x < ViewWidth * 0.38f && g.y > ViewHeight * 0.35f; }
+        Rect CameraStickRect { get { var safe=SafeArea;var area=new Rect(safe.x,ViewHeight-safe.yMax,safe.width,safe.height);return TouchLayout.ActionRect(TouchLayout.CameraStick,area,new Rect(area.x+area.width*.65f-55*Dp,area.y+area.height*.8f-55*Dp,110*Dp,110*Dp)); } }
+        bool Blocked { get { return ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking || TouchProfileEditor.Active || GamepadPointer.Active; } }
 
+        public static bool CanShow(bool connected, bool player, bool launcher, bool loading, bool selection)
+            => connected && player && !launcher && !loading && !selection;
         void Update()
         {
             var client = GameClient.FindSelf;
-            bool worldReady = client != null && client.Bootstrap != null && client.Bootstrap.Player != null;
+            bool worldReady = CanShow(client != null && client.WorldConnected,
+                client != null && client.Bootstrap != null && client.Bootstrap.Player != null,
+                client != null && client.GetComponent<LauncherScreen>()?.Visible == true,
+                LoadingScreen.I != null && LoadingScreen.I.Visible && !LoadingScreen.I.Mini, client != null && client.GetComponent<CharSelectScreen>()?.Visible == true);
             bool active = (ForceInEditor || Application.isMobilePlatform && worldReady) && !(TouchLayout.HideWithPad && ControlMap.PadActive);
             ProcessTouches(Input.touches, active, Blocked);
         }
@@ -114,7 +127,8 @@ namespace OpenFusion.World
                     int action = HitAction(g);
                     if (action >= 0) { c.Role = Role.Action; c.Action = TouchLayout.Actions[action]; }
                     else if (ChatRect.Contains(g)) c.Role = Role.Chat;
-                    else if (InJoyZone(g) && joyId < 0 && !blocked) { c.Role = Role.Joy; joyId = t.fingerId; joyCenter = t.position; joyThumb = t.position; }
+                    else if (InJoyZone(g) && joyId < 0 && !blocked) { c.Role = Role.Joy; joyId = t.fingerId; joyCenter = TouchLayout.FixedJoystick ? new Vector2(JoyRect.center.x, ViewHeight-JoyRect.center.y) : t.position; joyThumb = t.position; }
+                    else if (TouchLayout.CameraStickEnabled && CameraStickRect.Contains(g)) c.Role = Role.LookStick;
                     else c.Role = Role.Look;
                     tch[t.fingerId] = c;
                     if (c.Role == Role.Chat && ChatHud.Instance != null) { if (ChatHud.Typing) ChatHud.Instance.Close(); else ChatHud.Instance.Open(); }
@@ -140,7 +154,7 @@ namespace OpenFusion.World
 
             if (joyId >= 0 && !blocked)
             {
-                float R = 55f * Dp; var d = joyThumb - joyCenter; if (d.magnitude > R) { joyCenter = joyThumb - d.normalized * R; d = joyThumb - joyCenter; }   // flotante: arrastra la base
+                float R = JoyRect.width * .5f; var d = joyThumb - joyCenter; if (d.magnitude > R) { if (!TouchLayout.FixedJoystick) joyCenter = joyThumb - d.normalized * R; d = (joyThumb - joyCenter).normalized * R; }   // flotante: arrastra la base
                 var v = d / R; if (v.magnitude < 0.15f) v = Vector2.zero; Move = Vector2.ClampMagnitude(v, 1f);
             }
             else if (joyId >= 0) { joyId = -1; }
@@ -151,6 +165,12 @@ namespace OpenFusion.World
             else if (looks.Count >= 2)
             {
                 float now = (looks[0].Pos - looks[1].Pos).magnitude, before = (looks[0].Prev - looks[1].Prev).magnitude; Pinch = (now - before) / Dp;
+            }
+            foreach(var stick in tch.Values) if(stick.Role==Role.LookStick) {
+                var center=CameraStickRect.center;center.y=ViewHeight-center.y;
+                var axis=Vector2.ClampMagnitude((stick.Pos-center)/Mathf.Max(1,CameraStickRect.width*.5f),1);
+                if(axis.magnitude>.15f) Look+=axis*140f*Mathf.Min(Time.unscaledDeltaTime,.05f)*(ControlMap.CameraSensitivity/5f);
+                break;
             }
             // un toque con un dedo de "joystick" o "cámara" mientras se escribe en el chat no mueve nada
             if (blocked) { Move = Vector2.zero; }
@@ -173,30 +193,40 @@ namespace OpenFusion.World
         void OnGUI()
         {
             if (!on || Blocked || Event.current.type != EventType.Repaint) return;
-            MakeTex(); GUI.depth = -1000; var old = GUI.color;
+            MakeTex(); GUI.depth = -1000; var old = GUI.color; float joyAlpha = TouchLayout.Opacity(TouchLayout.Joystick) / .6f;
             if (!Blocked)
             {
                 if (joyId >= 0)
                 {
-                    float R = 55f * Dp; var c = ToGui(joyCenter); var th = ToGui(joyThumb); if ((th - c).magnitude > R) th = c + (th - c).normalized * R;
-                    GUI.color = new Color(1f, 1f, 1f, 0.18f); GUI.DrawTexture(new Rect(c.x - R, c.y - R, 2 * R, 2 * R), disc);
-                    GUI.color = new Color(1f, 1f, 1f, 0.55f); GUI.DrawTexture(new Rect(c.x - R, c.y - R, 2 * R, 2 * R), ring);
-                    float r2 = 26f * Dp; GUI.color = new Color(1f, 1f, 1f, 0.5f); GUI.DrawTexture(new Rect(th.x - r2, th.y - r2, 2 * r2, 2 * r2), disc);
+                    float R = JoyRect.width * .5f; var c = ToGui(joyCenter); var th = ToGui(joyThumb); if ((th - c).magnitude > R) th = c + (th - c).normalized * R;
+                    GUI.color = new Color(1f, 1f, 1f, 0.18f * joyAlpha); GUI.DrawTexture(new Rect(c.x - R, c.y - R, 2 * R, 2 * R), disc);
+                    GUI.color = new Color(1f, 1f, 1f, 0.55f * joyAlpha); GUI.DrawTexture(new Rect(c.x - R, c.y - R, 2 * R, 2 * R), ring);
+                    float r2 = R * .47f; GUI.color = new Color(1f, 1f, 1f, 0.5f * joyAlpha); GUI.DrawTexture(new Rect(th.x - r2, th.y - r2, 2 * r2, 2 * r2), disc);
                 }
                 else
                 {   // pista de dónde pulsar
-                    float R = 55f * Dp; float cx = 28f * Dp + R + 30f * Dp, cy = ViewHeight - 28f * Dp - R - 30f * Dp;
-                    GUI.color = new Color(1f, 1f, 1f, 0.10f); GUI.DrawTexture(new Rect(cx - R, cy - R, 2 * R, 2 * R), disc);
-                    GUI.color = new Color(1f, 1f, 1f, 0.28f); GUI.DrawTexture(new Rect(cx - R, cy - R, 2 * R, 2 * R), ring);
+                    float R = JoyRect.width * .5f; float cx = JoyRect.center.x, cy = JoyRect.center.y;
+                    GUI.color = new Color(1f, 1f, 1f, 0.10f * joyAlpha); GUI.DrawTexture(new Rect(cx - R, cy - R, 2 * R, 2 * R), disc);
+                    GUI.color = new Color(1f, 1f, 1f, 0.28f * joyAlpha); GUI.DrawTexture(new Rect(cx - R, cy - R, 2 * R, 2 * R), ring);
                 }
                 var st = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = Mathf.RoundToInt(11f * Dp * TouchLayout.Scale), fontStyle = FontStyle.Bold, wordWrap = true };
                 for (int i = 0; i < TouchLayout.Actions.Length; i++)
                 {
                     if (!ActionVisible(i)) continue;
                     var r = ActionRect(i); bool pressed = held.Contains(TouchLayout.Actions[i]);
-                    GUI.color = new Color(1f, 1f, 1f, pressed ? .5f : .2f); GUI.DrawTexture(r, disc);
-                    GUI.color = new Color(1f, 1f, 1f, .6f); GUI.DrawTexture(r, ring);
-                    GUI.color = Color.white; GUI.Label(r, TouchLayout.Labels[i], st);
+                    GUI.color = new Color(1f, 1f, 1f, (pressed ? .8f : .35f) * TouchLayout.Opacity(i)); GUI.DrawTexture(r, disc);
+                    GUI.color = new Color(1f, 1f, 1f, TouchLayout.Opacity(i)); GUI.DrawTexture(r, ring);
+                    if(TouchLayout.ControllerStyle && i<4) {
+                        var color=ControllerColors[i];color.a=TouchLayout.Opacity(i);GUI.color=color;GUI.DrawTexture(r,ring);
+                    }
+                    GUI.color = new Color(1,1,1,TouchLayout.Opacity(i)); GUI.Label(r, TouchLayout.ControllerStyle && i<4 ? ControllerLabels[i] : TouchLayout.Labels[i], st);
+                }
+                if(TouchLayout.CameraStickEnabled) {
+                    var r=CameraStickRect;GUI.color=new Color(1,1,1,TouchLayout.Opacity(TouchLayout.CameraStick));GUI.DrawTexture(r,ring);
+                    var thumb=r.center;
+                    foreach(var stick in tch.Values)if(stick.Role==Role.LookStick){thumb=r.center+Vector2.ClampMagnitude(ToGui(stick.Pos)-r.center,r.width*.5f);break;}
+                    GUI.DrawTexture(new Rect(thumb.x-r.width*.2f,thumb.y-r.height*.2f,r.width*.4f,r.height*.4f),disc);
+                    GUI.color=new Color(1,1,1,TouchLayout.Opacity(TouchLayout.CameraStick));GUI.Label(r,"LOOK",st);
                 }
             }
             var ch = ChatRect; GUI.color = new Color(1f, 1f, 1f, 0.22f); GUI.DrawTexture(ch, disc); GUI.color = new Color(1f, 1f, 1f, 0.6f); GUI.DrawTexture(ch, ring);

@@ -159,6 +159,10 @@ public final class PocketDualScreen {
         } catch (Exception | LinkageError e) { tracker = null; reason = "Android does not provide reliable fold information."; }
         refresh();
     }
+    public static View pointerSurface(Activity activity,boolean secondary) {
+        if(secondary)return instance!=null&&instance.active?instance.panel:null;
+        return findUnity(activity.getWindow().getDecorView());
+    }
     private static View findUnity(View view) {
         if (view.getClass().getName().equals("com.unity3d.player.UnityPlayer")) return view;
         if (view instanceof ViewGroup) { ViewGroup group = (ViewGroup)view; for (int i = 0; i < group.getChildCount(); i++) { View found = findUnity(group.getChildAt(i)); if (found != null) return found; } }
@@ -319,7 +323,7 @@ public final class PocketDualScreen {
         }
         dialog.show();
     }
-    private String settingsText() { return reason + "\n\nMap and Nanos use live secondary panels. Equipment, missions, chat and E-Mail open the existing full-screen interface. Visit a Nano Station to change Nano equipment or powers."; }
+    private String settingsText() { return reason + "\n\nMap, Nanos, equipment, missions and E-Mail use live secondary panels. Chat and the mail composer open on the main screen. Visit a Nano Station to change Nano equipment or powers."; }
     private void probe() {
         Display display = displays.getDisplay(candidate); if (display == null) return;
         restore(); probing = true;

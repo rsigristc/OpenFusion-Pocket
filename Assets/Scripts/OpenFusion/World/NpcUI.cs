@@ -66,6 +66,7 @@ namespace OpenFusion.World
 
         void Begin(NpcInfo i, bool greet = true)
         {
+            if (TutorialTraining.TryInteract(i)) return;
             Debug.Log("[npcui] abrir diálogo con " + i.Name + " tipo " + i.Type + " id " + i.Id + " team " + i.Team + " npc# " + i.NpcNumber); talking = i; note = null; hidden.Clear();
             if (ents.Self != null) foreach (var r in ents.Self.GetComponentsInChildren<Renderer>()) if (r.enabled) { hidden.Add(r); r.enabled = false; }
             fadeAt = Time.unscaledTime;   // SetCameraAngle -> eFadeType.In

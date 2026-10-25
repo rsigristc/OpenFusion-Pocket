@@ -1,8 +1,8 @@
-// EmailWindow: port de EmailMode + Panel_EmailList + Panel_NewEmail + cnEmailSystemManager (Win.EMail). SIN COMPILAR NI PROBAR EN UNITY.
+// Shared mail model and Legacy window: EmailMode / Panel_EmailList / Panel_NewEmail / cnEmailSystemManager.
 // Skin = FFGuiSkin del InventoryManager (Skin.Inven 1366). Dos pestanas: GUIDE EMAIL (correos de mision/guia generados desde la tabla de misiones) y PLAYER EMAIL (servidor).
 // Paquetes: REQ_PC_RECV_EMAIL_PAGE_LIST / READ_EMAIL / DELETE_EMAIL / SEND_EMAIL / RECV_EMAIL_CANDY / RECV_EMAIL_ITEM_ALL y sus respuestas.
 // Destinatarios = lista de amigos (REP_PC_BUDDYLIST_INFO_SUCC, se guarda aqui al llegar).
-// Simplificaciones (no hay inventario portado): no se pueden adjuntar objetos al enviar; los objetos recibidos se aceptan con ACCEPT ALL ITEMS (el servidor elige hueco); no hay HUD de "nuevo correo".
+// DS uses this same model. Composer supports up to four inventory attachments; received items are claimed together into server-selected slots.
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class EmailWindow : MonoBehaviour
+    public sealed partial class EmailWindow : MonoBehaviour
     {
         public Func<string, Texture> TexLoader;
         public static bool Typing;                      // un campo de texto tiene el foco (bloquea los atajos de teclado)
@@ -66,11 +66,11 @@ namespace OpenFusion.World
 
         public void Init(PacketDispatcher d, WorldEntities e, XdtTableScript t, NanocomHud n, PlayerHud h)
         {
-            if (disp != null) disp.Unhandled -= OnPacket; disp = d; ents = e; tables = t; nh = n; hud = h; if (disp != null) disp.Unhandled += OnPacket;
+            if (disp != null) {disp.Unhandled -= OnPacket;disp.SelfEnter-=OnMailEnter;} disp = d; ents = e; tables = t; nh = n; hud = h; if (disp != null) {disp.Unhandled += OnPacket;disp.SelfEnter+=OnMailEnter;}
             mt = t != null ? t.m_pMissionTable : null; npcT = t != null ? t.m_pNpcTable : null; msgT = t != null ? t.m_pMessageTable : null;
         }
-        void Awake() { GameMenu.Implemented.Add(GameMenu.Win.EMail); }
-        void OnDestroy() { if (disp != null) disp.Unhandled -= OnPacket; }
+        void Awake() { Instance=this;GameMenu.Implemented.Add(GameMenu.Win.EMail); }
+        void OnDestroy() { if (disp != null) {disp.Unhandled -= OnPacket;disp.SelfEnter-=OnMailEnter;} if(Instance==this)Instance=null;Typing=false; }
 
         // ============================================================ red ============================================================
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
@@ -98,12 +98,17 @@ namespace OpenFusion.World
 
         void Handle(uint type, byte[] b)
         {
-            if (type == PacketIds.P_FE2CL_REP_PC_NEW_EMAIL) return;
+            if (type == PacketIds.P_FE2CL_REP_PC_NEW_EMAIL) {if(b.Length>=4)playerUnread=Mathf.Max(0,I(b,0));return;}
+            if(type==PacketIds.P_FE2CL_REP_PC_READ_EMAIL_SUCC && (b.Length<1084 || L(b,0)!=requestedRead))return;
+            if(type==PacketIds.P_FE2CL_REP_PC_READ_EMAIL_FAIL && (b.Length<12 || L(b,0)!=requestedRead))return;
+            if(type==PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_PAGE_LIST_SUCC && (comMail || b.Length<1024 || (byte)b[0]!=requestedPage))return;
+            if((type==PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_ALL_SUCC || type==PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_CANDY_SUCC) && (b.Length<8 || L(b,0)!=readIndex))return;
             busy = false;
             if (type == PacketIds.P_FE2CL_REP_PC_READ_EMAIL_SUCC && b.Length >= 1084)
             {
                 readIndex = L(b, 0); readContent = S(b, 8, 512); for (int i = 0; i < 4; i++) { int o = 1032 + 12 * i; readItems[i] = new Att { Type = BitConverter.ToInt16(b, o), Id = BitConverter.ToInt16(b, o + 2), Opt = I(b, o + 4) }; }
                 readCash = I(b, 1080); readMail = true; bodyText = readContent; bodyScroll = 0f; Sfx.Ui("Email_arrived");
+                for(int i=0;i<user.Length;i++)if(user[i].Index==readIndex&&user[i].Read==0){user[i].Read=1;playerUnread=Mathf.Max(0,playerUnread-1);}
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_READ_EMAIL_FAIL) Msg(167, (b.Length >= 12 ? L(b, 0) : 0).ToString(), (b.Length >= 12 ? I(b, 8) : 0).ToString());
             else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_PAGE_LIST_SUCC && b.Length >= 4 + 5 * 204)
@@ -114,6 +119,7 @@ namespace OpenFusion.World
                     int o = 4 + 204 * i; var f = new Info { Index = L(b, o), FromUid = L(b, o + 8), First = S(b, o + 16, 9), Last = S(b, o + 34, 17), Subject = S(b, o + 68, 32), Read = I(b, o + 132), SendYear = I(b, o + 136), SendMonth = I(b, o + 140), SendDay = I(b, o + 148), ItemCandy = I(b, o + 200) };
                     user[i] = f; if (f.Index > 0) userCount++;
                 }
+                int observedUnread=0;foreach(var info in user)if(info.Index>0&&info.Read==0)observedUnread++;playerUnread=Mathf.Max(playerUnread,observedUnread);
                 SetUserPage(page);
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_PAGE_LIST_FAIL) { for (int i = 0; i < 5; i++) user[i] = default(Info); userCount = 0; SetUserPage(b.Length > 0 ? (sbyte)b[0] : userPage); }
@@ -137,13 +143,13 @@ namespace OpenFusion.World
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_CANDY_SUCC)
             {
-                readCash = 0; if (b.Length >= 12 && hud != null) hud.Data.Taros = I(b, 8);
+                if(b.Length>=8&&L(b,0)==readIndex)readCash = 0; if (b.Length >= 12 && hud != null) hud.Data.Taros = I(b, 8);
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_CANDY_FAIL)
             {
                 int c = b.Length >= 12 ? I(b, 8) : 0; if (c == 1) Msg(225); else if (c == 5) Msg(222); else Text("Email taros fail. " + c);
             }
-            else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_ALL_SUCC) { for (int i = 0; i < 4; i++) readItems[i] = default(Att); }
+            else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_ALL_SUCC && b.Length>=8 && L(b,0)==readIndex) { for (int i = 0; i < 4; i++) readItems[i] = default(Att); }
             else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_ALL_FAIL)
             {
                 int c = b.Length >= 12 ? I(b, 8) : 0; if (c == 1) Msg(221); else if (c == 5) Msg(222); else Text("Email item all fail. " + c);
@@ -151,12 +157,12 @@ namespace OpenFusion.World
             else if (type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_SUCC || type == PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_FAIL) { }
         }
 
-        void RequestPage(int page) { var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_RECV_EMAIL_PAGE_LIST, 1); p[4] = (byte)page; Busy(); Send(p); }
-        void RequestRead(long idx) { var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_READ_EMAIL, 8); BitConverter.GetBytes(idx).CopyTo(p, 4); Busy(); Send(p); }
+        void RequestPage(int page) { requestedPage=Mathf.Clamp(page,1,4);var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_RECV_EMAIL_PAGE_LIST, 1); p[4] = (byte)requestedPage; Busy(); Send(p); }
+        void RequestRead(long idx) { requestedRead=idx;var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_READ_EMAIL, 8); BitConverter.GetBytes(idx).CopyTo(p, 4); Busy(); Send(p); }
         void SetUserPage(int page)
         {
             bodyText = ""; click = -1; userPage = page; nextB = page != 4 && userCount == 5; prevB = page != 1;
-            if (userCount > 0) ClickRow(0);
+            if (userCount > 0 && !dualPrepared) ClickRow(0);
         }
 
         // ============================================================ mensajes (cnSystemMessageManager) ============================================================
@@ -175,9 +181,11 @@ namespace OpenFusion.World
         void Update()
         {
             while (q.TryDequeue(out var a)) a();
+            UpdateMailNotice();
             if (busy) { busyT -= Time.unscaledDeltaTime; if (busyT <= 0f) busy = false; }
             bool now = GameMenu.Current == GameMenu.Win.EMail;
             if (now && !open) OnOpen(); else if (!now && open) { back = null; texTried = false; Typing = false; if (InventoryWindow.Instance != null) InventoryWindow.Instance.ResetOverlays(); }
+            if(now&&pendingCompose){pendingCompose=false;StartNew(pendingRecipient,pendingRecipientUid);}
             open = now;
         }
         Texture Load(string path)
@@ -221,6 +229,7 @@ namespace OpenFusion.World
                 int sum = 0; if (m.m_iMentorEmailID != null) for (int j = 0; j < Mathf.Min(5, m.m_iMentorEmailID.Length); j++) sum += m.m_iMentorEmailID[j]; if (sum <= 0) continue;
                 if (done.Contains(m.m_iHMissionID)) continue;
                 if (nodes.Exists(n => n.Mode == 1 && n.Mission.m_iHTaskID == m.m_iHTaskID)) continue;
+                if(ents?.Missions==null || !ents.Missions.CanStart(m.m_iHTaskID))continue;
                 nodes.Add(new Node { Mode = 2, Mission = m }); if (m.m_iHMissionType == 1) g1++; else g2++;
             }
         }
@@ -255,8 +264,9 @@ namespace OpenFusion.World
                     if (g >= 1 && g <= 5 && n.Mission.m_iMentorEmailID != null && n.Mission.m_iMentorEmailID.Length >= g) textId = n.Mission.m_iMentorEmailID[g - 1];
                 }
                 bodyText = MStr(textId); bodyScroll = 0f;
+                if(!string.IsNullOrEmpty(guideScope)){PlayerPrefs.SetInt(GuideReadKey(n),1);PlayerPrefs.Save();}
             }
-            else if (row >= 0 && row < 5 && user[row].Index > 0) { readMail = false; RequestRead(user[row].Index); }
+            else if (row >= 0 && row < 5 && user[row].Index > 0) { readMail = false;readIndex=0;bodyText="";readCash=0;Array.Clear(readItems,0,readItems.Length); RequestRead(user[row].Index); }
         }
         void PlayerTab_()
         {
@@ -526,15 +536,17 @@ namespace OpenFusion.World
         // ---- Panel_NewEmail ----
         void StartNew(string name, long uid)
         {
+            ResetAttachments();
             composing = true; toName = name; toUid = uid; subject = ""; content = ""; taros = 0; calc = 0; buddyWin = calcWin = false; sending = false; Typing = false;
             if (uid != 0) { lock (bl) { int k = buddies.FindIndex(b => b.Uid == uid); if (k >= 0) toName = buddies[k].NameCheck != 1 ? Loc.T("Player") + " " + uid : buddies[k].First + buddies[k].Last; } }
         }
         void DrawNew(Event e, bool en)
         {
             var x0 = (WindowRect.width - 940f) / 2f; GUI.BeginGroup(new Rect(x0, 0f, 940f, 634f));
-            bool popup = buddyWin || calcWin; bool enMain = en && !popup;
+            bool popup = buddyWin || calcWin || attachmentPicker>=0 || attachmentAmount.Open; bool enMain = en && !popup;
             if (buddyWin) DrawBuddy(e, en);
             if (calcWin) DrawCalc(e, en);
+            DrawAttachmentPicker(en);attachmentAmount.Draw(e,en);
             if (e.type == EventType.Repaint && tNew != null) GUI.DrawTexture(NewPanel, tNew);
             GUI.BeginGroup(NewPanel);
             var lab = St("label"); var blank = St("blankbox"); var box = St("emailsubbox"); var right = St("rightLabel");
@@ -549,11 +561,11 @@ namespace OpenFusion.World
             Txt(AttStr, Loc.T("ATTACHMENTS") + ": ", lab, Color.white);
             if (e.type == EventType.Repaint) Skin.Bg(DataNew, box != null ? box.N : null, box);
             GUI.SetNextControlName("body"); content = GUI.TextArea(new Rect(DataNew.x + 10f, DataNew.y + 10f, DataNew.width - 20f, DataNew.height - 20f), content ?? "", 512, areaSt); GUI.enabled = true;
-            var slotE = St("slotboxempty"); for (int i = 0; i < 4; i++) if (e.type == EventType.Repaint && slotE != null) Skin.Bg(new Rect(ItemNew.x + ItemNew.width * i, ItemNew.y, ItemNew.width, ItemNew.height), slotE.N, slotE);
+            DrawAttachments(enMain);
             Txt(TarosNew, taros.ToString(), blank, Color.white, TextAnchor.MiddleRight);
             if (tTaros != null && e.type == EventType.Repaint) GUI.DrawTexture(new Rect(TarosNew.xMax + 3f, TarosNew.y - (tTaros.height - TarosNew.height) / 2f, tTaros.width, tTaros.height), tTaros);
             if (Skin.Button(AddTarosBut, Loc.T("ADD TAROS"), St("button"), enMain)) { calcWin = true; calc = 0; }
-            int postage = 50; var pc = new Color(0f, 0.2f, 0.5f); string pl = Loc.T("postage") + " : ";
+            int postage = Postage; var pc = new Color(0f, 0.2f, 0.5f); string pl = Loc.T("postage") + " : ";
             Txt(new Rect(PostageR.x, PostageR.y + 3f, PostageR.width / 2f + 20f, PostageR.height), pl, St("vendorlistback") ?? lab, pc, TextAnchor.MiddleRight);
             Txt(new Rect(PostageR.x + PostageR.width / 2f + 25f, PostageR.y, 60f, PostageR.height), postage.ToString(), blank, pc, TextAnchor.MiddleLeft);
             if (tTaros != null && e.type == EventType.Repaint) GUI.DrawTexture(new Rect(PostageR.x + PostageR.width / 2f + 25f + 40f, PostageR.y - (tTaros.height - PostageR.height) / 2f, tTaros.width, tTaros.height), tTaros);
@@ -569,8 +581,7 @@ namespace OpenFusion.World
         }
         void DoSend(int postage)
         {   // REQ_PC_SEND_EMAIL (1164 B): iTo_PCUID @0, szSubject[32] @8, szContent[512] @72, aItem[4] (16 B) @1096, iCash @1160
-            var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_SEND_EMAIL, 1164); BitConverter.GetBytes(toUid).CopyTo(p, 4);
-            ClientPackets.PutStr(p, 4 + 8, string.IsNullOrEmpty(subject) ? "No subject." : subject, 32); ClientPackets.PutStr(p, 4 + 72, content ?? "", 512); ClientPackets.PutInt(p, 4 + 1160, taros);
+            byte[] p;try{p=BuildOutgoingMail();}catch(InvalidOperationException error){Text(error.Message);return;}
             sending = true; Busy(); Send(p); Sfx.Ui("Outgoing_chat");
         }
         void DrawBuddy(Event e, bool en)

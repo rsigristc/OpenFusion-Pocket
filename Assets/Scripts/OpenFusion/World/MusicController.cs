@@ -113,7 +113,7 @@ namespace OpenFusion.World
             for (int i = 0; i < music.Length; i++)
             {
                 var m = music[i];
-                if (Contains(m, px, py, ins) && musicTimes[m.Index] + m.Delay < Time.time) { num = m.Index; text = m.File; break; }
+                if (Contains(m, px, py, ins) && musicTimes[m.Index] + SeasonalEvents.Delay(m.Delay) < Time.time) { num = m.Index; text = lobby ? m.File : SeasonalEvents.Sound(m.File, m.Ins, true); break; }
                 if (Contains(m, px, py, ins)) { text = ""; break; }
             }
             if (TrueOverride != "")
@@ -129,7 +129,7 @@ namespace OpenFusion.World
             for (int j = 0; j < ambient.Length; j++)
             {
                 var m = ambient[j];
-                if (Contains(m, px, py, ins) && ambientTimes[m.Index] + m.Delay < Time.time) { num = m.Index; text = m.File; break; }
+                if (Contains(m, px, py, ins) && ambientTimes[m.Index] + SeasonalEvents.Delay(m.Delay) < Time.time) { num = m.Index; text = lobby ? m.File : SeasonalEvents.Sound(m.File, m.Ins, false); break; }
                 if (Contains(m, px, py, ins)) { text = ""; break; }
             }
             if (text.Length > 0 && (ambSrc.clip == null || !text.Contains(ambName)) && !ambRunning)

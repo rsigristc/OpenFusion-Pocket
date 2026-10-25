@@ -30,6 +30,8 @@ namespace OpenFusion.World
             public InventoryWindow.DualNanoCollection collection;
             public InventoryWindow.DualEquipmentState equipment;
             public JournalWindow.DualMissionState missionsPanel;
+            public EmailWindow.DualMailState mailPanel;
+            public int unreadMail;
         }
         bool dualInitialized;
         int dualPlayerZone = -1;
@@ -132,6 +134,8 @@ namespace OpenFusion.World
             if (inventory != null && data.tab == "Nanos") data.collection = inventory.DualNanos(controller != null ? controller.SelectedNano : 0, controller != null ? controller.NanoScroll : 0, texture => DualTexture(texture, 128));
             if (inventory != null && data.tab == "Equipment") data.equipment = inventory.DualEquipment(texture => DualTexture(texture, 128));
             if (data.tab == "Journal" && JournalWindow.Instance != null) data.missionsPanel = JournalWindow.Instance.DualMissions(texture => DualTexture(texture, 256));
+            var email=EmailWindow.Instance;data.unreadMail=email!=null?email.UnreadCount:0;
+            if(data.tab=="EMail"&&email!=null)data.mailPanel=email.DualMail(texture=>DualTexture(texture,128));
             return JsonUtility.ToJson(data);
         }
         void AddDualFilter(DualMap data, int id, string label)

@@ -46,6 +46,7 @@ namespace OpenFusion.EditorTools
 
         public static void ConfigurePlayer()
         {
+            PocketAppIcon.Configure();
             PlayerSettings.companyName = "OpenFusion"; PlayerSettings.productName = "OpenFusion:Pocket";
             PlayerSettings.bundleVersion = OpenFusion.Api.PocketRelease.AppVersion; PlayerSettings.Android.bundleVersionCode = OpenFusion.Api.PocketRelease.BuildCode;
             PlayerSettings.colorSpace = ColorSpace.Gamma;      // el juego original está hecho en gamma
@@ -56,7 +57,7 @@ namespace OpenFusion.EditorTools
             PlayerSettings.Android.targetArchitectures = AndroidArchitecture.ARMv7 | AndroidArchitecture.ARM64;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel23;
             PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, false);
-            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3 });
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.Android, new[] { GraphicsDeviceType.OpenGLES3, GraphicsDeviceType.Vulkan });
             PlayerSettings.Android.forceInternetPermission = true;
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
             PlayerSettings.allowedAutorotateToPortrait = false; PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
@@ -226,7 +227,7 @@ namespace OpenFusion.EditorTools
         public static void AndroidDebug() { bool ok = false; try { ok = Build(true, "Builds/OpenFusion-debug.apk"); } catch (Exception e) { Debug.LogError(e); } EditorApplication.Exit(ok ? 0 : 1); }
         public static void AndroidRelease() { bool ok = false; try { ok = Build(false, "Builds/OpenFusion-release.apk"); } catch (Exception e) { Debug.LogError(e); } EditorApplication.Exit(ok ? 0 : 1); }
 
-        public static bool Build(bool development, string output)
+        public static bool Build(bool development, string output, string[] extraDefines = null)
         {
             // Compilar no debe regenerar ni sobrescribir escenas existentes.
             ProjectSetup.ConfigurePlayer();
@@ -247,7 +248,7 @@ namespace OpenFusion.EditorTools
             EditorUserBuildSettings.buildAppBundle = false;
             var opts = new BuildPlayerOptions
             {
-                scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(), locationPathName = output,
+                scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToArray(), locationPathName = output, extraScriptingDefines = extraDefines ?? new string[0],
                 target = BuildTarget.Android, targetGroup = BuildTargetGroup.Android, options = BuildOptions.CompressWithLz4 | (development ? BuildOptions.Development | BuildOptions.AllowDebugging : BuildOptions.None)
             };
             var report = BuildPipeline.BuildPlayer(opts);

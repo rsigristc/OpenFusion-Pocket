@@ -89,6 +89,8 @@ namespace OpenFusion
             Status?.Invoke(mainCached ? "Reading cached main.unity3d…" : "Downloading main.unity3d…", 0.02f);
             Debug.Log("[cache] main.unity3d: " + (mainCached ? "disk cache" : "download"));
             MainFileUrl = chain[0].main_file_url;
+            var seasonal = GetComponent<SeasonalEvents>() ?? gameObject.AddComponent<SeasonalEvents>();
+            _ = seasonal.ConfigureAsync(ServerUrl, MainFileUrl); // Optional metadata never delays character/map loading.
             var main = await cache.EnsureMainFileAsync(chain[0]);
             Status?.Invoke("Reading game data…", .025f);
             var gameData = await Task.Run(() => MainGameData.LoadCached(main, Path.Combine(dir, chain[0].uuid, "main-game-data.json"), chain[0].main_file_info?.hash));
@@ -124,6 +126,21 @@ namespace OpenFusion
             Status?.Invoke("Listo", 1f);
         }
 
+        public async Task PrepareIntroductionAsync()
+        {
+            // The ship uses the selection/creation models and NPC textures; avoid
+            // downloading the nine offline training maps just to show the cinematic.
+            var names = new[] { "CharacterCreation.resourceFile", "NpcTexture.resourceFile", "Effects.resourceFile" };
+            await cache.EnsureAsync(names);
+            await Loader.PrepareSharedAsync(names);
+        }
+        public async Task PrepareTutorialAsync(OpenFusion.Net.PcAppearance appearance, OpenFusion.Tables.Gen.XdtTableScript tables)
+        {
+            await streamer.EnsurePhaseAsync(Phase.Tutorial);
+            await Loader.PrepareSharedAsync(streamer.FilesUpTo(Phase.Tutorial));
+            TutorialAssets.Validate(Models, tables, appearance, Avatars);
+            Debug.Log("[training assets] original illustrations, models, weapon, Nano and core effects verified");
+        }
         public async Task LoadWorldAsync(Vector3 position)
         {
             StartPosition = position;

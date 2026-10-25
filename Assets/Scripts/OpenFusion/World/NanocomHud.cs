@@ -704,6 +704,7 @@ namespace OpenFusion.World
             if (FatigueLevel <= 1) al = Mathf.Abs(Mathf.Cos(t * Mathf.PI * (FatigueValue < 50 ? 1f : 0.5f)));
             else al = FatigueValue <= 0 ? 0f : (FatigueValue < 50 ? Mathf.Abs(Mathf.Cos(t * Mathf.PI)) : 1f);
             var fat = new Color(1f, 1f, 1f, al);
+            if (SeasonalEvents.Instance != null && SeasonalEvents.Instance.Halloween) fat = new Color(1f, .5f, 0f, al);
             bool normal = FatigueLevel <= 1;
             Texture baseT = normal ? fmReg : rest, baseR = normal ? fmRegR : restR, overT = normal ? bonus : fmReg, overR = normal ? bonusR : fmRegR;
             DrawClipped(baseT, pos, clip);

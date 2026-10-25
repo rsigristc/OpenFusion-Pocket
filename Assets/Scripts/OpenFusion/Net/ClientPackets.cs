@@ -10,7 +10,12 @@ namespace OpenFusion.Net
     public enum LoginError { DbError = 0, UnknownId = 1, WrongPassword = 2, AlreadyLoggedIn = 3, Suspended = 4, Other = 5, OutdatedClient = 6, NotBetaTester = 7, AuthConnection = 8, EulaRequired = 9 }
 
     public sealed class LoginSuccess { public int CharCount, SlotNum, PaymentFlag; public ulong SvrTime; public string Id; public int OpenBetaFlag; }
-    public sealed class CharInfo { public int Slot, Level; public PcAppearance Appearance; public int X, Y, Z; }   // Appearance: Uid, nombre, estilo, equipo (aEquip)
+    public sealed class CharInfo {
+        public int Slot, Level; public PcAppearance Appearance; public int X, Y, Z;
+        public bool WorldPositionKnown = true;
+        public int TutorialFlag = -1; // sPCStyle2; unknown is never treated as a new character
+        public bool NeedsCustomization => Appearance != null && (Appearance.Style.Gender < 1 || Appearance.Style.Gender > 2 || Appearance.Style.FaceStyle <= 0 || Appearance.Style.HairStyle <= 0);
+    }   // Appearance: Uid, nombre, estilo, equipo (aEquip)
     public struct ShardTicket { public string Host; public int Port; public long EnterSerialKey; }
     public sealed class NameSaved { public long Uid; public int Slot, Gender; public string FirstName, LastName; }
 
@@ -60,9 +65,10 @@ namespace OpenFusion.Net
         public static byte[] SaveCharTutor(long uid, int tutorialFlag) { var p = New(PacketIds.P_CL2LS_REQ_SAVE_CHAR_TUTOR, 12); PutL(p, 4, uid); p[12] = (byte)tutorialFlag; return p; }
 
         /// Creación del personaje: sPCStyle (con el iPC_UID de SAVE_CHAR_NAME_SUCC) + sOnItem (ids de camisa, pantalón y zapatos) + sOnItem_Index (índices elegidos en la pantalla).
-        public static byte[] CharCreate(long uid, PlayerStyle st, int shirtId, int pantsId, int shoesId, int shirtIdx, int pantsIdx, int shoesIdx, int @class = 0, int faceIdx = -1, int hairIdx = -1)
+        public static byte[] CharCreate(long uid, PlayerStyle st, int shirtId, int pantsId, int shoesId, int shirtIdx, int pantsIdx, int shoesIdx, int @class = 0, int faceIdx = -1, int hairIdx = -1, NameSaved reserved = null)
         {
             var p = New(PacketIds.P_CL2LS_REQ_CHAR_CREATE, CharCreateSize); int o = 4;
+            if (reserved != null) { PutStr(p, o + 10, reserved.FirstName, 9); PutStr(p, o + 28, reserved.LastName, 17); }
             PutL(p, o, uid); p[o + 62] = (byte)st.Gender; p[o + 63] = (byte)st.FaceStyle; p[o + 64] = (byte)st.HairStyle; p[o + 65] = (byte)st.HairColor; p[o + 66] = (byte)st.SkinColor; p[o + 67] = (byte)st.EyeColor; p[o + 68] = (byte)st.Height; p[o + 69] = (byte)st.Body; PutI(p, o + 72, @class);
             int i = o + 76;   // sOnItem (Pack 2): Hand, UB, LB, Foot, Head, Face, Back
             PutS(p, i + 2, (short)shirtId); PutS(p, i + 4, (short)pantsId); PutS(p, i + 6, (short)shoesId);
@@ -83,7 +89,7 @@ namespace OpenFusion.Net
             var a = new PcAppearance(); PcAppearance.ReadStyle(b, 4, a);
             for (int i = 0; i < 9; i++) { int p = 96 + i * 12; a.Equip[i] = new ItemBase { Type = BitConverter.ToInt16(b, p), Id = BitConverter.ToInt16(b, p + 2), Opt = BitConverter.ToInt32(b, p + 4), TimeLimit = BitConverter.ToInt32(b, p + 8) }; }
             a.Level = BitConverter.ToInt16(b, 2); a.X = BitConverter.ToInt32(b, 84); a.Y = BitConverter.ToInt32(b, 88); a.Z = BitConverter.ToInt32(b, 92);
-            return new CharInfo { Slot = (sbyte)b[0], Level = a.Level, Appearance = a, X = a.X, Y = a.Y, Z = a.Z };
+            return new CharInfo { Slot = (sbyte)b[0], Level = a.Level, Appearance = a, X = a.X, Y = a.Y, Z = a.Z, TutorialFlag = (sbyte)b[81] };
         }
         public static ShardTicket ParseShardSelectSucc(byte[] b)
         {
@@ -101,7 +107,9 @@ namespace OpenFusion.Net
             Need(b, 100, "sP_LS2CL_REP_CHAR_CREATE_SUCC"); var a = new PcAppearance(); PcAppearance.ReadStyle(b, 4, a); a.Level = BitConverter.ToInt16(b, 0);
             // sOnItem (Pack 2) en 84: Hand, UB, LB, Foot, Head, Face, Back
             a.Equip[0].Id = BitConverter.ToInt16(b, 84); a.Equip[1].Id = BitConverter.ToInt16(b, 86); a.Equip[2].Id = BitConverter.ToInt16(b, 88); a.Equip[3].Id = BitConverter.ToInt16(b, 90); a.Equip[4].Id = BitConverter.ToInt16(b, 92); a.Equip[5].Id = BitConverter.ToInt16(b, 94); a.Equip[6].Id = BitConverter.ToInt16(b, 96);
-            return new CharInfo { Slot = -1, Level = a.Level, Appearance = a };
+            // sOnItem contains IDs only; restore the equipment table types before previews use them.
+            for (int i = 1; i <= 6; i++) { var item = a.Equip[i]; item.Type = (short)i; a.Equip[i] = item; }
+            return new CharInfo { Slot = -1, Level = a.Level, Appearance = a, WorldPositionKnown = false, TutorialFlag = (sbyte)b[81] };
         }
 
         // ---- game server: cliente -> servidor ----

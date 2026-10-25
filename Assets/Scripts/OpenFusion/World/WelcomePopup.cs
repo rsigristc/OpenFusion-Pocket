@@ -24,7 +24,7 @@ namespace OpenFusion.World
         /// Se llama al aparecer el personaje propio (CheckUpsell).
         public void Show()
         {
-            if (open || fetching || (OncePerSession && shownThisSession)) return;
+            if (TutorialTraining.Active || open || fetching || (OncePerSession && shownThisSession)) return;
             if (UrlProvider != null) MainFileUrl = UrlProvider();
             if (ServerUrlProvider != null) ServerUrl = ServerUrlProvider();
             if (WelcomeNews.Endpoints(ServerUrl, MainFileUrl).Count == 0) { Debug.LogWarning("[popup] sin URL de noticias"); return; }

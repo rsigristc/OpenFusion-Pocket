@@ -38,6 +38,7 @@ final class DualPanel extends LinearLayout {
     private final NanoPane nanoPane;
     private final EquipmentPane equipmentPane;
     private final MissionPane missionPane;
+    private final EmailPane emailPane;
     private Bitmap avatar;
     private long avatarAt;
     private final LinearLayout mapPage;
@@ -94,16 +95,17 @@ final class DualPanel extends LinearLayout {
         });
         pages.addView(equipmentPane,new FrameLayout.LayoutParams(-1,-1));equipmentPane.setVisibility(GONE);
         missionPane=new MissionPane(context,path -> map.image(path));pages.addView(missionPane,new FrameLayout.LayoutParams(-1,-1));missionPane.setVisibility(GONE);
+        emailPane=new EmailPane(context,path -> map.image(path));pages.addView(emailPane,new FrameLayout.LayoutParams(-1,-1));emailPane.setVisibility(GONE);
         HorizontalScrollView scroll = new HorizontalScrollView(context); scroll.setFillViewport(true);
         LinearLayout nav = new LinearLayout(context); scroll.addView(nav,new FrameLayout.LayoutParams(-1,-1)); addView(scroll, new LayoutParams(-1, dp(50)));
-        String[] labels = { "Map", "Nanos", "Equipment", "Missions", "Chat ↗", "E-Mail ↗" };
+        String[] labels = { "Map", "Nanos", "Equipment", "Missions", "Chat ↗", "E-Mail" };
         String[] windows = { "Map", "Nanos", "Equipment", "Journal", "Chat", "EMail" };
         for (int i = 0; i < labels.length; i++) {
             final String window = windows[i]; NavigationTile b = new NavigationTile(context,labels[i],i);
             b.setContentDescription(labels[i].replace(" ↗", "") + ". Open the existing full-screen game panel.");
             navigation[i]=b;
             nav.addView(b, new LayoutParams(0, -1,1));
-            if(i<4) { b.setContentDescription(window+" secondary panel"); b.setOnClickListener(v -> { showTab(window); send("tab",window); }); }
+            if(i<4||i==5) { b.setContentDescription(window+" secondary panel"); b.setOnClickListener(v -> { showTab(window); send("tab",window); }); }
             else b.setOnClickListener(v -> send("window", window));
         }
     }
@@ -119,9 +121,9 @@ final class DualPanel extends LinearLayout {
     }
     private void send(String action, String value) { PocketDualScreen.send(action, value, 0, 0); }
     private void showTab(String tab) {
-        boolean collection="Nanos".equals(tab), equipment="Equipment".equals(tab), missions="Journal".equals(tab); nanoPane.setVisibility(collection ? VISIBLE : GONE); equipmentPane.setVisibility(equipment ? VISIBLE : GONE); missionPane.setVisibility(missions?VISIBLE:GONE); mapPage.setVisibility(collection || equipment || missions ? GONE : VISIBLE);
+        boolean collection="Nanos".equals(tab), equipment="Equipment".equals(tab), missions="Journal".equals(tab),mail="EMail".equals(tab); nanoPane.setVisibility(collection ? VISIBLE : GONE); equipmentPane.setVisibility(equipment ? VISIBLE : GONE); missionPane.setVisibility(missions?VISIBLE:GONE);emailPane.setVisibility(mail?VISIBLE:GONE); mapPage.setVisibility(collection || equipment || missions || mail ? GONE : VISIBLE);
         slotsRow.setVisibility(GONE); // Equipped cards remain accessible on the Nanos tab.
-        navigation[0].setSelected(!collection&&!equipment&&!missions);navigation[3].setSelected(missions); navigation[1].setSelected(collection); navigation[2].setSelected(equipment);
+        navigation[0].setSelected(!collection&&!equipment&&!missions&&!mail);navigation[3].setSelected(missions); navigation[1].setSelected(collection); navigation[2].setSelected(equipment);navigation[5].setSelected(mail);
     }
     void update(String json) {
         try {
@@ -155,6 +157,7 @@ final class DualPanel extends LinearLayout {
             showTab(data.optString("tab","Map"));
             nanoPane.update(data.optJSONObject("collection"),data.optBoolean("connected"),data.optBoolean("canSummonCards"));
             missionPane.update(data.optJSONObject("missionsPanel"),data.optBoolean("connected"));
+            emailPane.update(data.optJSONObject("mailPanel"),data.optBoolean("connected"));navigation[5].setUnread(data.optInt("unreadMail"));
             equipmentPane.update(data.optJSONObject("equipment"),data.optBoolean("connected"),data.optInt("equipmentScroll"));
             for(int i=2;i<navigation.length;i++) navigation[i].setEnabled(!data.optBoolean("station")&&!data.optBoolean("dead"));
             map.invalidate();
@@ -180,7 +183,7 @@ final class DualPanel extends LinearLayout {
         }
         return false;
     }
-    void release() { missionPane.release(); avatar=null; previewIds=null; previewBuffers[0]=previewBuffers[1]=null; nanoPane.release(); map.release(); }
+    void release() { emailPane.release();missionPane.release(); avatar=null; previewIds=null; previewBuffers[0]=previewBuffers[1]=null; nanoPane.release(); map.release(); }
 
     private final class MapView extends View {
         final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
@@ -209,7 +212,7 @@ final class DualPanel extends LinearLayout {
             Bitmap ready = images.get(path); if (ready != null) return ready;
             if (pending.add(path)) decoder.execute(() -> {
                 Bitmap bitmap = BitmapFactory.decodeFile(path);
-                post(() -> { pending.remove(path); if (released) { if (bitmap != null) bitmap.recycle(); return; } if (bitmap != null) images.put(path, bitmap); invalidate(); nanoPane.invalidateImages(); equipmentPane.invalidate(); missionPane.invalidateImages(); boosts.invalidate(); for(MapFilterTile tile:filters) tile.invalidate(); });
+                post(() -> { pending.remove(path); if (released) { if (bitmap != null) bitmap.recycle(); return; } if (bitmap != null) images.put(path, bitmap); invalidate(); nanoPane.invalidateImages(); equipmentPane.invalidate(); missionPane.invalidateImages();emailPane.invalidateImages(); boosts.invalidate(); for(MapFilterTile tile:filters) tile.invalidate(); });
             });
             return null;
         }
