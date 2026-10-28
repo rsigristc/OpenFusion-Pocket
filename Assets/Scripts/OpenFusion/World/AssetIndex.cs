@@ -27,6 +27,7 @@ namespace OpenFusion.World
             foreach (var c in D.A(v["m_Container"]))
             {
                 var d = D.O(c); var key = ((string)d["first"]).ToLowerInvariant(); var target = PPtr25.From(D.O(d["second"])["asset"]);
+                if (target.PathId == 0) continue; // A null container entry must not shadow a real prefab in another bundle.
                 if (map.ContainsKey(key)) continue; map[key] = new AssetEntry { File = fileName, Target = target, Path = key }; n++;
             }
             return n;

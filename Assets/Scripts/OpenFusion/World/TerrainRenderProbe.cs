@@ -12,6 +12,7 @@ namespace OpenFusion.World
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         static void StartIfRequested()
         {
+#if UNITY_ANDROID && !UNITY_EDITOR
             if (Application.platform != RuntimePlatform.Android) return;
             try
             {
@@ -25,6 +26,7 @@ namespace OpenFusion.World
                 }
             }
             catch (System.Exception e) { Debug.LogWarning("[render-probe] " + e.Message); }
+#endif
         }
         IEnumerator Start()
         {

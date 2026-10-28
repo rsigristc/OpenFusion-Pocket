@@ -45,7 +45,6 @@ namespace OpenFusion.World
 
         sealed class Node { public int Mode; public MissionElement Mission; }
         struct Info { public long Index, FromUid; public string First, Last, Subject; public int Read; public int SendDay, SendMonth, SendYear; public int ItemCandy; }
-        struct Buddy { public long Uid; public bool Blocked; public string First, Last; public int NameCheck; }
         struct Att { public int Type, Id, Opt; }
 
         PacketDispatcher disp; WorldEntities ents; XdtTableScript tables; NanocomHud nh; PlayerHud hud; MissionTableScript mt; NpcTableScript npcT; MessageTableScript msgT;
@@ -58,7 +57,6 @@ namespace OpenFusion.World
         readonly List<Node> nodes = new List<Node>(); readonly Info[] user = new Info[5];
         Texture npcIcon; string bodyText = "";
         long readIndex; string readContent = ""; readonly Att[] readItems = new Att[4]; int readCash;
-        static readonly List<Buddy> buddies = new List<Buddy>(); static readonly object bl = new object();
         // nuevo correo
         string toName = "", subject = "", content = ""; long toUid; int taros, calc; bool buddyWin, calcWin; float buddyScroll, bodyScroll, newScroll; bool sending;
         // mensajes
@@ -67,6 +65,8 @@ namespace OpenFusion.World
         public void Init(PacketDispatcher d, WorldEntities e, XdtTableScript t, NanocomHud n, PlayerHud h)
         {
             if (disp != null) {disp.Unhandled -= OnPacket;disp.SelfEnter-=OnMailEnter;} disp = d; ents = e; tables = t; nh = n; hud = h; if (disp != null) {disp.Unhandled += OnPacket;disp.SelfEnter+=OnMailEnter;}
+            while (q.TryDequeue(out _)) { }
+            ResetMailComposer();
             mt = t != null ? t.m_pMissionTable : null; npcT = t != null ? t.m_pNpcTable : null; msgT = t != null ? t.m_pMessageTable : null;
         }
         void Awake() { Instance=this;GameMenu.Implemented.Add(GameMenu.Win.EMail); }
@@ -82,13 +82,7 @@ namespace OpenFusion.World
         void OnPacket(uint type, byte[] b)
         {
             if (b == null) return;
-            if (type == PacketIds.P_FE2CL_REP_PC_BUDDYLIST_INFO_SUCC && b.Length >= 16)
-            {   // cnBuddySystemManager.func_FE2CL_PC_BUDDYLIST_INFO_SUCC: cabecera 16 B + sBuddyBaseInfo (72 B) x iBuddyCnt
-                int cnt = b[13]; var tmp = new List<Buddy>();
-                for (int i = 0; i < cnt; i++) { int o = 16 + 72 * i; if (o + 72 > b.Length) break; tmp.Add(new Buddy { Uid = L(b, o + 4), Blocked = (sbyte)b[o + 12] != 0, First = S(b, o + 16, 9), Last = S(b, o + 34, 17), NameCheck = (sbyte)b[o + 69] }); }
-                lock (bl) foreach (var x in tmp) { int k = buddies.FindIndex(y => y.Uid == x.Uid); if (k >= 0) buddies[k] = x; else if (x.Uid > 0) buddies.Add(x); }
-                return;
-            }
+            // Recipient data belongs to SocialMenu's session-scoped, slot-based roster.
             if (type < PacketIds.P_FE2CL_REP_PC_NEW_EMAIL || type > PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_CANDY_FAIL)
             {
                 if (type != PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_ALL_SUCC && type != PacketIds.P_FE2CL_REP_PC_RECV_EMAIL_ITEM_ALL_FAIL) return;
@@ -280,7 +274,7 @@ namespace OpenFusion.World
         }
         string BuddyName(Info f)
         {
-            string t = f.First; lock (bl) foreach (var b in buddies) if (b.Uid > 0 && b.Uid == f.FromUid && b.NameCheck != 1) t = Loc.T("Player") + " " + b.Uid; return t;
+            string t = f.First; foreach (var b in MailBuddies()) if (b.Uid == f.FromUid && b.NameCheck != 1) t = Loc.T("Player") + " " + b.Uid; return t;
         }
 
         // ============================================================ helpers de dibujo ============================================================
@@ -528,8 +522,8 @@ namespace OpenFusion.World
         }
         void DeleteMail() { var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_DELETE_EMAIL, 40); BitConverter.GetBytes(readIndex).CopyTo(p, 4); Busy(); Send(p); }
         void RemoveBuddy(Info f)
-        {   // REQ_REMOVE_BUDDY { iBuddyPCUID(8) @0, iBuddySlot(1) @8 }  (ranura = posicion entre amigos validos y no bloqueados)
-            int slot = 0; long uid = 0; lock (bl) { foreach (var b in buddies) { if (b.Uid == 0 || b.Blocked) continue; if (b.First == f.First && b.Last == f.Last) { uid = b.Uid; break; } slot++; } }
+        {   // REQ_REMOVE_BUDDY: actual roster slot + sender UID, never a filtered row or an unapproved name.
+            int slot = -1; long uid = 0; foreach (var b in MailBuddies()) if (f.FromUid > 0 && b.Uid == f.FromUid) { uid = b.Uid; slot = b.Slot; break; }
             if (uid == 0) return; var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_REMOVE_BUDDY, 12); BitConverter.GetBytes(uid).CopyTo(p, 4); p[12] = (byte)slot; Send(p);
         }
 
@@ -538,7 +532,7 @@ namespace OpenFusion.World
         {
             ResetAttachments();
             composing = true; toName = name; toUid = uid; subject = ""; content = ""; taros = 0; calc = 0; buddyWin = calcWin = false; sending = false; Typing = false;
-            if (uid != 0) { lock (bl) { int k = buddies.FindIndex(b => b.Uid == uid); if (k >= 0) toName = buddies[k].NameCheck != 1 ? Loc.T("Player") + " " + uid : buddies[k].First + buddies[k].Last; } }
+            if (uid != 0) { var b = MailBuddies().Find(candidate => candidate.Uid == uid); if (b != null) toName = b.NameCheck != 1 ? Loc.T("Player") + " " + uid : b.First + b.Last; }
         }
         void DrawNew(Event e, bool en)
         {
@@ -590,10 +584,11 @@ namespace OpenFusion.World
             if (e.type == EventType.Repaint && tBuddy != null) GUI.DrawTexture(new Rect(0, 0, BuddyBox.width, BuddyBox.height), tBuddy);
             Txt(BuddyTitle, Loc.T("BUDDY LIST"), St("label"), Color.white);
             if (Skin.Button(BuddyClose, "", St("closebut"), en)) buddyWin = false;
-            var right = St("rightLabel"); var list = new List<Buddy>(); lock (bl) foreach (var b in buddies) if (b.Uid > 0 && !b.Blocked) list.Add(b);
+            var right = St("rightLabel"); var list = MailBuddies();
             float h = 30f * list.Count, max = Mathf.Max(0f, h - BuddyList.height);
             if (e.type == EventType.ScrollWheel && BuddyList.Contains(e.mousePosition)) { buddyScroll = Mathf.Clamp(buddyScroll + e.delta.y * 20f, 0f, max); e.Use(); }
             buddyScroll = Mathf.Clamp(buddyScroll, 0f, max);
+            if (max > 0) buddyScroll = GUI.VerticalScrollbar(new Rect(BuddyList.xMax - 18f, BuddyList.y, 16f, BuddyList.height), buddyScroll, BuddyList.height, 0f, h);
             GUI.BeginGroup(BuddyList);
             for (int i = 0; i < list.Count; i++)
             {
@@ -601,6 +596,18 @@ namespace OpenFusion.World
                 if (Plain(r, t, right, Color.white, en)) { toName = b.NameCheck != 1 ? Loc.T("Player") + " " + b.Uid : b.First + b.Last; toUid = b.Uid; buddyWin = false; }
             }
             GUI.EndGroup(); GUI.EndGroup();
+        }
+        static List<SocialMenu.Buddy> MailBuddies()
+        {
+            var list = new List<SocialMenu.Buddy>(); var social = SocialMenu.Instance;
+            if (social != null) for (int i = 0; i < SocialMenu.BuddySlots; i++) { var buddy = social.BuddyAt(i); if (buddy != null && buddy.Uid > 0 && !buddy.Blocked) list.Add(buddy); }
+            return list;
+        }
+        void ResetMailComposer()
+        {
+            open = composing = buddyWin = calcWin = sending = busy = pendingCompose = Typing = false;
+            toName = subject = content = pendingRecipient = ""; toUid = pendingRecipientUid = 0; taros = calc = 0;
+            buddyScroll = bodyScroll = newScroll = 0; msg = null; msgYes = null;
         }
         void DrawCalc(Event e, bool en)
         {

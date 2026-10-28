@@ -245,13 +245,13 @@ namespace OpenFusion.World
                     case PacketIds.P_FE2CL_REP_PC_TICK:
                     {   // 32 B: iHP @0, aNano[3] @4 (sNano 6 B), iBatteryN @24. Trae id + skill + estamina de los 3 slots.
                         if (b.Length < 28) break;
-                        for (int i = 0; i < SlotCount; i++) ReadBankEntry(b, 4 + i * 6);
+                        HudPackets.ApplySlotStamina(b, 4, d);
                         break;
                     }
                     case PacketIds.P_FE2CL_REP_PC_REGEN_SUCC:
                     {   // 48 B: Nanos[3] @22 (sNano 6 B)
                         if (b.Length < 48) break;
-                        for (int i = 0; i < SlotCount; i++) ReadBankEntry(b, 22 + i * 6);
+                        HudPackets.ApplySlotStamina(b, 22, d);
                         break;
                     }
                     case PacketIds.P_FE2CL_NANO_SKILL_USE_SUCC:
@@ -272,12 +272,6 @@ namespace OpenFusion.World
                 }
             }
             catch (Exception e) { Debug.LogWarning("[nanowheel] paquete " + type + ": " + e.Message); }
-        }
-
-        void ReadBankEntry(byte[] b, int o)
-        {   // sNano { short iID, short iSkillID, short iStamina }
-            int id = S(b, o);
-            if (id > 0 && id < NanoBankSize) { bankSkill[id] = S(b, o + 2); SetBankStamina(id, S(b, o + 4)); }
         }
 
         // ---------------- tablas ----------------

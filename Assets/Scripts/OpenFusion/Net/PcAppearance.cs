@@ -61,5 +61,7 @@ namespace OpenFusion.Net
             var ids = new int[9]; for (int i = 0; i < 9; i++) { int cosmetic = (Equip[i].Opt >> 16) & 0xFFFF; ids[i] = combine && i <= 3 && cosmetic > 0 ? cosmetic : Equip[i].Id; }
             return PlayerEquip.FromItemEquip(ids);
         }
+        public static int VisibleWeaponId(ItemBase item, bool combine = true)
+        { int style = (item.Opt >> 16) & 0xFFFF; return item.Id > 0 && combine && style > 0 ? style : item.Id; }
     }
 }

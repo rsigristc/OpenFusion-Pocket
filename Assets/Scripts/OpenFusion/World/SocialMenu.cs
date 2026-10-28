@@ -1,10 +1,10 @@
 // SocialMenu: acciones del menu de jugador de NpcIconMode (INVITE TO GROUP / MAKE A BUDDY / IGNORE / REPORT PLAYER) + cajas de invitacion recibidas (grupo y buddy) + lista local de bloqueados.
-// SIN COMPILAR NI PROBAR EN UNITY. Fuente: NpcIconMode.StartGroup/StartBuddy/StartBuddyOut/ReportPlayer/DoReportWindow, cnBuddySystemManager.func_*, cnGroupManager.func_FE2CL_GROUP_INVITE.
+// Referencias: NpcIconMode.StartGroup/StartBuddy/StartBuddyOut/ReportPlayer/DoReportWindow, cnBuddySystemManager.func_*, cnGroupManager.func_FE2CL_GROUP_INVITE.
 //   Paquetes (cuerpo con +4 de cabecera): REQ_PC_GROUP_INVITE {iID_To}; REQ_REQUEST_MAKE_BUDDY {iBuddyID, long iBuddyPCUID}; REQ_ACCEPT_MAKE_BUDDY {sbyte flag @0, iBuddyID @4, long uid @8};
 //   REQ_SET_PC_BLOCK {iBlock_ID, long uid}; REQ_SET_BUDDY_BLOCK / REQ_REMOVE_BUDDY {long uid, sbyte slot @8}; reporte = chat libre "/report \"nombre\" \"motivo\"".
 // W23: datos completos de la lista de buddies (sBuddyBaseInfo 72 B: iID@0, iPCUID@4, bBlocked@12, bFreeChat@13, iPCState@14, szFirstName[9]@16, szLastName[17]@34, iGender@68, iNameCheckFlag@69),
 //   GET_BUDDY_STATE_SUCC (aBuddyID[50]@0 + aBuddyState[50]@200), mensaje "X is now online/offline." y peticion de RECALL (Status evento 28: caja de 20 s; REQ_WARP_USE_RECALL Size 4).
-//   La ventana de buddies (BUDDY LIST + WARP) esta en BuddyListPanel.cs. Pendiente: ADD (FIND_NAME_MAKE_BUDDY), filtrado del chat de bloqueados, StartStore (User Store).
+//   BUDDY LIST + WARP: BuddyListPanel.cs. ADD por nombre: SocialMenu.Buddies.cs. Pendiente: StartStore (User Store).
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,13 +15,13 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class SocialMenu : MonoBehaviour
+    public sealed partial class SocialMenu : MonoBehaviour
     {
         public static SocialMenu Instance;
-        public static bool Active { get { return Instance != null && (Instance.pops.Count > 0 || Instance.reporting); } }
+        public static bool Active { get { return Instance != null && (Instance.pops.Count > 0 || Instance.reporting || Instance.addingBuddy); } }
         public static SocialMenu Ensure(GameObject host) { var s = host.GetComponent<SocialMenu>(); if (s == null) s = host.AddComponent<SocialMenu>(); Instance = s; return s; }
 
-        class Pop { public int Kind; public string Title, Text; public int FromId; public long FromUid; public float Left = 30f; }   // Kind 0 info, 1 grupo, 2 buddy, 3 recall (20 s)
+        class Pop { public int Kind; public string Title, Text, First, Last; public int FromId; public long FromUid; public float Left = 30f, Deadline; }   // Kind 4: buddy por nombre
         readonly List<Pop> pops = new List<Pop>();
         readonly ConcurrentQueue<Action> q = new ConcurrentQueue<Action>();
         PacketDispatcher disp; WorldEntities ents; MessageTableScript msgT;
@@ -45,9 +45,7 @@ namespace OpenFusion.World
         /// <summary>CnGuiChat.IsGroupMember: el buddy (por PCUID) esta en el grupo propio.</summary>
         public bool IsGroupMemberUid(long uid)
         {
-            if (uid == 0) return false;
-            foreach (int id in GroupState.Members()) if (UidOf(id) == uid) return true;
-            return false;
+            return GroupState.IsMemberUid(uid);
         }
         /// <summary>Buddies no bloqueados (los que muestra la lista y cuenta ChatHud.BuddyCountProvider).</summary>
         public int VisibleBuddyCount() { int n = 0; for (int i = 0; i < Slots; i++) { var x = bud[i]; if (x != null && x.Uid != 0 && !x.Blocked) n++; } return n; }
@@ -71,9 +69,9 @@ namespace OpenFusion.World
         {
             q.Enqueue(() =>
             {
-                if (recallLock || (ents != null && casterId == ents.SelfId)) return;
+                if (recallLock || casterId <= 0 || ents == null || ents.SelfId <= 0 || casterId == ents.SelfId) return;
                 recallLock = true;
-                pops.Add(new Pop { Kind = 3, FromId = casterId, Left = 20f, Title = Loc.T("Skill Message"), Text = NameOf(casterId) + " is trying to recall you. Accept?" }); Sfx.Ui("Open_Screen");
+                pops.Add(new Pop { Kind = 3, FromId = casterId, Left = 20f, Deadline = Time.unscaledTime + 20f, Title = Loc.T("Skill Message"), Text = NameOf(casterId) + " is trying to recall you. Accept?" }); Sfx.Ui("Open_Screen");
             });
         }
         /// <summary>cnMainGame.RecallOk (iGroupMemberID = quien lanza) / RecallNo (0): REQ_WARP_USE_RECALL Size 4.</summary>
@@ -81,18 +79,40 @@ namespace OpenFusion.World
         {
             var r = ClientPackets.New(PacketIds.P_CL2FE_REQ_WARP_USE_RECALL, 4); ClientPackets.PutInt(r, 4, groupMemberId); Send(r);
             recallLock = false;
+            if (groupMemberId != 0) {
+                WarpFlow.Sent();
+                var self = ents != null ? ents.Self : null;
+                if (self != null && BulletFx.Instance != null) BulletFx.Instance.Fire(93, self.transform, self.transform, 1.5f, self.transform.position + Vector3.up);
+            }
         }
+        void ClearRecall() { recallLock = false; pops.RemoveAll(p => p.Kind == 3); }
+        void OnEnter(EnterSucc snapshot) { q.Enqueue(() => ResetSocial(snapshot.Self != null ? snapshot.Self.Uid : 0)); }
+        void OnRelocated(int x, int y, int z) { q.Enqueue(ClearRecall); }
 
         // informe
         bool reporting; string repName = "", repReason = "", repNote; int repId; long repUid;
 
         public void Init(PacketDispatcher d, WorldEntities e, XdtTableScript t)
         {
-            if (disp != null) disp.Unhandled -= OnPacket;
-            disp = d; ents = e; msgT = t != null ? t.m_pMessageTable : null; if (disp != null) disp.Unhandled += OnPacket;
+            if (disp != null) { disp.Unhandled -= OnPacket; disp.SelfEnter -= OnEnter; disp.Teleport -= OnRelocated; }
+            ClearRecall();
+            ResetSocial(0);
+            disp = d; ents = e; msgT = t != null ? t.m_pMessageTable : null;
+            if (disp != null) { disp.Unhandled += OnPacket; disp.SelfEnter += OnEnter; disp.Teleport += OnRelocated; }
+            BindChat();
+        }
+        ChatHud boundChat;
+        void BindChat()
+        {
+            if(boundChat!=null) {
+                if(boundChat.IsBlockedPc==(Func<int,bool>)IsBlockedId)boundChat.IsBlockedPc=null;
+                if(boundChat.IsBlockedUid==(Func<long,bool>)IsBlockedUid)boundChat.IsBlockedUid=null;
+            }
+            boundChat=GetComponent<ChatHud>();
+            if(boundChat!=null) {boundChat.IsBlockedPc=IsBlockedId;boundChat.IsBlockedUid=IsBlockedUid;}
         }
         void Awake() { Instance = this; }
-        void OnDestroy() { if (disp != null) disp.Unhandled -= OnPacket; if (Instance == this) Instance = null; }
+        void OnDestroy() { if (disp != null) { disp.Unhandled -= OnPacket; disp.SelfEnter -= OnEnter; disp.Teleport -= OnRelocated; } if(boundChat!=null) {if(boundChat.IsBlockedPc==(Func<int,bool>)IsBlockedId)boundChat.IsBlockedPc=null;if(boundChat.IsBlockedUid==(Func<long,bool>)IsBlockedUid)boundChat.IsBlockedUid=null;} if (Instance == this) Instance = null; }
 
         // ---------------- datos ----------------
         string Msg(int id) { var m = msgT != null ? msgT.m_pMessageData : null; return m != null && id >= 0 && id < m.Length && m[id] != null ? m[id].m_szString ?? "" : "(message " + id + ")"; }
@@ -101,7 +121,7 @@ namespace OpenFusion.World
         int SlotOf(long uid) { if (uid == 0) return -1; for (int i = 0; i < Slots; i++) if (slotUid[i] == uid) return i; return -1; }
         int FreeSlot() { for (int i = 0; i < Slots; i++) if (slotUid[i] == 0) return i; return -1; }
         public bool IsBlockedUid(long uid) { int s = SlotOf(uid); return s >= 0 && slotBlk[s]; }
-        public bool IsBlockedId(int id) { return IsBlockedUid(UidOf(id)); }
+        public bool IsBlockedId(int id) { if(id<=0)return false;long uid=UidOf(id);if(uid!=0)return IsBlockedUid(uid);foreach(var b in bud)if(b!=null&&b.Id==id&&b.State!=0&&b.Blocked)return true;return false; }
 
         static void PutLong(byte[] b, int o, long v) { BitConverter.GetBytes(v).CopyTo(b, o); }
         static void Send(byte[] p) { if (NpcUI.Sender != null) NpcUI.Sender(p); }
@@ -149,32 +169,40 @@ namespace OpenFusion.World
         void OnPacket(uint type, byte[] b)   // hilo de red
         {
             if (b == null) return;
+            if (HandleNamedBuddyPacket(type, b)) return;
+            if (type == PacketIds.P_FE2CL_PC_GROUP_INVITE_FAIL && b.Length >= 4) { q.Enqueue(() => Info(59, "", true)); return; }
+            if (type == PacketIds.P_FE2CL_PC_GROUP_JOIN_FAIL && b.Length >= 8) { q.Enqueue(() => Info(60, "", true)); return; }
+            if (type == PacketIds.P_FE2CL_PC_GROUP_LEAVE_FAIL && b.Length >= 8) { q.Enqueue(() => Sfx.Ui("Action_Failure01")); return; }
+            if (type == PacketIds.P_FE2CL_PC_GROUP_INVITE_REFUSE && b.Length >= 4) { int id = I(b, 0); q.Enqueue(() => Info(62, NameOf(id), true)); return; }
             OnPacket2(type, b);
             if (type == PacketIds.P_FE2CL_PC_GROUP_INVITE && b.Length >= 4)
             {   // con "ALLOW GROUP REQUESTS" = No ya lo rechaza GroupState
                 int host = I(b, 0); q.Enqueue(() =>
                 {
-                    if (!GameOptions.Cur.AllowGroup || IsBlockedId(host)) return;
-                    pops.Add(new Pop { Kind = 1, FromId = host, Title = Loc.T("GROUP INVITE RECEIVED"), Text = Msg(61).Replace("%s", NameOf(host)) }); Sfx.Ui("Open_Screen");
+                    if (!GameOptions.Cur.AllowGroup || host <= 0 || ents != null && host == ents.SelfId) return;
+                    if (IsBlockedId(host)) { var decline = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_GROUP_INVITE_REFUSE, 4); ClientPackets.PutInt(decline, 4, host); Send(decline); return; }
+                    if (pops.Exists(p => p.Kind == 1 && p.FromId == host)) return;
+                    pops.Add(new Pop { Kind = 1, FromId = host, Deadline = Time.unscaledTime + 30f, Title = Loc.T("GROUP INVITE RECEIVED"), Text = Msg(61).Replace("%s", NameOf(host)) }); Sfx.Ui("Open_Screen");
                 });
             }
-            else if (type == PacketIds.P_FE2CL_REP_REQUEST_MAKE_BUDDY_SUCC_TO_ACCEPTER && b.Length >= 8)
+            else if (type == PacketIds.P_FE2CL_REP_REQUEST_MAKE_BUDDY_SUCC_TO_ACCEPTER && b.Length >= 60)
             {   // iRequestID @0, iBuddyID @4 (yo), szFirstName/LastName
                 int req = I(b, 0), me = I(b, 4); q.Enqueue(() =>
                 {
-                    if (ents == null || me != ents.SelfId) return; long uid = UidOf(req); if (IsBlockedUid(uid)) return;
+                    if (ents == null || me != ents.SelfId || req <= 0 || req == ents.SelfId) return; long uid = UidOf(req); if (uid <= 0 || IsBlockedUid(uid)) return;
                     if (!GameOptions.Cur.AllowBuddy) { SendAccept(0, req, uid); return; }
-                    pops.Add(new Pop { Kind = 2, FromId = req, FromUid = uid, Title = Loc.T("BUDDY INVITE RECEIVED"), Text = Msg(69).Replace("%s", NameOf(req)) }); Sfx.Ui("Open_Screen");
+                    if (pops.Exists(p => p.Kind == 2 && p.FromId == req)) return;
+                    pops.Add(new Pop { Kind = 2, FromId = req, FromUid = uid, Deadline = Time.unscaledTime + 30f, Title = Loc.T("BUDDY INVITE RECEIVED"), Text = Msg(69).Replace("%s", NameOf(req)) }); Sfx.Ui("Open_Screen");
                 });
             }
             else if (type == PacketIds.P_FE2CL_REP_REQUEST_MAKE_BUDDY_FAIL && b.Length >= 16)
             {
                 int id = I(b, 0), err = I(b, 12); q.Enqueue(() => { int m = err == 3 ? 145 : err == 4 ? 139 : err == 5 ? 146 : 105; Info(m, NameOf(id), true); });
             }
-            else if (type == PacketIds.P_FE2CL_REP_ACCEPT_MAKE_BUDDY_SUCC && b.Length >= 20)
+            else if (type == PacketIds.P_FE2CL_REP_ACCEPT_MAKE_BUDDY_SUCC && b.Length >= 76)
             {   // iBuddySlot @0, BuddyInfo @4 (iID, long iPCUID @8, bBlocked @16)
                 int slot = (sbyte)b[0], id = I(b, 4); long uid = L(b, 8); bool blk = b[16] != 0;
-                var nb = ParseBuddy(b, 4, slot); q.Enqueue(() => { if (slot >= 0 && slot < Slots) { slotUid[slot] = uid; slotBlk[slot] = blk; bud[slot] = nb; } Info(140, NameOf(id), false); });
+                var nb = ParseBuddy(b, 4, slot); q.Enqueue(() => { if (slot < 0 || slot >= Slots || nb == null || uid <= 0) return; slotUid[slot] = uid; slotBlk[slot] = blk; bud[slot] = nb; StateVersion++; Info(140, nb.MsgName, false); });
             }
             else if (type == PacketIds.P_FE2CL_REP_ACCEPT_MAKE_BUDDY_FAIL && b.Length >= 16)
             {
@@ -196,6 +224,7 @@ namespace OpenFusion.World
             else if (type == PacketIds.P_FE2CL_REP_PC_BUDDYLIST_INFO_SUCC && b.Length >= 16)
             {   // iID @0, iPCUID @4, iListNum @12, iBuddyCnt @13, sBuddyBaseInfo[72] @16 (iID @0, iPCUID @4, bBlocked @12)
                 int first = (sbyte)b[12], cnt = (sbyte)b[13]; var body = b;
+                if (first < 0 || cnt < 0 || first + cnt > Slots || 16 + 72 * cnt > b.Length) return;
                 q.Enqueue(() =>
                 {
                     for (int i = 0; i < cnt && first >= 0 && first + i < Slots; i++)
@@ -227,7 +256,7 @@ namespace OpenFusion.World
             }
             else if (type == PacketIds.P_FE2CL_REP_WARP_USE_RECALL_FAIL)
             {   // GameFrame 822083804: bRecallLock = false; bEnableSendPacket = true
-                q.Enqueue(() => { recallLock = false; });
+                q.Enqueue(ClearRecall);
             }
         }
 
@@ -239,9 +268,15 @@ namespace OpenFusion.World
         void Update()
         {
             Action a; int n = 0; while (n++ < 16 && q.TryDequeue(out a)) { try { a(); } catch (Exception ex) { Debug.LogWarning("[social] " + ex.Message); } }
+            UpdateAddBuddy();
+            // Invitations expire even behind an older informational popup.
+            foreach (var pending in pops.ToArray()) if (pending.Kind != 0) {
+                pending.Left = Mathf.Max(0, pending.Deadline - Time.unscaledTime);
+                if (pending.Left <= 0) Resolve(pending, false);
+            }
             if (pops.Count > 0)
             {
-                var p = pops[0]; if (p.Kind != 0) { p.Left -= Time.unscaledDeltaTime; if (p.Left <= 0f) Resolve(p, false); }
+                var p = pops[0];
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) { if (p.Kind == 0) pops.RemoveAt(0); }
             }
             if (reporting && Input.GetKeyDown(KeyCode.Escape)) reporting = false;
@@ -249,9 +284,10 @@ namespace OpenFusion.World
 
         void Resolve(Pop p, bool yes)
         {
-            pops.Remove(p);
+            if (!pops.Remove(p)) return;
             if (p.Kind == 1) { var r = ClientPackets.New(yes ? PacketIds.P_CL2FE_REQ_PC_GROUP_JOIN : PacketIds.P_CL2FE_REQ_PC_GROUP_INVITE_REFUSE, 4); ClientPackets.PutInt(r, 4, p.FromId); Send(r); }
             else if (p.Kind == 2) SendAccept(yes ? 1 : 0, p.FromId, p.FromUid);
+            else if (p.Kind == 4) SendNamedBuddyAnswer(p, yes);
             else if (p.Kind == 3) { RecallAnswer(yes ? p.FromId : 0); if (yes) Sfx.Ui("Recall_Warp"); }
             Sfx.Ui(yes ? "Yes_Button" : "No_Button");
         }
@@ -268,6 +304,7 @@ namespace OpenFusion.World
                 var red = Skin.Get(Skin.Menu, "RedButton") ?? Skin.Get(Skin.Inven, "RedButton"); var cancel = Skin.Get(Skin.Menu, "CancelButton") ?? Skin.Get(Skin.Inven, "CancelButton"); var lab = Skin.Get(Skin.Inven, "label");
                 GUI.matrix = Mat(new Vector2(W * 0.5f, H * 0.5f), Sc); GUI.color = Color.white;
                 if (pops.Count > 0) DrawPop(e, pops[0], red, cancel, lab);
+                else if (addingBuddy) DrawAddBuddy(e, red, cancel, lab);
                 else if (reporting) DrawReport(e, red, cancel, lab);
             }
             finally { GUI.matrix = om; GUI.color = oc; GUI.depth = od; }

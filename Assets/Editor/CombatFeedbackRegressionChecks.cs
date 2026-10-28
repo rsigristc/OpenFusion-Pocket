@@ -37,8 +37,22 @@ namespace OpenFusion.EditorTools
             Check(SkillResults.ApplyPacket(PacketIds.P_FE2CL_NANO_SKILL_USE, heal, 77, d, out _) && d.Hp == 100, "Another player's healing skill did not update local HP");
             var stamina = Skill(6, 16); S(stamina, 38, 4); S(stamina, 42, 150);
             Check(SkillResults.ApplyPacket(PacketIds.P_FE2CL_NPC_SKILL_HIT, stamina, 77, d, out _) && d.NanoStamina[0] == 150 && d.Hp == 100, "Nano stamina heal was ignored or misread as HP");
+            d.NanoSlots[1] = 1; d.NanoSlots[2] = 5;
             var regen = new byte[48]; I(regen, 0, 500); S(regen, 20, 2); S(regen, 22, 4); S(regen, 26, 75); S(regen, 28, 1); S(regen, 32, 76); S(regen, 34, 5); S(regen, 38, 77); I(regen, 44, 12345);
             Check(HudPackets.ApplyRegenSucc(regen, d, true) && d.Hp == 500 && d.ActiveNanoSlot == 2 && d.NanoSlots[2] == 5 && d.NanoStamina[2] == 77 && d.NanoBankStamina[4] == 75 && d.FusionMatter == 12345, "Respawn failed to restore server HP, Nano identities/energy and Fusion Matter");
+            // Retrobution/Legacy revival may supply stamina-only entries. Equipment is
+            // retained from ENTER/EQUIP, never reconstructed from these unused IDs.
+            for (int i = 0; i < 3; i++) { S(regen,22+i*6,0); S(regen,24+i*6,0); }
+            Check(HudPackets.ApplyRegenSucc(regen,d,true) && d.HasActiveNano && d.NanoSlots[0]==4 && d.NanoSlots[1]==1 && d.NanoSlots[2]==5 && d.NanoBankStamina[5]==77,
+                "Stamina-only respawn must retain equipped Nano identities and a valid active HUD card.");
+            S(regen,20,3); HudPackets.ApplyRegenSucc(regen,d,false);
+            Check(!d.HasActiveNano && d.ActiveNanoSlot==-1,"Out-of-range respawn slots must not draw a ghost Nano.");
+            d.NanoSlots[2]=0; S(regen,20,2); HudPackets.ApplyRegenSucc(regen,d,false);
+            Check(!d.HasActiveNano && d.ActiveNanoSlot==-1,"Respawn active slot pointing to an empty slot must be dismissed.");
+            d.NanoSlots[2]=5; S(regen,20,-1); HudPackets.ApplyRegenSucc(regen,d,false);
+            Check(!d.HasActiveNano && d.NanoSlots[2]==5,"A server-dismissed Nano must retain equipment without showing an active card.");
+            d.ActiveNanoSlot=0; var cut=new byte[47]; I(cut,0,999);
+            Check(!HudPackets.ApplyRegenSucc(cut,d,true)&&d.Hp==500&&d.ActiveNanoSlot==0,"A truncated respawn must not partially mutate the HUD.");
             var req = PlayerLife.RespawnRequest(31);
             Check(req.Length == 16 && BitConverter.ToUInt32(req, 0) == PacketIds.P_CL2FE_REQ_PC_REGEN && BitConverter.ToInt32(req, 4) == 1 && BitConverter.ToInt32(req, 12) == 31, "Respawn request must use normal revival rather than Warp Away");
             Check(BitConverter.ToInt32(PlayerLife.RespawnRequest(0, 3), 4) == 3 && BitConverter.ToInt32(PlayerLife.RespawnRequest(0, 4), 4) == 4, "Phoenix revival packet types are incorrect");
@@ -62,6 +76,15 @@ namespace OpenFusion.EditorTools
                 var ack = new byte[36]; I(ack, 0, 77); S(ack, 6, 9); S(ack, 24, 4); S(ack, 26, 140);
                 typeof(NanoWheelHud).GetMethod("Handle", flagsBinding).Invoke(wheel, new object[] { PacketIds.P_FE2CL_NANO_SKILL_USE_SUCC, ack });
                 Check(wheel.CooldownRemaining(0) > 9, "Server-triggered skill acknowledgement must start the active-slot cooldown too");
+                var revival=new byte[48]; I(revival,0,500); S(revival,20,0); S(revival,26,75);
+                HudPackets.ApplyRegenSucc(revival,hud.Data,true);
+                typeof(NanoWheelHud).GetMethod("Handle",flagsBinding).Invoke(wheel,new object[]{PacketIds.P_FE2CL_REP_PC_REGEN_SUCC,revival});
+                Check(hud.Data.NanoSlots[0]==4 && hud.Data.HasActiveNano && wheel.BankSkill(4)==9 && hud.Data.NanoStamina[0]==75,
+                    "Revival must preserve the chosen skill used by the active Nano icon.");
+                var nanoTick=new byte[32]; I(nanoTick,0,500); S(nanoTick,8,80);
+                HudPackets.ApplyTick(nanoTick,hud.Data);
+                typeof(NanoWheelHud).GetMethod("Handle",flagsBinding).Invoke(wheel,new object[]{PacketIds.P_FE2CL_REP_PC_TICK,nanoTick});
+                Check(wheel.BankSkill(4)==9 && hud.Data.NanoSlots[0]==4 && hud.Data.NanoStamina[0]==80,"Subsequent stamina-only ticks must not erase the Nano power.");
                 var client = host.AddComponent<OpenFusion.GameClient>();
                 var body = new GameObject("Life animation fixture"); body.transform.SetParent(host.transform); var anim = body.AddComponent<Animation>();
                 var clips = new System.Collections.Generic.List<AnimationClip>();

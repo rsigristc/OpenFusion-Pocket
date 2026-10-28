@@ -10,7 +10,8 @@ namespace OpenFusion.World
             if (ents == null || b == null || b.Length < 6) return;
             var npc = ents.NpcById(I(b, 0)); if (npc == null) return;
             int skill = BitConverter.ToInt16(b, 4); var animator = npc.GetComponent<NpcAnimator>();
-            if (ready) { animator?.PlayAction("skillready"); return; }
+            if (ready) { animator?.SkillReady(); return; }
+            animator?.EndSkillReady();
             var info = npc.GetComponent<NpcInfo>();
             var rows = tables?.m_pNpcTable?.m_pNpcData;
             OpenFusion.Tables.Gen.NpcTableElement row = null;

@@ -38,6 +38,19 @@ namespace OpenFusion.EditorTools
                     throw new Exception("Falta el material URP del terreno.");
                 if (!terrain.materialTemplate.enableInstancing || !terrain.materialTemplate.IsKeywordEnabled("_TERRAIN_INSTANCED_PERPIXEL_NORMAL"))
                     throw new Exception("Falta la normal por pixel del terreno instanciado (regresion GLES).");
+                // Legacy lightmapped terrain uses its complete baked illumination;
+                // it must not also go through PBR lighting plus a second overlay.
+                t.Lightmap = new PPtr25 { PathId = 100 };
+                var bakedRoot = TerrainBuilder.Build(t, p => diffuse, resolveAlphaData: p => alpha);
+                try {
+                    var baked = bakedRoot.GetComponent<Terrain>().materialTemplate;
+                    if (baked.shader.name != "OpenFusion/TerrainBaked" || baked.GetTexture("_LegacyLightmap") != diffuse ||
+                        !baked.enableInstancing || !baked.IsKeywordEnabled("_TERRAIN_INSTANCED_PERPIXEL_NORMAL") ||
+                        bakedRoot.transform.Find("lightmapOverlay") != null)
+                        throw new Exception("El terreno horneado no debe duplicar iluminacion ni crear una malla de sombras separada.");
+                    foreach (string shaderName in new[] { "Hidden/OpenFusion/TerrainBakedAdd", "Hidden/OpenFusion/TerrainBakedBase" })
+                        if (Shader.Find(shaderName) == null) throw new Exception("Missing legacy terrain dependency: " + shaderName);
+                } finally { UnityEngine.Object.DestroyImmediate(bakedRoot); }
                 for (int y = 0; y < 16; y++) for (int x = 0; x < 16; x++)
                     if (Mathf.Abs(weights[y, x, 0] + weights[y, x, 1] - 1f) > 0.01f)
                         throw new Exception("Los pesos del terreno no estan normalizados.");

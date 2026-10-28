@@ -26,7 +26,7 @@ namespace OpenFusion.World
             public List<DualMarker> markers = new List<DualMarker>();
             public List<DualNano> nanos = new List<DualNano>();
             public string tab;
-            public bool station, dead, canSummon, canSummonCards, connected;
+            public bool station, dead, canSummon, canSummonCards, connected, canZoomCamera;
             public InventoryWindow.DualNanoCollection collection;
             public InventoryWindow.DualEquipmentState equipment;
             public JournalWindow.DualMissionState missionsPanel;
@@ -80,7 +80,7 @@ namespace OpenFusion.World
             DualReady();
             var data = new DualMap { location = nh != null ? nh.CurrentDongName : "Location unavailable", x = targetRect.x, y = targetRect.y, width = targetRect.width, height = targetRect.height,
                 missions = iconOn.Contains(MissionIcons[0]), shops = iconOn.Contains(ShopIcons[0]), services = iconOn.Contains(IndividualIcons[0]),
-                zoomIn = zone == 3 && (zoom == Zoom.Type1 || zoom == Zoom.Type2), zoomOut = zone == 3 && (zoom == Zoom.Type2 || zoom == Zoom.Type3) };
+                zoomIn = CanZoomIn, zoomOut = CanZoomOut };
             data.local = zoom == Zoom.Type4; data.filtersEnabled = !data.local;
             AddDualFilter(data, 15, "Missions"); AddDualFilter(data, 10, "Shops");
             foreach (int icon in IndividualIcons) AddDualFilter(data, icon, "Map category " + icon);
@@ -129,6 +129,7 @@ namespace OpenFusion.World
             var inventory = GetComponent<InventoryWindow>(); data.station = inventory != null && inventory.DualStation;
             data.connected = GameClient.FindSelf != null && GameClient.FindSelf.WorldConnected;
             data.dead = PlayerLife.Active;
+            data.canZoomCamera = GameClient.FindSelf != null && GameClient.FindSelf.CanZoomWorldCamera;
             data.canSummon = data.connected && (GetComponent<NanoWheelHud>()?.CanSummonFromUi ?? false);
             data.canSummonCards = data.connected && (GetComponent<NanoWheelHud>()?.CanSummonFromCard ?? false);
             if (inventory != null && data.tab == "Nanos") data.collection = inventory.DualNanos(controller != null ? controller.SelectedNano : 0, controller != null ? controller.NanoScroll : 0, texture => DualTexture(texture, 128));

@@ -37,7 +37,7 @@ namespace OpenFusion.World
                 Rect usable=new Rect((1280-previewWidth)/2,100+(490-previewHeight)/2,previewWidth,previewHeight);GUI.Box(usable,"Layout preview");
                 var ev=Event.current;
                 for(int i=0;i<TouchLayout.ControlCount;i++){
-                    var fallback=i>=15?new Rect(i==15?100:775,420,100,100):new Rect(usable.xMax-((i%3)+1)*70,usable.yMax-((i/3)+1)*72,58,58);
+                    var fallback=(i==15||i==16)?new Rect(i==15?100:775,420,100,100):new Rect(usable.xMax-((i%3)+1)*70,usable.yMax-((i/3)+1)*72,58,58);
                     var rect=TouchLayout.ActionRect(i,usable,fallback);
                     if(TouchControls.Instance!=null){var live=TouchControls.Instance.LayoutRect(i);float ratio=usable.width/Mathf.Max(1,actual.width);rect=new Rect(usable.x+(live.x-actual.x)*ratio,usable.y+(live.y-actual.y)*ratio,live.width*ratio,live.height*ratio);}
                     int id=GUIUtility.GetControlID(9000+i,FocusType.Passive);
@@ -45,10 +45,11 @@ namespace OpenFusion.World
                     if(drag==i&&GUIUtility.hotControl==id&&ev.type==EventType.MouseDrag){TouchLayout.Move(i,ev.mousePosition+offset,usable);ev.Use();}
                     if(drag==i&&ev.type==EventType.MouseUp){drag=-1;GUIUtility.hotControl=0;ev.Use();}
                     var b=TouchLayout.Spec(i);GUI.color=new Color(selected==i?.7f:1,selected==i?1:.8f,1,b.opacity);
-                    GUI.Box(rect,i==15?"MOVE STICK":i==16?"CAMERA STICK":TouchLayout.Labels[i]);GUI.color=Color.white;
+                    GUI.Box(rect,TouchLayout.ControlLabel(i));GUI.color=Color.white;
                 }
-                if(selected>=0){var b=TouchLayout.Spec(selected);GUI.Label(new Rect(20,610,180,25),selected==15?"MOVE STICK":selected==16?"CAMERA STICK":TouchLayout.Labels[selected]);
-                    if(selected<15)TouchLayout.Enable(selected,GUI.Toggle(new Rect(180,610,120,30),TouchLayout.Enabled(selected),"Enabled"));
+                if(selected>=0){var b=TouchLayout.Spec(selected);GUI.Label(new Rect(20,610,180,25),TouchLayout.ControlLabel(selected));
+                    int action=TouchLayout.ActionIndex(selected);
+                    if(action>=0)TouchLayout.Enable(action,GUI.Toggle(new Rect(180,610,120,30),TouchLayout.Enabled(action),"Enabled"));
                     else if(selected==16)TouchLayout.CameraStickEnabled=GUI.Toggle(new Rect(180,610,120,30),TouchLayout.CameraStickEnabled,"Enabled");
                     GUI.Label(new Rect(320,610,60,25),"Size");b.size=GUI.HorizontalSlider(new Rect(385,620,240,25),b.size,.55f,1.8f);
                     GUI.Label(new Rect(660,610,80,25),"Opacity");b.opacity=GUI.HorizontalSlider(new Rect(745,620,240,25),b.opacity,.15f,1);

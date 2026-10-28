@@ -62,6 +62,11 @@ namespace OpenFusion.World
         {
             if (t == null) return null; var rp = t.GetComponentInParent<RemotePc>(); return rp != null ? WeaponOf(rp.Id) : null;
         }
+        ItemElement AnimationWeaponOf(int pcId)
+        {
+            var app = ents?.AppOf(pcId); if (app?.Equip == null || app.Equip.Length == 0) return null;
+            return WeaponById(PcAppearance.VisibleWeaponId(app.Equip[0], avatars == null || avatars.CombineEquip)) ?? WeaponOf(pcId);
+        }
         /// <summary>cnAvatarStatus.iAniStyle segun m_iEquipType: 1,2 stick; 3 pistol; 4 rifle; 10 bomb; 11 rocket (misma correspondencia que CombatSystem.ReadWeapon).</summary>
         static int StyleOfWeapon(ItemElement e)
         {
@@ -103,7 +108,7 @@ namespace OpenFusion.World
                 var app = ents.AppOf(kv.Key); if (app == null || app.Equip == null || app.Equip.Length == 0) continue;
                 var na = go.GetComponent<NpcAnimator>(); if (na == null) continue;
                 if (avatars != null && kv.Value.GetComponent<AvatarOutfitStamp>()?.Signature != PlayerAvatarFactory.OutfitSignature(app, avatars.CombineEquip)) avatars.RefreshEquipment(kv.Value, app);
-                int st = StyleOfWeapon(WeaponById(app.Equip[0].Id)); if (na.AniStyle != st) na.SetStyle(st);
+                int st = StyleOfWeapon(AnimationWeaponOf(kv.Key)); if (na.AniStyle != st) na.SetStyle(st);
             }
         }
 
@@ -256,7 +261,7 @@ namespace OpenFusion.World
             if (app.Equip[slot].Id == item.Id && app.Equip[slot].Opt == item.Opt) return;   // ReceiveEquipChage: solo si cambia el id
             app.Equip[slot] = item;
             if (slot != 0) { avatars?.RefreshEquipment(go, app); return; }
-            var na = go.GetComponent<NpcAnimator>(); if (na != null) { na.SetStyle(StyleOfWeapon(WeaponById(item.Id))); na.PlayerSheath(); }
+            var na = go.GetComponent<NpcAnimator>(); if (na != null) { na.SetStyle(StyleOfWeapon(AnimationWeaponOf(pc))); na.PlayerSheath(); }
             if (avatars != null) { try { avatars.RefreshWeapon(go, app); } catch (Exception ex) { Debug.LogWarning("[rcombat] arma visible de " + pc + ": " + ex.Message); } }
         }
     }

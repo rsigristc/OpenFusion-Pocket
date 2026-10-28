@@ -66,10 +66,11 @@ namespace OpenFusion.World
         }
         void Bind(PacketDispatcher d)
         {
-            if (disp != null) { disp.WarpUseNpcSuccRaw -= OnSucc; disp.WarpFail -= OnFail; disp.Teleport -= OnRelocated; }
+            if (disp != null) { disp.WarpUseNpcSuccRaw -= OnSucc; disp.WarpFail -= OnFail; disp.Teleport -= OnRelocated; disp.Unhandled -= OnOther; }
             disp = d;
-            if (disp != null) { disp.WarpUseNpcSuccRaw += OnSucc; disp.WarpFail += OnFail; disp.Teleport += OnRelocated; }
+            if (disp != null) { disp.WarpUseNpcSuccRaw += OnSucc; disp.WarpFail += OnFail; disp.Teleport += OnRelocated; disp.Unhandled += OnOther; }
         }
+        void OnOther(uint type, byte[] body) { if (type == PacketIds.P_FE2CL_REP_WARP_USE_RECALL_FAIL) q.Enqueue(Cancel); }
         void OnDestroy() { Bind(null); if (Instance == this) Instance = null; }
 
         // GOTO and shortened successful warp responses also confirm relocation.

@@ -14,18 +14,24 @@ namespace OpenFusion.World
     {
         public static int Size;                                   // m_iGroupSize (incluye al propio jugador)
         static readonly HashSet<int> members = new HashSet<int>();
+        static readonly HashSet<long> memberUids = new HashSet<long>();
         public static bool IsMember(int pcId) { lock (members) return members.Contains(pcId); }
+        public static bool IsMemberUid(long uid) { lock (members) return uid != 0 && memberUids.Contains(uid); }
         public static int[] Members() { lock (members) { var a = new int[members.Count]; members.CopyTo(a); return a; } }
 
         PacketDispatcher disp; WorldEntities ents; readonly ConcurrentQueue<Action> q = new ConcurrentQueue<Action>();
         public static GroupState Ensure(GameObject host) { var g = host.GetComponent<GroupState>(); if (g == null) g = host.AddComponent<GroupState>(); return g; }
-        public void Init(WorldEntities e, PacketDispatcher d) { if (disp != null) disp.Unhandled -= OnPacket; ents = e; disp = d; if (disp != null) disp.Unhandled += OnPacket; }
-        void OnDestroy() { if (disp != null) disp.Unhandled -= OnPacket; Size = 0; lock (members) members.Clear(); }
+        public void Init(WorldEntities e, PacketDispatcher d) { if (disp != null) { disp.Unhandled -= OnPacket; disp.SelfEnter -= OnEnter; } ents = e; disp = d; Clear(); if (disp != null) { disp.Unhandled += OnPacket; disp.SelfEnter += OnEnter; } }
+        static void Clear() { lock(members) { Size = 0; members.Clear(); memberUids.Clear(); } }
+        void OnEnter(EnterSucc e) { q.Enqueue(Clear); }
+        void OnDestroy() { if (disp != null) { disp.Unhandled -= OnPacket; disp.SelfEnter -= OnEnter; } Clear(); }
         void Update() { while (q.TryDequeue(out var a)) a(); }
 
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
         void OnPacket(uint type, byte[] b)
         {
+            // Legacy's leave success is an empty struct, not a roster packet.
+            if (type == PacketIds.P_FE2CL_PC_GROUP_LEAVE_SUCC) { q.Enqueue(Clear); return; }
             if (b != null && type == PacketIds.P_FE2CL_PC_GROUP_INVITE && b.Length >= 4)
             {   // cnGroupManager.func_FE2CL_GROUP_INVITE: con "ALLOW GROUP REQUESTS" = No se rechaza sin preguntar
                 if (!GameOptions.Cur.AllowGroup && NpcUI.Sender != null) { var r = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_GROUP_INVITE_REFUSE, 4); ClientPackets.PutInt(r, 4, I(b, 0)); NpcUI.Sender(r); }
@@ -37,19 +43,25 @@ namespace OpenFusion.World
                 return;
             }
             if (b == null || b.Length < 12) return;
-            if (type != PacketIds.P_FE2CL_PC_GROUP_JOIN && type != PacketIds.P_FE2CL_PC_GROUP_JOIN_SUCC && type != PacketIds.P_FE2CL_PC_GROUP_LEAVE) return;
+            if (type != PacketIds.P_FE2CL_PC_GROUP_JOIN && type != PacketIds.P_FE2CL_PC_GROUP_JOIN_SUCC && type != PacketIds.P_FE2CL_PC_GROUP_LEAVE && type != PacketIds.P_FE2CL_PC_GROUP_MEMBER_INFO) return;
+            int pcCount=I(b,4), npcCount=I(b,8);
+            // Reject malformed snapshots atomically; never replace a valid group
+            // with a partial roster or trust an unchecked server count.
+            if(pcCount<0 || pcCount>4 || npcCount<0 || npcCount>64 || 12L+112L*pcCount+32L*npcCount>b.Length)return;
             var body = b; bool leave = type == PacketIds.P_FE2CL_PC_GROUP_LEAVE;
             q.Enqueue(() =>
             {
-                int who = I(body, 0), n = Mathf.Clamp(I(body, 4), 0, 4); int self = ents != null ? ents.SelfId : -1;
-                var ids = new List<int>(); for (int i = 0; i < n; i++) { int o = 12 + 112 * i; if (o + 4 > body.Length) break; ids.Add(I(body, o)); }
+                int who = I(body, 0), n = I(body, 4); int self = ents != null ? ents.SelfId : -1;
+                var ids = new HashSet<int>(); var uids = new HashSet<long>();
+                for (int i = 0; i < n; i++) { int o = 12 + 112 * i, id=I(body,o); if(id<=0 || !ids.Add(id))return; if(id!=self)uids.Add(BitConverter.ToInt64(body,o+4)); }
+                if(self>0 && n>0 && !ids.Contains(self) && !(leave&&who==self))return;
                 lock (members)
                 {
-                    members.Clear(); foreach (int id in ids) if (id != self) members.Add(id);
-                    if (leave && who == self) members.Clear();
+                    members.Clear(); memberUids.Clear(); foreach (int id in ids) if (id != self) members.Add(id);
+                    foreach(long uid in uids)if(uid!=0)memberUids.Add(uid);
+                    Size=n;
+                    if (leave && (who == self || n <= 1 && npcCount == 0)) { members.Clear();memberUids.Clear();Size=0; }
                 }
-                Size = (leave && who == self) ? 0 : n; if (n <= 1 && !leave) Size = Mathf.Max(Size, 1);
-                if (leave && n <= 1) Size = 0;
             });
         }
     }

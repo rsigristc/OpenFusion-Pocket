@@ -9,9 +9,9 @@ namespace OpenFusion.World
             ControlMap.K.WpnChange, ControlMap.K.VehicleToggle, ControlMap.K.WpnCharge,
             ControlMap.K.NanoCharge, ControlMap.K.Fire2, ControlMap.K.Nano1, ControlMap.K.Nano2,
             ControlMap.K.Nano3, ControlMap.K.CameraShoulderToggle, ControlMap.K.AutoRun,
-            ControlMap.K.Esc, ControlMap.K.WorldMap, ControlMap.K.Inventory };
+            ControlMap.K.Esc, ControlMap.K.WorldMap, ControlMap.K.Inventory, ControlMap.K.ZoomIn, ControlMap.K.ZoomOut };
         public static readonly string[] Labels = { "ATK", "JUMP", "WEAPON", "VEHICLE", "WEAPON BOOST",
-            "NANO BOOST", "POWER", "NANO 1", "NANO 2", "NANO 3", "AIM", "AUTORUN", "MENU", "MAP", "INVENTORY" };
+            "NANO BOOST", "POWER", "NANO 1", "NANO 2", "NANO 3", "AIM", "AUTORUN", "MENU", "MAP", "INVENTORY", "ZOOM IN", "ZOOM OUT" };
         static bool loaded;
         static int mask, backupMask;
         static bool hideWithPad, backupHide;

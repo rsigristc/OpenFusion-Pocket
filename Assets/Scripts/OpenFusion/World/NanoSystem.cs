@@ -4,8 +4,7 @@
 //  - Uso de skill (tecla X = Key.Fire2, o UseSkill() desde un botón): sólo skills activas (BatteryDrainType 1) de tipo objetivo (EffectType 1). Construye la lista de objetivos como el
 //    original (1 = objetivo, 2 = uno mismo, 3 = cono, 5 = área propia, 6 = área alrededor del objetivo), respeta el cooldown del slot y envía REQ_NANO_SKILL_USE.
 //  - NANO_SKILL_USE_SUCC (propio) / NANO_SKILL_USE (otros): anima al nano, lanza la bala del skill (SkillElement.m_iTargetEffect) hacia cada objetivo y aplica los resultados
-//    (daño en NPC, curación propia). Skills de cohete (EffectType 2/3) y movimiento (tipos 27/28/29/40) no se portan todavía: sólo se envía la petición / se registra.
-// SIN COMPILAR EN UNITY.
+//    (daño en NPC, curación propia). Recall espera la reubicación del servidor; salto y dash usan su ruta de movimiento local.
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,7 +14,7 @@ using OpenFusion.Tables.Gen;
 
 namespace OpenFusion.World
 {
-    public sealed class NanoSystem : MonoBehaviour
+    public sealed partial class NanoSystem : MonoBehaviour
     {
         sealed class Nn
         {
@@ -234,6 +233,7 @@ namespace OpenFusion.World
         void Update()
         {
             Action a; while (q.TryDequeue(out a)) a();
+            UpdateSkillPreview();
             if (ents == null) return;
             // nano propio = slot activo del HUD (REP_NANO_ACTIVE_SUCC / REGEN / ENTER lo actualizan)
             if (Time.time >= nextSync && hud != null && hud.Data != null && ents.Self != null)
@@ -313,7 +313,12 @@ namespace OpenFusion.World
             var self = ents.Self.transform; var targets = new List<NpcInfo>(); bool selfTarget = false; int arg1 = 0; var allies = new List<int>(); System.Action local = null;
             var tg = NpcUI.MobTarget; var fw = self.forward; var cam = Camera.main; if (cam != null) { fw = cam.transform.forward; fw.y = 0f; fw.Normalize(); }
             float range = se.m_iEffectRange * 0.01f, area = se.m_iEffectArea * 0.01f; var sp = self.position;
-            switch (se.m_iEffectTarget)
+            if (se.m_iTargetType == 1 && se.m_iEffectTarget != 2)
+            {
+                CollectEnemySkillTargets(targets, se, self, tg, fw);
+                arg1 = se.m_iEffectTarget == 5 ? ents.SelfId : targets.Count > 0 ? targets[0].Id : 0;
+            }
+            else switch (se.m_iEffectTarget)
             {
                 case 1:
                     if (se.m_iTargetType == 1 && tg != null && tg.Hp > 0 && tg.GetBounds().SqrDistance(sp) <= range * range) { targets.Add(tg); arg1 = tg.Id; }
@@ -325,12 +330,14 @@ namespace OpenFusion.World
                     {   // la habilidad no se envía (ni se mueve el avatar) mientras la ranura está en enfriamiento: GameCondition.IsCoolTime(6 + slot)
                         if (wheel.IsCooling(slot)) return;
                         float extra = se.m_iValueA != null && se.m_iValueA.Length > 0 ? se.m_iValueA[0] * 0.01f : 0f; bool dash = se.m_iSkillType == 40;
-                        local = () => { if (gcl == null) gcl = FindObjectOfType<GameClient>(); if (gcl == null) return; if (dash) gcl.SkillDash(35f); else gcl.SkillJump(extra); };
+                        local = () => { if (gcl == null) gcl = FindObjectOfType<GameClient>(); if (gcl == null) return; if (dash) gcl.SkillDash(35f); else gcl.SkillJump(extra, 1.5f); };
                     }
                     else if (se.m_iSkillType == 27 || se.m_iSkillType == 28)
-                    {   // instancia: sólo dentro de una instancia con iRXCom != 0 (mensajes 217/218 en caso contrario); no hay estado de instancia en este cliente
-                        if (logN++ < 8) Debug.Log("[skill] tipo " + se.m_iSkillType + " (instancia): sólo disponible dentro de una instancia (mensaje 217); no se envía");
-                        return;
+                    {   // cnAvatarAttack.NanoSkillUse: self target; never predict destination or energy.
+                        if (wheel.IsCooling(slot) || WarpFlow.Blocking || SocialMenu.Active) return;
+                        int message = !RaceSystem.InsMap ? 217 : RaceSystem.RecallMapId == 0 ? 218 : 0;
+                        if (message != 0) { SysMessageBox.Show(message, null, null); return; }
+                        local = WarpFlow.Sent;
                     }
                     break;
                 case 3:
@@ -390,8 +397,8 @@ namespace OpenFusion.World
         }
         void Near(List<NpcInfo> res, Vector3 pos, float r)
         {   // NpcContainer.GetNearListMobTeam: mobs a < r, de más cerca a más lejos
-            tmp.Clear(); foreach (var n in Mobs()) { float d = Mathf.Sqrt(n.GetBounds().SqrDistance(pos)); if (d <= r) { n.SortDist = d; tmp.Add(n); } }
-            tmp.Sort((x, y) => x.SortDist.CompareTo(y.SortDist)); res.AddRange(tmp);
+            tmp.Clear(); foreach (var n in Mobs()) { float d = Mathf.Sqrt(n.GetBounds().SqrDistance(pos)); if (d <= r) tmp.Add(n); }
+            tmp.Sort((x, y) => x.GetBounds().SqrDistance(pos).CompareTo(y.GetBounds().SqrDistance(pos))); res.AddRange(tmp);
         }
         void Cone(List<NpcInfo> res, Vector3 fw, float angle, float range, Transform self)
         {   // NpcContainer.GetSkillConeList
@@ -401,9 +408,9 @@ namespace OpenFusion.World
                 var p = n.transform.position; var d = p - pos; float dist = d.magnitude; float h = Mathf.Max(0.5f, n.Height);
                 float dd = Mathf.Sqrt(n.GetBounds().SqrDistance(pos)); if (dd > range) continue;
                 if (dist > 1e-3f && Vector3.Angle(new Vector3(d.x, 0f, d.z), fw) > angle) continue;
-                n.SortDist = dd; tmp.Add(n);
+                tmp.Add(n);
             }
-            tmp.Sort((x, y) => x.SortDist.CompareTo(y.SortDist)); res.AddRange(tmp);
+            tmp.Sort((x, y) => x.GetBounds().SqrDistance(pos).CompareTo(y.GetBounds().SqrDistance(pos))); res.AddRange(tmp);
         }
 
         // ------------------------------------------------------------------ resultado (GameFrame.SkillResultDistributor + MakeSkillBullet)

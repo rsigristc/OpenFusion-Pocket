@@ -54,6 +54,25 @@ namespace OpenFusion.EditorTools
                 typeof(WorldMapWindow).GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(map, null);
                 string first = map.DualSnapshot();
                 Require(first.Contains("\"nanoBoost\":1234") && first.Contains("\"attackBoost\":5678") && first.Contains("\"energy\":81") && first.Contains("\"taros\":24680"), "Secondary values must come from the SAME live HUD state.");
+                var mapFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+                var zoneField = typeof(WorldMapWindow).GetField("zone", mapFlags);
+                var zoomField = typeof(WorldMapWindow).GetField("zoom", mapFlags);
+                var rectField = typeof(WorldMapWindow).GetField("targetRect", mapFlags);
+                for (int region = 0; region < 4; region++)
+                {
+                    zoneField.SetValue(map, region);
+                    int minimum = region == 3 ? 0 : 2;
+                    zoomField.SetValue(map, Enum.ToObject(zoomField.FieldType, minimum));
+                    typeof(WorldMapWindow).GetMethod("SetZoomRect", mapFlags).Invoke(map, new object[] { Vector2.one * .5f });
+                    var wide = (Rect)rectField.GetValue(map);
+                    Require(map.DualSnapshot().Contains("\"zoomIn\":true"), "Every regional world view must advertise zoom in.");
+                    for (int step = 0; step < 5; step++) map.DualCommand("zoom", "in", 0, 0);
+                    var close = (Rect)rectField.GetValue(map);
+                    Require(close.width < wide.width && System.Convert.ToInt32(zoomField.GetValue(map)) == 3, "Regional zoom must reach local view and clamp at its nearest level.");
+                    Require(map.DualSnapshot().Contains("\"zoomOut\":true"), "Local view must retain zoom out in Companion.");
+                    for (int step = 0; step < 5; step++) map.DualCommand("zoom", "out", 0, 0);
+                    Require(System.Convert.ToInt32(zoomField.GetValue(map)) == minimum && Mathf.Approximately(((Rect)rectField.GetValue(map)).width, wide.width), "Zoom out must restore each region's world extent without using another region's texture.");
+                }
                 map.DualCommand("zoom", "in", 0, 0); map.DualCommand("pan", "", .2f, -.1f);
                 var field = typeof(WorldMapWindow).GetField("targetRect", BindingFlags.Instance | BindingFlags.NonPublic);
                 var before = (Rect)field.GetValue(map);

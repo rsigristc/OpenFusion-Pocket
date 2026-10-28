@@ -82,7 +82,7 @@ namespace OpenFusion.World
             }
             Remove(npcs, id);
         }
-        void OnNpcMove(NpcMove m) => queue.Enqueue(() => { if (npcs.TryGetValue(m.Id, out var go)) go.GetComponent<RemoteMover>()?.OnNpcMove(PlayerAvatarFactory.ToClient(m.ToX, m.ToY, m.ToZ), m.Speed * 0.01f); });
+        void OnNpcMove(NpcMove m) => queue.Enqueue(() => { if (npcs.TryGetValue(m.Id, out var go)) { go.GetComponent<NpcAnimator>()?.EndSkillReady(); go.GetComponent<RemoteMover>()?.OnNpcMove(PlayerAvatarFactory.ToClient(m.ToX, m.ToY, m.ToZ), m.Speed * 0.01f); } });
         void OnWarpFail(int code) => queue.Enqueue(() => { LastWarpFail = code; UnityEngine.Debug.LogWarning("[warp] el servidor rechazó el warp, código " + code); });
         /// <summary>Teletransporte del jugador propio pedido por la UI (Warp Away: REP_PC_REGEN_SUCC); mismo camino que REP_PC_GOTO_SUCC.</summary>
         public void RaiseTeleport(int x, int y, int z) { OnTeleport(x, y, z); }
@@ -441,9 +441,19 @@ namespace OpenFusion.World
         public bool Dying; float dyingStart, deathLen = 1.5f;
         public float DeathRemaining() { return Dying ? Mathf.Max(0f, dyingStart + deathLen - Time.time) : 0f; }
         float actionUntil;
+        bool skillCharging;
+        public void SkillReady()
+        {
+            if (an == null || Dying) return;
+            string clip = Has("readyspell") ? "readyspell" : Has("ready") ? "ready" : null;
+            if (clip == null) return;
+            skillCharging = true; an[clip].wrapMode = WrapMode.Loop; Play(clip, .1f);
+        }
+        public void EndSkillReady() { skillCharging = false; }
         public bool PlayAction(string clip)
         {
             if (an == null || Dying || string.IsNullOrEmpty(clip) || !Has(clip)) return false;
+            skillCharging = false;
             var st = an[clip]; st.time = 0; st.speed = 1; st.wrapMode = WrapMode.Once;
             actionUntil = Time.time + Mathf.Max(.1f, st.length); an.CrossFade(clip, .1f); cur = clip; return true;
         }
@@ -663,7 +673,7 @@ namespace OpenFusion.World
 
         void Update()
         {
-            if (an == null || Dying || External) return;
+            if (an == null || Dying || External || skillCharging) return;
             if (!Player && Time.time < actionUntil) return;
             if (Player && Dead) { DeadTick(); return; }
             if (Vehicle > 0) { VehicleTick(); return; }

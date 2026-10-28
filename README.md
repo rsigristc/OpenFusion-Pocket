@@ -2,12 +2,12 @@
 
 **A native Android client for FusionFall, rebuilt in Unity 2022.3 LTS.**
 
-[![Download v2.1](https://img.shields.io/badge/Download-v2.1-00bcd4)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/v2.1)
+[![Download v3.0](https://img.shields.io/badge/Download-v3.0-00bcd4)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/v3.0)
 [![Support Me on Ko-fi](https://img.shields.io/badge/Support_Me-Ko--fi-ff5e5b)](https://ko-fi.com/rodrigosigrist)
 
 OpenFusion:Pocket is an unofficial community preservation project focused on making FusionFall more convenient to play on Android. Development and device testing currently focus on **FusionFall Retrobution**.
 
-Version **2.1** improves mission progression and teleport placement, restores NPC models after delayed resource loading, and adds Legacy's Nano acquisition presentation and initial-power recovery. See the [bilingual release notes](docs/releases/v2.1.md), including the remaining live Nano-selection check.
+Version **3.0** improves Legacy-style movement, terrain lighting, DS Companion, Nano feedback, social features and resource recovery. It fixes Monkey Skyway models and time-machine avatar visibility, and adds private Export Logs. See the [bilingual release notes](docs/releases/v3.0.md) for changes, validation and remaining checks.
 
 The project reconstructs the legacy client's resource loading, world rendering, interface, input and server communication in a newer Unity runtime. It runs as an Android application without running the Windows client through Wine or Winlator. It does not compile the original client or recompile Unity on your phone.
 
@@ -16,7 +16,7 @@ This repository contains the Unity project used for this native client. The earl
 ## Download and install
 
 1. Open [Releases](https://github.com/rsigristc/OpenFusion-Pocket/releases).
-2. Download **OpenFusion-Pocket-v2.1.apk** from **OpenFusion:Pocket v2.1**.
+2. Download **OpenFusion-Pocket-v3.0.apk** from **OpenFusion:Pocket v3.0**.
 3. Allow installation from your browser or file manager when Android asks, then install the APK.
 4. Open the app, choose a server and sign in with an account for that server. An internet connection is required.
 
@@ -46,7 +46,7 @@ These systems remain under active development. A feature being implemented does 
 
 ## DS Companion
 
-Version **2.1** includes optional companion panels for **Map, Nanos, Equipment, Missions and E-Mail** on compatible physical dual-screen Android devices and unfolded foldables. They use the existing game state, original icons and server-validated actions. E-Mail supports Guide/Player folders, unread indicators and received attachments; composing/replying uses the original interface. Chat opens the original game interface.
+Version **3.0** includes optional companion panels for **Map, Nanos, Equipment, Missions and E-Mail** on compatible physical dual-screen Android devices and unfolded foldables. They use the existing game state, original icons and server-validated actions. E-Mail supports Guide/Player folders, unread indicators and received attachments; composing/replying uses the original interface. Chat opens the original game interface.
 
 Choose **Automatic / Single Screen / Dual Screen** in Dual Screen settings, available in launcher Game Settings and in-game Settings. Ordinary phones and tablets retain the full single-screen interface. An external display alone is insufficient: physical secondary screens need usable dimensions and a touch confirmation in settings. Android fold/window evidence and usable space determine foldable support; folding or losing the display restores the normal interface without restarting the session.
 
@@ -82,7 +82,7 @@ The latest asset audit found 20 unresolved target references in the source resou
 
 Use **Unity 2022.3.62f3** with Android Build Support, SDK, NDK and OpenJDK. See [Building from source](docs/BUILDING.md), [Contributing](CONTRIBUTING.md) and [Reporting security issues](SECURITY.md).
 
-The launcher's **About** screen links directly to this repository. **Updates** checks the latest stable GitHub release and shows its changelog. You choose when to download and install; Android may ask you to allow installations from this app. See [Updater and release maintenance](docs/UPDATER.md) for the update manifest and future publishing workflow. The v2.1 APK uses Android build code **5**, following v2.0 build **4**, v1.5 build **3** and the updater-enabled v1.0 build **2**.
+The launcher's **About** screen links directly to this repository. **Updates** checks the latest stable GitHub release and shows its changelog. You choose when to download and install; Android may ask you to allow installations from this app. See [Updater and release maintenance](docs/UPDATER.md) for the update manifest and future publishing workflow. The v3.0 APK uses Android build code **6**, following v2.1 build **5**, v2.0 build **4**, v1.5 build **3** and the updater-enabled v1.0 build **2**.
 
 - `Assets/Scripts/OpenFusion/`: legacy readers, networking, launcher and gameplay systems.
 - `Assets/Shaders/`: rendering adaptations.

@@ -8,14 +8,18 @@ namespace OpenFusion.World
     public sealed class ModelFactory
     {
         public MainGameData GameData;
+        public System.Action<string> MissingAsset;
         readonly AssetStore store; readonly IAssetLocator index; readonly DongBuilder builder;
         public ModelFactory(AssetStore s, IAssetLocator i, DongBuilder b) { store = s; index = i; builder = b; }
 
         /// Ref al objeto de una ruta de asset ("mob/npc_arturo.kfm") o default si ningún bundle cargado la tiene (descargar su bundle primero).
         public Ref Locate(string assetPath)
         {
-            if (assetPath == null || !index.TryLocate(assetPath, out var e)) return default;
-            return store.Resolve(e.File, e.Target);
+            if (assetPath == null) return default;
+            if (!index.TryLocate(assetPath, out var e)) { OpenFusion.Screens.PocketDiagnostics.MissingResource(assetPath); MissingAsset?.Invoke(assetPath); return default; }
+            var result = store.Resolve(e.File, e.Target);
+            if (!result.Ok) { OpenFusion.Screens.PocketDiagnostics.MissingResource(assetPath); MissingAsset?.Invoke(assetPath); }
+            return result;
         }
         public bool IsAvailable(ModelRef m) => m?.Model != null && Locate(m.Model).Ok;
 

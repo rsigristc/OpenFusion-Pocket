@@ -567,7 +567,7 @@ namespace OpenFusion.World
         void DoJumpPad(Transform self)
         {   // Jump(currentJumppadPower) + JumpPadPacket()
             var g = GC(); if (g == null) return;
-            g.SkillJump(jumpPower - g.JumpVelocity);   // vy = JumpVelocity + extra = addPower
+            g.SkillJump(jumpPower - g.JumpVelocity, 2.5f);   // vy = JumpVelocity + extra = addPower
             if (!g.IsAirborne) return;                  // nadando / dash: SkillJump no hizo nada
             Sfx.PlayAt("ui sound/sfx_bouncetech.wav", self.position, 0.7f);
             var ax = Axes(); var h = selfVel;

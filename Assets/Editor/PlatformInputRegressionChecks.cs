@@ -21,6 +21,11 @@ namespace OpenFusion.EditorTools
                     "Launcher focus must select the aligned control with stick / D-pad directions.");
                 Check(LauncherNavigation.Neighbor(focusNodes,0,Vector2.left)==-1 && LauncherNavigation.Neighbor(focusNodes,-1,Vector2.right)==-1,
                     "Launcher focus must not wrap into unrelated actions or accept a stale selection.");
+                Check(TouchLayout.GeometryIndex(15)==17 && TouchLayout.GeometryIndex(16)==18 && TouchLayout.ActionIndex(15)==-1 && TouchLayout.ActionIndex(17)==15,
+                    "Zoom geometry must never overwrite saved joystick or camera-stick positions.");
+                Check(TouchLayout.Restore("{\"schema\":1,\"buttons\":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{\"x\":0.2,\"y\":0.8},{\"x\":0.7,\"y\":0.9}]}"), "Existing 17-control profiles must migrate.");
+                Check(Mathf.Approximately(TouchLayout.Spec(15).x,.2f) && Mathf.Approximately(TouchLayout.Spec(16).x,.7f) && TouchLayout.Spec(17).x==-1,
+                    "Profile migration must preserve both sticks and initialize separate optional zoom buttons.");
                 TouchLayout.ControllerPreset();Check(TouchLayout.FixedJoystick,"Controller preset uses a fixed joystick.");
                 var safe=new Rect(25,40,600,400);TouchLayout.Move(0,new Vector2(625,440),safe);TouchLayout.Spec(0).size=1.8f;
                 var rect=TouchLayout.ActionRect(0,safe,new Rect(0,0,58,58));
@@ -46,6 +51,14 @@ namespace OpenFusion.EditorTools
                 Check(TouchControls.Held(ControlMap.K.Fire1)&&TouchControls.Move.y>0,"Controller layout must retain attack while both sticks are in use.");
                 frame(new[]{new Touch{fingerId=1,position=attack,phase=TouchPhase.Stationary},new Touch{fingerId=2,position=joy+Vector2.up*25,phase=TouchPhase.Stationary},new Touch{fingerId=3,position=camera,phase=TouchPhase.Ended}});
                 Check(!TouchControls.TryTap(out _)&&TouchControls.Held(ControlMap.K.Fire1),"Releasing the camera stick must not select an NPC or interrupt attack.");
+                frame(Array.Empty<Touch>());
+                active.SetValue(null,false);
+                TouchLayout.Enable(15,true);
+                var zoom=screen(((Rect)typeof(TouchControls).GetMethod("ActionRect",flags).Invoke(touch,new object[]{15})).center);
+                frame(new[]{new Touch{fingerId=5,position=zoom,phase=TouchPhase.Began}});
+                Check(TouchControls.Held(ControlMap.K.ZoomIn) && ControlMap.Zoom>0, "An enabled touch zoom button must reach the same camera axis as the keyboard.");
+                frame(Array.Empty<Touch>());
+                Check(!TouchControls.Held(ControlMap.K.ZoomIn), "Releasing zoom must stop changing camera distance.");
                 active.SetValue(null,true);
                 Check(ControlMap.Forward==0&&ControlMap.Strafe==0&&ControlMap.CameraX==0&&!ControlMap.Held(ControlMap.K.Fire1)&&!ControlMap.Down(ControlMap.K.Jump),"UI pointer must not simultaneously move, attack or turn the game camera.");
                 typeof(TouchControls).GetField("on",flags).SetValue(touch,true);

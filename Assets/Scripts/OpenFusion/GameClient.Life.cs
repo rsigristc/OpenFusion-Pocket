@@ -14,7 +14,7 @@ namespace OpenFusion
             if (hud == null) return false;
             if (hud.Data.Hp > 0) {
                 if (lifeDead) {
-                    lifeDead = false; lifeAnimation = null; airborne = false; vy = 0; dashT = 0; atkUntil = 0;
+                    lifeDead = false; lifeAnimation = null; airborne = false; vy = 0; dashT = 0; ResetJumpControl(); atkUntil = 0;
                     if (pAnim != null) pAnim.Stop(); pClip = null; SetAnim(player, "stand1");
                     Report("[life] Alive after server HP update: " + hud.Data.Hp);
                 }
@@ -23,7 +23,7 @@ namespace OpenFusion
             if (pAnim == null) SetAnim(player, "stand1");
             if (!lifeDead || lifeAnimation != pAnim) {
                 lifeDead = true; lifeAnimation = pAnim; lifeRest = false; EndEmote();
-                airborne = false; vy = 0; dashT = 0; atkUntil = 0; CombatUntil = 0;
+                airborne = false; vy = 0; dashT = 0; ResetJumpControl(); atkUntil = 0; CombatUntil = 0;
                 if (pAnim != null) {
                     pAnim.Stop(); var die = pAnim["die"];
                     if (die != null) { die.speed = 1; die.time = 0; die.layer = 0; die.wrapMode = WrapMode.ClampForever; pAnim.Play("die"); }

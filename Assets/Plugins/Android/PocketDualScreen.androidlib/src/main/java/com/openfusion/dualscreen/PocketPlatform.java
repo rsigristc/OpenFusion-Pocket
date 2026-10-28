@@ -18,12 +18,39 @@ import javax.crypto.spec.GCMParameterSpec;
 public final class PocketPlatform {
     public static void shareDiagnostics(Activity activity, String report) {
         main.post(() -> {
-            Intent share = new Intent(Intent.ACTION_SEND);
-            share.setType("text/plain");
-            share.putExtra(Intent.EXTRA_SUBJECT, "OpenFusion Pocket diagnostics");
-            share.putExtra(Intent.EXTRA_TEXT, report);
-            activity.startActivity(Intent.createChooser(share, "Share diagnostics"));
+            try {
+                if(report==null || report.length()>600000) throw new IOException();
+                File dir=new File(activity.getCacheDir(),"log-exports");
+                if(!dir.isDirectory()&&!dir.mkdirs()) throw new IOException();
+                // Bounded cache; leave the report intact when a share target reads it later.
+                File[] old=dir.listFiles(); long now=System.currentTimeMillis();
+                if(old!=null) for(File f:old) if(f.isFile()&&now-f.lastModified()>7L*24*60*60*1000) f.delete();
+                File file=new File(dir,"OpenFusion-Pocket-Logs.txt");
+                try(OutputStreamWriter out=new OutputStreamWriter(new FileOutputStream(file),"UTF-8")){out.write(report);}
+                android.net.Uri uri=androidx.core.content.FileProvider.getUriForFile(activity,activity.getPackageName()+".diagnostics",file);
+                Intent share=new Intent(Intent.ACTION_SEND).setType("text/plain");
+                share.putExtra(Intent.EXTRA_SUBJECT,"OpenFusion Pocket bug report");
+                share.putExtra(Intent.EXTRA_STREAM,uri);
+                share.setClipData(ClipData.newRawUri("OpenFusion Pocket logs",uri));
+                share.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                activity.startActivity(Intent.createChooser(share,"Export Logs - choose where to save or share"));
+            } catch(Exception ignored) {
+                android.widget.Toast.makeText(activity.getApplicationContext(),"Could not export logs. Please try again.",android.widget.Toast.LENGTH_LONG).show();
+            }
         });
+    }
+    public static String diagnosticsExitInfo(Activity activity) {
+        StringBuilder result=new StringBuilder("Android API: ").append(Build.VERSION.SDK_INT);
+        // Own-package reason codes only. No description, process name or trace dump.
+        if(Build.VERSION.SDK_INT>=30) try {
+            ActivityManager manager=(ActivityManager)activity.getSystemService(Context.ACTIVITY_SERVICE);
+            java.util.List<ApplicationExitInfo> exits=manager.getHistoricalProcessExitReasons(activity.getPackageName(),0,3);
+            for(ApplicationExitInfo exit:exits) result.append("\nAndroid process exit: reason=").append(exit.getReason())
+                .append(" status=").append(exit.getStatus()).append(" UTC-ms=").append(exit.getTimestamp())
+                .append(" PSS-KB=").append(exit.getPss()).append(" RSS-KB=").append(exit.getRss());
+        } catch(Exception ignored) { result.append("\nAndroid exit history: unavailable"); }
+        else result.append("\nAndroid exit history requires API 30+");
+        return result.toString();
     }
     private static volatile int hatDirections;
     public static void navigationMotion(MotionEvent event) {

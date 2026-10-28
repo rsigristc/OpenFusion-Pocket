@@ -122,6 +122,7 @@ namespace OpenFusion
             if (characterSelectionOnly) await Loader.PrepareSharedAsync(streamer.FilesUpTo(Phase.CharacterSelection));
             Models = Loader.CreateModelFactory(Bundles);
             Models.GameData = gameData;
+            (GetComponent<AssetRecovery>() ?? gameObject.AddComponent<AssetRecovery>()).Configure(cache, catalog, Bundles, Loader, Models);
             if (pendingTables != null) Avatars = new PlayerAvatarFactory(pendingTables, Models);
             Status?.Invoke("Listo", 1f);
         }

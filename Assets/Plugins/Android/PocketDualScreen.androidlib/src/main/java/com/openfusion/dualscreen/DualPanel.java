@@ -29,7 +29,7 @@ final class DualPanel extends LinearLayout {
     private final MapLocation location;
     private final LinearLayout slotsRow;
     private final Button[] nanos = new Button[3];
-    private final MapZoomButton zoomIn, zoomOut;
+    private final MapZoomButton zoomIn, zoomOut, cameraIn, cameraOut;
     private final MapTab localTab, worldTab;
     private final MapZoomTicks zoomTicks;
     private final LinearLayout filterRow;
@@ -56,7 +56,13 @@ final class DualPanel extends LinearLayout {
         // Secondary UI is touch-driven. Keep keyboard/gamepad focus on Unity gameplay.
         setDescendantFocusability(FOCUS_BLOCK_DESCENDANTS); setFocusable(false);
         setPadding(dp(8), dp(4), dp(8), dp(4));
-        boosts = new BoostStrip(context,path -> panelImage(path)); addView(boosts, new LayoutParams(-1, dp(44)));
+        LinearLayout header=row(); // row() already attaches the header to this panel.
+        boosts = new BoostStrip(context,path -> panelImage(path)); header.addView(boosts, new LayoutParams(0,-1,1));
+        TextView cameraLabel=text(9); cameraLabel.setText("CAM"); header.addView(cameraLabel,new LayoutParams(dp(30),-1));
+        cameraOut=new MapZoomButton(context,false); cameraIn=new MapZoomButton(context,true);
+        cameraOut.setContentDescription("Zoom character camera out"); cameraIn.setContentDescription("Zoom character camera in");
+        header.addView(cameraOut,new LayoutParams(dp(38),-1)); header.addView(cameraIn,new LayoutParams(dp(38),-1));
+        cameraIn.setOnClickListener(v -> send("cameraZoom","in")); cameraOut.setOnClickListener(v -> send("cameraZoom","out"));
         LinearLayout slots = row(); slotsRow=slots;
         for (int i = 0; i < 3; i++) { final int slot = i; nanos[i] = button(slots, "Empty", () -> PocketDualScreen.send("nano", Integer.toString(slot), 0, 0)); }
         FrameLayout pages = new FrameLayout(context); addView(pages,new LayoutParams(-1,0,1));
@@ -129,6 +135,7 @@ final class DualPanel extends LinearLayout {
         try {
             data = new JSONObject(json);
             boosts.update(data);
+            cameraIn.setEnabled(data.optBoolean("canZoomCamera")); cameraOut.setEnabled(data.optBoolean("canZoomCamera"));
             JSONArray slots = data.optJSONArray("nanos");
             for (int i = 0; i < 3; i++) {
                 JSONObject n = slots == null ? null : slots.optJSONObject(i);

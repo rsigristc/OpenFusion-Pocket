@@ -45,11 +45,13 @@ namespace OpenFusion.World
         public static float RaceLimitTime { get; private set; }
         public static int EpId { get; private set; }
         public static int TopScore, TopRank, TopTime, TopRingCount;
-        /// <summary>iRXCom: id del NPC RXCOM registrado como punto de recuperacion (0 = ninguno).</summary>
-        public static int RecallNpcId { get; private set; }
+        /// <summary>iRXCom: numero de mapa confirmado por REGIST_RXCOM (0 = sin punto).</summary>
+        public static int RecallMapId { get; private set; }
+        int recallRequestNpc, registeredRecallNpc;
+        float recallRequestUntil;
         /// <summary>Se dispara al empezar (true) / acabar o cancelar (false) la carrera: refrescar iconos de los NPC 13/14 (NpcMoveController.MakeGameIcon / MakeStrtECom / MakeEndECom).</summary>
         public static event Action<bool> RacingChanged;
-        /// <summary>(npcAnterior, npcNuevo) al confirmar el servidor el punto de recuperacion: el NPC nuevo pasa al efecto 811 y el anterior vuelve a su efecto normal.</summary>
+        /// <summary>(mapaAnterior, mapaNuevo) al confirmar el servidor el punto de recuperacion, igual que GameFrame.</summary>
         public static event Action<int, int> RecallChanged;
 
         /// <summary>Carga de texturas del bundle (opcional; solo la usa la ventana de resultado para el icono de Fusion Matter si UiKit no lo tiene).</summary>
@@ -87,9 +89,9 @@ namespace OpenFusion.World
         /// <summary>GameFrame.REP_PC_WARP_USE_NPC_SUCC: bRingRace = false, iRXCom = 0, bInsMap = false. Llamar desde el manejador de warp si se quiere ser fiel.</summary>
         public static void ResetState()
         {
-            bool was = Racing; Racing = false; InsMap = false; InsMapNum = 0; RingNum = 0; EpId = 0; int old = RecallNpcId; RecallNpcId = 0;
+            bool was = Racing; Racing = false; InsMap = false; InsMapNum = 0; RingNum = 0; EpId = 0; int old = RecallMapId; RecallMapId = 0;
             InsArea = default; SwitchOn = new int[0]; TopScore = TopRank = TopTime = TopRingCount = 0; RaceStartTime = RaceLimitTime = 0;
-            if (Instance != null) { Instance.waiting = false; }
+            if (Instance != null) { Instance.waiting = false; Instance.recallRequestNpc = Instance.registeredRecallNpc = 0; Instance.recallRequestUntil = 0; }
             InsMapInfo?.Invoke(InsArea, SwitchOn);
             if (was && RacingChanged != null) RacingChanged(false);
             if (old != 0 && RecallChanged != null) RecallChanged(old, 0);
@@ -141,6 +143,7 @@ namespace OpenFusion.World
 
         void DoRecall(int npcId)
         {
+            if (npcId <= 0 || NpcUI.Sender == null || Time.unscaledTime < recallRequestUntil) return;
             bool has = false;
             if (hud != null && hud.Data != null && hud.Data.NanoSlots != null)
             {
@@ -154,9 +157,8 @@ namespace OpenFusion.World
                 }
             }
             if (!has) { Notice("Unable to register. No Recall Nano Equipped."); return; }
-            if (RecallNpcId == npcId) return;   // el original no avisa ni envia si ya es el punto actual
-            Notice("Recall Point registered! Use your Recall Nano to return to this point.");
-            Sfx.Ui("Action_Sucess");
+            if (RecallMapId != 0 && registeredRecallNpc == npcId) return;
+            recallRequestNpc = npcId; recallRequestUntil = Time.unscaledTime + 10f;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_REGIST_RXCOM, 4); ClientPackets.PutInt(p, 4, npcId); Send(p);
         }
 
@@ -202,10 +204,18 @@ namespace OpenFusion.World
                 var sw = new int[sc]; for (int k = 0; k < sc; k++) sw[k] = I(b, 60 + 4 * k);
                 q.Enqueue(() => { InsMap = true; InsMapNum = mn; EpId = ep; TopScore = ts; TopRank = tr; TopTime = tt; TopRingCount = tc; var rc = new Rect(ax0, ay0, ax1 - ax0, ay1 - ay0); InsArea = rc; SwitchOn = sw; if (InsMapInfo != null) InsMapInfo(rc, sw); });
             }
-            else if (type == PacketIds.P_FE2CL_REP_REGIST_RXCOM && b.Length >= 4)
+            else if (type == PacketIds.P_FE2CL_REP_REGIST_RXCOM && b.Length >= 16)
             {
-                int npc = I(b, 0); q.Enqueue(() => { int old = RecallNpcId; RecallNpcId = npc; if (RecallChanged != null) RecallChanged(old, npc); });
+                // Response: map number + XYZ, not the requested NPC ID.
+                int map = I(b, 0); q.Enqueue(() => {
+                    if (map <= 0) return;
+                    int old = RecallMapId; RecallMapId = map; registeredRecallNpc = recallRequestNpc;
+                    recallRequestNpc = 0; recallRequestUntil = 0; RecallChanged?.Invoke(old, map);
+                    Notice("Recall Point registered! Use your Recall Nano to return to this point."); Sfx.Ui("Action_Sucess");
+                });
             }
+            else if (type == PacketIds.P_FE2CL_REP_REGIST_RXCOM_FAIL)
+                q.Enqueue(() => { recallRequestNpc = 0; recallRequestUntil = 0; Notice("Unable to register the Recall Point."); });
             else if (type == PacketIds.P_FE2CL_PC_INVEN_FULL_MSG) { q.Enqueue(() => { invenFull = true; }); }
         }
 

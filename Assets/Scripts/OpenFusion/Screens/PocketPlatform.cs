@@ -5,6 +5,8 @@ namespace OpenFusion.Screens
     public static class PocketPlatform
     {
         public static bool Available => Application.platform == RuntimePlatform.Android;
+        public static bool CredentialsAvailable => Available;
+        public static bool CanShareDiagnostics => Available;
         public static string Identity(string server, string endpoint, string username)
         {
             if (Uri.TryCreate(endpoint, UriKind.Absolute, out var uri)) endpoint = uri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.UriEscaped).TrimEnd('/');
@@ -13,17 +15,21 @@ namespace OpenFusion.Screens
         static T Call<T>(string method, params object[] args)
         {
             if (!Available) return default;
+#if UNITY_ANDROID && !UNITY_EDITOR
             try { using(var unity=new AndroidJavaClass("com.unity3d.player.UnityPlayer")) using(var activity=unity.GetStatic<AndroidJavaObject>("currentActivity")) using(var bridge=new AndroidJavaClass("com.openfusion.dualscreen.PocketPlatform")) {
                 var all=new object[args.Length+1];all[0]=activity;Array.Copy(args,0,all,1,args.Length);
                 if(typeof(T)==typeof(bool))return (T)(object)bridge.CallStatic<bool>(method,all);
                 if(typeof(T)==typeof(string))return (T)(object)bridge.CallStatic<string>(method,all);
                 bridge.CallStatic(method,all);return default;
             }} catch(Exception) { return default; } // Never include arguments or account data in diagnostics.
+#else
+            return default;
+#endif
         }
         public static bool Save(string identity,string password)=>Call<bool>("save",identity,password);
         public static string Load(string identity)=>Call<string>("load",identity) ?? "";
-        public static void Forget(string identity)=>Call<int>("forget",identity);
-        public static void ForgetAll()=>Call<int>("forgetAll");
+        public static void Forget(string identity) { Call<int>("forget",identity); }
+        public static void ForgetAll() { Call<int>("forgetAll"); }
         public static void RendererSettings()=>Call<int>("rendererSettings");
         public static bool SelfTest()=>Call<bool>("selfTest");
         public static void Ready()=>Call<int>("ready");
@@ -31,10 +37,15 @@ namespace OpenFusion.Screens
         public static int NavigationHat()
         {
             if (!Available) return 0;
+#if UNITY_ANDROID && !UNITY_EDITOR
             try { using (var bridge = new AndroidJavaClass("com.openfusion.dualscreen.PocketPlatform")) return bridge.CallStatic<int>("navigationHat"); }
             catch (Exception) { return 0; }
+#else
+            return 0;
+#endif
         }
         public static void Back()=>Call<int>("back");
-        public static void ShareDiagnostics(string report)=>Call<int>("shareDiagnostics", report);
+        public static string DiagnosticsExitInfo()=>Available ? Call<string>("diagnosticsExitInfo") ?? "Android exit history: unavailable" : "Native exit history: unavailable";
+        public static void ShareDiagnostics(string report) { Call<int>("shareDiagnostics", report); }
     }
 }

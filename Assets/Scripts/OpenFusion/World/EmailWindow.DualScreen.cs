@@ -22,6 +22,7 @@ namespace OpenFusion.World
         void OnMailEnter(EnterSucc snapshot)
         {
             q.Enqueue(()=>{guideScope="pocket.mail.read."+(GameClient.FindSelf?.Bootstrap?.ServerUrl??"")+":"+snapshot.Self.Uid+":";
+                ResetMailComposer();
                 playerUnread=lastAnnounced=UnreadCount=0;dualPrepared=false;nextMailRefresh=0;requestedRead=0;Array.Clear(user,0,user.Length);userCount=0;composing=false;});
         }
         string GuideReadKey(Node node)=>guideScope+GuideNum+":"+node.Mode+":"+node.Mission.m_iHTaskID;

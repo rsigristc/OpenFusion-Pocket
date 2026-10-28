@@ -40,6 +40,7 @@ namespace OpenFusion.World
         public short[] NanoSlots = { 0, 0, 0 };           // ids de nano en los slots A/B/C (sPCLoadData2CL.aNanoSlots)
         public short[] NanoStamina = { 0, 0, 0 };         // stamina de cada slot (TICK / REGEN)
         public int ActiveNanoSlot = -1;     // -1 ninguno (sPCLoadData2CL.iActiveNanoSlotNum / PCRegenData.iActiveNanoSlotNum)
+        public bool HasActiveNano => ActiveNanoSlot >= 0 && ActiveNanoSlot < NanoSlots.Length && NanoSlots[ActiveNanoSlot] > 0;
         public short[] NanoBankStamina;     // aNanoBank[37] stamina por id de nano (de ENTER_SUCC), opcional
         public const int NanoStaminaMax = 150;   // OpenFusion NANO_STAMINA_MAX; el original usa Status.iMaxHP del nano (tabla m_iNanoBattery1)
 
@@ -98,7 +99,7 @@ namespace OpenFusion.World
         public static bool ApplyTick(byte[] b, HudData d)
         {
             if (b == null || b.Length < 28) return false; d.Hp = I(b, 0);
-            for (int i = 0; i < 3; i++) d.NanoStamina[i] = S(b, 4 + i * 6 + 4);
+            ApplySlotStamina(b, 4, d);
             d.BatteryNano = I(b, 24); return true;
         }
 
@@ -111,14 +112,25 @@ namespace OpenFusion.World
             return dmg;
         }
 
-        /// <summary>REP_PC_REGEN_SUCC (48 B): sPCRegenData{iHP@0, iMapNum, X, Y, Z, iActiveNanoSlotNum@20 (short), Nanos[3]@22 (sNano 6 B)} + bMoveLocation@40 + iFusionMatter@44.</summary>
+        // Legacy PCTick/ReceiveRegenSucc maps stamina by equipped slot. These packets
+        // do not replace the equipment or chosen powers, even when sNano IDs are zero.
+        public static bool ApplySlotStamina(byte[] b, int offset, HudData d)
+        {
+            if (b == null || offset < 0 || offset > b.Length - 18) return false;
+            for (int i = 0; i < 3; i++) {
+                d.NanoStamina[i] = S(b, offset + i * 6 + 4);
+                if (d.NanoSlots[i] > 0) SkillResults.SetBankStamina(d, d.NanoSlots[i], d.NanoStamina[i]);
+            }
+            return true;
+        }
+        /// <summary>REP_PC_REGEN_SUCC (48 B): HP @0, active slot @20, slot stamina @26/32/38, Fusion Matter @44.</summary>
         public static bool ApplyRegenSucc(byte[] b, HudData d, bool applyFusionMatter)
         {
-            if (b == null || b.Length < 48) return false; d.Hp = I(b, 0); d.ActiveNanoSlot = S(b, 20);
-            for (int i = 0; i < 3; i++) {
-                int o = 22 + i * 6; d.NanoSlots[i] = S(b, o); d.NanoStamina[i] = S(b, o + 4);
-                SkillResults.SetBankStamina(d, d.NanoSlots[i], d.NanoStamina[i]);
-            }
+            if (b == null || b.Length < 48) return false;
+            d.Hp = I(b, 0);
+            ApplySlotStamina(b, 22, d);
+            int slot = S(b, 20);
+            d.ActiveNanoSlot = slot >= 0 && slot < 3 && d.NanoSlots[slot] > 0 ? slot : -1;
             if (applyFusionMatter) d.FusionMatter = I(b, 44); return true;
         }
 
@@ -238,7 +250,10 @@ namespace OpenFusion.World
                     if (SkillResults.ApplyPacket(type, b, selfId, Data, out int flags) && flags != -1) GetComponent<NanocomHud>()?.SetConditionFlags(flags);
                 }
                 else if (type == PacketIds.P_FE2CL_NPC_ATTACK_PCs) HudPackets.ApplyNpcAttackPcs(b, selfId, Data);
-                else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC) HudPackets.ApplyRegenSucc(b, Data, true);
+                else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC) {
+                    if (HudPackets.ApplyRegenSucc(b, Data, true)) Debug.Log("[hud respawn] equipped=" + string.Join(",", Data.NanoSlots) +
+                        " active=" + Data.ActiveNanoSlot + " wireIds=" + BitConverter.ToInt16(b,22) + "," + BitConverter.ToInt16(b,28) + "," + BitConverter.ToInt16(b,34));
+                }
                 else if (type == PacketIds.P_FE2CL_GM_REP_PC_SET_VALUE) HudPackets.ApplySetValue(b, selfId, Data);
                 else if (type == PacketIds.P_FE2CL_REP_REWARD_ITEM) { int pt = Data.Taros, pf = Data.FusionMatter, pn = Data.BatteryNano, pw = Data.BatteryWpn; HudPackets.ApplyRewardItem(b, Data); RewardApplied?.Invoke(pt, pf, pn, pw, b); }
                 else if (type == PacketIds.P_FE2CL_REP_PC_NANO_CREATE_SUCC) HudPackets.ApplyNanoCreate(b, Data);
@@ -399,7 +414,7 @@ namespace OpenFusion.World
             Draw(xf, DiskRect, "DiskFront");
             if (Data.FreeChat) Draw(xf, FreeChatRect, "freechat_icon");
             // --- ventana del nano activo (CnGuiNano_info) ---
-            if (ShowNanoInfo && Data.ActiveNanoSlot >= 0 && Data.ActiveNanoSlot < 3) DrawNanoInfo(xf);
+            if (ShowNanoInfo && Data.HasActiveNano) DrawNanoInfo(xf);
             // --- contadores (cnNanoWheel), pivote BottomRight ---
             if (ShowBatteryCounters && !DualScreenController.ShowSecondaryNanos)
             {
@@ -425,6 +440,7 @@ namespace OpenFusion.World
 
         void DrawNanoInfo(Xf xf)
         {
+            if (!Data.HasActiveNano) return;
             // GUI.BeginGroup(RenderRect): coordenadas del interior relativas a (101,42)
             var o = NanoRenderRect; int slot = Data.ActiveNanoSlot; int id = Data.NanoSlots[slot];
             Draw(xf, new Rect(o.x + NanoWindowRect.x, o.y + NanoWindowRect.y, NanoWindowRect.width, NanoWindowRect.height), "nano_info");

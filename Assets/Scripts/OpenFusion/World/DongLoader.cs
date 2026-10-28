@@ -39,10 +39,17 @@ namespace OpenFusion.World
 
         IBundleSource source; DongRegistry reg; AssetStore store; DongBuilder builder; readonly Dictionary<int, DongBuildResult> built = new Dictionary<int, DongBuildResult>();
         readonly HashSet<string> sharedLoaded = new HashSet<string>(); bool busy, ready; Vector3 preload;
+        readonly HashSet<string> pinnedResourceFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase), pinnedResourceBundles = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        public void ImportResourceBundle(string name, Dictionary<string, byte[]> files)
+        {
+            foreach (var file in files) { if (!store.Has(file.Key)) TryAdd(file.Key, file.Value); pinnedResourceFiles.Add(file.Key); }
+            sharedLoaded.Add(name); pinnedResourceBundles.Add(name);
+        }
 
         /// mainUnity3d: bytes de main.unity3d (para el CachingManifest). start: posición inicial del mundo (original: 6912,1792 = dong 13,3).
         public void Init(byte[] mainUnity3d, IBundleSource src, Vector3 start, CachingManifest25 manifest = null)
         {
+            pinnedResourceFiles.Clear(); pinnedResourceBundles.Clear(); sharedLoaded.Clear();
             TerrainBuilder.DetailTranspose = !GrassTranspose;   // los datos de detalle 2.5 van por columnas: el orden correcto es el transpuesto (la casilla GrassTranspose ahora lo invierte) TerrainBuilder.AlphaTranspose = AlphaTranspose;
             source = src; store = new AssetStore(); builder = new DongBuilder(store) { CompressTextures = CompressTextures };
             reg = new DongRegistry(manifest ?? CachingManifest25.FromMainUnity3d(mainUnity3d)); reg.SetZoneFor(start.x, start.z); preload = start; ready = true;
@@ -92,9 +99,9 @@ namespace OpenFusion.World
             {
                 if (sharedLoaded.Contains(name)) continue; Dictionary<string, byte[]> files = null;
                 var t = System.Threading.Tasks.Task.Run(() => source.Load(name)); while (!t.IsCompleted) yield return null;
-                if (t.IsFaulted) { sharedReady = false; Debug.LogWarning("Bundle compartido " + name + ": " + t.Exception.GetBaseException().Message); continue; }
+                if (t.IsFaulted) { OpenFusion.Screens.PocketDiagnostics.AssetFailure(name, true); sharedReady = false; Debug.LogWarning("Bundle compartido " + name + ": " + t.Exception.GetBaseException().Message); continue; }
                 files = t.Result;
-                if (files == null) { sharedReady = false; continue; } // Reintentar cuando la descarga termine.
+                if (files == null) { OpenFusion.Screens.PocketDiagnostics.AssetFailure(name); sharedReady = false; continue; } // Reintentar cuando la descarga termine.
                 foreach (var kv in files) TryAdd(kv.Key, kv.Value);
                 sharedLoaded.Add(name);
             }
@@ -113,8 +120,8 @@ namespace OpenFusion.World
             foreach (var f in reg.FilesFor(x, y))
             {
                 var t = System.Threading.Tasks.Task.Run(() => source.Load(f)); while (!t.IsCompleted) yield return null;
-                if (t.IsFaulted) { Debug.LogWarning("Bundle " + f + ": " + t.Exception.GetBaseException().Message); missing = true; continue; }
-                if (t.Result == null) { missing = true; continue; }
+                if (t.IsFaulted) { OpenFusion.Screens.PocketDiagnostics.AssetFailure(f, true); Debug.LogWarning("Bundle " + f + ": " + t.Exception.GetBaseException().Message); missing = true; continue; }
+                if (t.Result == null) { OpenFusion.Screens.PocketDiagnostics.AssetFailure(f); missing = true; continue; }
                 foreach (var kv in t.Result) { if (f.StartsWith("Map_") && kv.Key == "BuildPlayer-" + DongGrid.MapName(x, y)) sceneName = kv.Key; if (!kv.Key.EndsWith(".sharedAssets")) { TryAdd(kv.Key, kv.Value); added.Add(kv.Key); } }
             }
             if (sceneName != null && store.Has(sceneName))
@@ -141,8 +148,8 @@ namespace OpenFusion.World
         {
             busy = true; var d = reg.At(x, y);
             if (built.TryGetValue(y * 16 + x, out var res)) { if (res.Root != null) Destroy(res.Root); built.Remove(y * 16 + x); }
-            foreach (var f in d.StoreFiles) { store.Remove(f); builder.Forget(f); }
-            if (source is IReleasableSource rs) foreach (var f in reg.FilesFor(x, y)) rs.Release(f);
+            foreach (var f in d.StoreFiles) { if (pinnedResourceFiles.Contains(f)) continue; store.Remove(f); builder.Forget(f); }
+            if (source is IReleasableSource rs) foreach (var f in reg.FilesFor(x, y)) if (!pinnedResourceBundles.Contains(f)) rs.Release(f);
             d.Loaded = false; d.Colors = default; d.Attributes = null; d.StoreFiles = new List<string>();
             DongUnloaded?.Invoke(x, y); yield return Resources.UnloadUnusedAssets(); busy = false;
         }
@@ -168,8 +175,9 @@ namespace OpenFusion.World
             RenderSettings.reflectionIntensity = 0f;   // el original no tiene reflejos de entorno: evita el brillo (Fresnel) que se movía con la vista
             RenderSettings.fogColor = fogColor;
             // niebla = fondo de cámara: el borde se funde con el cielo (el original muestra el cian de la niebla)
-            RenderSettings.ambientLight = lightColor * 0.5f;
-            GraphicsFx.SetFilter(new Color(lightColor.r * 0.6f + 0.4f, lightColor.g * 0.6f + 0.4f, lightColor.b * 0.6f + 0.4f, 1f));
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
+            RenderSettings.ambientLight = new Color(.2f, .2f, .2f, 1f); // Legacy scene, independent of the glow filter
+            GraphicsFx.SetFilter(lightColor); // Already transformed by ordinary/event ambience, exactly once.
             if (Cam != null)
             {
                 Cam.clearFlags = CameraClearFlags.SolidColor; Cam.backgroundColor = fogColor;

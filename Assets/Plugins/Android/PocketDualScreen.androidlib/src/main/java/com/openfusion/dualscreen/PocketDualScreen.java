@@ -279,6 +279,7 @@ public final class PocketDualScreen {
             publish();
             if (settingsDialog != null && settingsDialog.isShowing()) { settingsInfo.setText(settingsText()); dualOption.setEnabled(kind != 0); }
         } catch (Exception | LinkageError e) {
+            android.util.Log.e("PocketDS", "Secondary surface creation failed", e);
             wanted = false; restore(); kind = 0; reason = "Android could not create the secondary surface. Single Screen was restored."; publish();
         }
     }

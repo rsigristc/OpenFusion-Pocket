@@ -48,6 +48,10 @@ namespace OpenFusion.EditorTools
                 Check(SeasonalEvents.Sound("Main Theme.ogg", false, true) == "Main Theme.ogg" && SeasonalEvents.Sound("lair.ogg", true, true) == "lair.ogg" && SeasonalEvents.Sound("none.ogg", false, false) == "none.ogg" && SeasonalEvents.Sound("Ambient IceSpire.ogg", false, false) == "Ambient IceSpire.ogg", "Lobby/instance/silence/IceSpire exclusions must survive seasonal overrides.");
                 Check(SeasonalEvents.Delay(600) == 120, "Seasonal replay delay must match GameEventManager.");
                 seasonal.Apply(false, false);
+                fog = Color.gray; sky = Color.gray; light = new Color(.2f,.3f,.4f,1); rim = Color.white;
+                SeasonalEvents.Ambience(ref fog,ref sky,ref light,ref rim,2,true);
+                Check(Mathf.Abs(light.r-.52f)<.0001f && Mathf.Abs(light.g-.58f)<.0001f && Mathf.Abs(light.b-.64f)<.0001f,
+                    "Ordinary ambience must transform the glow filter once; Halloween must retain its untransformed event filter.");
                 fog = Color.cyan; sky = Color.red; light = Color.white; rim = Color.magenta;
                 Check(Mathf.Approximately(SeasonalEvents.Ambience(ref fog, ref sky, ref light, ref rim, 2, true), .01f) && fog == Color.cyan && rim == Color.magenta && SeasonalEvents.Sound("world.ogg", false, true) == "world.ogg", "Disabling the event must restore ordinary map colours/audio.");
                 Check(SeasonalNpcCosmetic.Hats.Length == 5 && SeasonalNpcCosmetic.Hats.All(h => !h.Model.ToLowerInvariant().Contains("billy")), "Billy Disguise must not be in the Halloween rotation.");

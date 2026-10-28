@@ -174,15 +174,17 @@ namespace OpenFusion.World
             if (r.x < 0f) r.x = 0f; if (r.y < 0f) r.y = 0f; targetRect = r;
         }
         Vector2 CenterPos() { return new Vector2(targetRect.x + targetRect.width * 0.5f, targetRect.y + targetRect.height * 0.5f); }
+        bool CanZoomIn => zoom < Zoom.Type4;
+        bool CanZoomOut => (int)zoom > (zone == 3 ? 0 : 2);
         void ZoomIn(Vector2 c)
         {
-            if (zone != 3) return;
-            if (zoom == Zoom.Type1 || zoom == Zoom.Type2) { Sfx.Ui("height_up"); zoom = zoom == Zoom.Type1 ? Zoom.Type2 : Zoom.Type3; SetZoomRect(c); } else Sfx.Ui("no_button");
+            if (!CanZoomIn) return;
+            Sfx.Ui("height_up"); zoom = (Zoom)((int)zoom + 1); SetZoomRect(c);
         }
         void ZoomOut(Vector2 c)
         {
-            if (zone != 3) return;
-            if (zoom == Zoom.Type2 || zoom == Zoom.Type3) { Sfx.Ui("height_down"); zoom = zoom == Zoom.Type3 ? Zoom.Type2 : Zoom.Type1; SetZoomRect(c); } else Sfx.Ui("no_button");
+            if (!CanZoomOut) return;
+            Sfx.Ui("height_down"); zoom = (Zoom)((int)zoom - 1); SetZoomRect(c);
         }
 
         // ---- geometria del mapa ----
@@ -280,20 +282,19 @@ namespace OpenFusion.World
             if (Hold(UpR, "up_arrow") && e.type == EventType.Repaint) { targetRect.y += zy[(int)zoom] * step; Clamp(); }
             if (Hold(LtR, "left_arrow") && e.type == EventType.Repaint) { targetRect.x -= zx[(int)zoom] * step; Clamp(); }
             if (Hold(RtR, "right_arrow") && e.type == EventType.Repaint) { targetRect.x += zx[(int)zoom] * step; Clamp(); }
-            if (zone == 3)
             {
                 Skin.Box(ZoomBarR, Skin.Get(SK, "zoom_bar"));
-                if (Btn(ZoomOutR, "", "zoom_out", zoom != Zoom.Type4)) ZoomOut(CenterPos());
-                for (int k = 0; k < 3; k++)
+                if (Btn(ZoomOutR, "", "zoom_out", CanZoomOut)) ZoomOut(CenterPos());
+                for (int k = zone == 3 ? 0 : 2; k < 3; k++)
                 {
                     if (k == (int)zoom) Skin.Box(ZoomBtn[k], Skin.Get(SK, "zoom_select"));
                     else if (Btn(ZoomBtn[k], "", "zoom_but")) { var c = CenterPos(); zoom = (Zoom)k; SetZoomRect(c); }
                 }
-                if (Btn(ZoomInR, "", "zoom_in", zoom != Zoom.Type4)) ZoomIn(CenterPos());
+                if (Btn(ZoomInR, "", "zoom_in", CanZoomIn)) ZoomIn(CenterPos());
             }
             if (zoom == Zoom.Type4)
             {
-                if (Btn(WorldR, "WORLD VIEW", "view_but") && zone != 2)
+                if (Btn(WorldR, "WORLD VIEW", "view_but"))
                 {
                     zoom = zone == 3 ? Zoom.Type1 : Zoom.Type3; var c = me != null ? new Vector2(me.position.x / World, me.position.z / World) : new Vector2(0.5f, 0.5f); SetZoomRect(c);
                 }
@@ -566,7 +567,7 @@ namespace OpenFusion.World
         {
             if (e.type == EventType.Used) return;
             Vector2 m = e.mousePosition;
-            if (e.type == EventType.ScrollWheel && zone == 3 && ClickRect.Contains(m)) { Vector2 w; if (MouseToWorld(pic, m, out w)) { if (e.delta.y < 0f) ZoomIn(w); else ZoomOut(w); } e.Use(); return; }
+            if (e.type == EventType.ScrollWheel && ClickRect.Contains(m)) { Vector2 w; if (MouseToWorld(pic, m, out w)) { if (e.delta.y < 0f) ZoomIn(w); else ZoomOut(w); } e.Use(); return; }
             if (e.type == EventType.MouseDown && e.button == 0 && ClickRect.Contains(m)) { bDragging = zoom != Zoom.Type1; lastMouse = m; downPos = m; downTime = Time.unscaledTime; longFired = false; }
             else if (e.type == EventType.MouseDrag && e.button == 0 && lastMouse != Vector2.zero)
             {
@@ -584,7 +585,7 @@ namespace OpenFusion.World
             if (e.type == EventType.Repaint && Input.GetMouseButton(0) && !longFired && lastMouse != Vector2.zero && Time.unscaledTime - downTime > 0.6f && ClickRect.Contains(downPos))
             { longFired = true; AddOrRemoveWaypoint(pic, downPos, wpHits); }
             // pellizco con dos dedos: zoom en el centro del gesto
-            if (e.type == EventType.Repaint && zone == 3 && Input.touchCount == 2)
+            if (e.type == EventType.Repaint && Input.touchCount == 2)
             {
                 var a = Input.GetTouch(0); var b = Input.GetTouch(1); float dist = Vector2.Distance(a.position, b.position);
                 if (a.phase == TouchPhase.Began || b.phase == TouchPhase.Began) pinchPrev = dist;

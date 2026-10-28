@@ -26,7 +26,7 @@ namespace OpenFusion.World
         public void StationOpened() { nextPanel = 0; }
         const string PreferenceKey = "pocket.dualScreen.preference";
         public DualScreenPreference Preference { get; private set; }
-        AndroidJavaClass bridge;
+        PocketDualScreenBridge bridge;
         float nextPoll, nextPanel;
         bool requested, failed;
         bool originalPortrait, originalUpsideDown, foldRotation;
@@ -49,9 +49,7 @@ namespace OpenFusion.World
                 var cache = System.IO.Path.Combine(Application.temporaryCachePath, "dual-screen");
                 if (System.IO.Directory.Exists(cache)) foreach (var file in System.IO.Directory.GetFiles(cache, "*.png"))
                     try { System.IO.File.Delete(file); } catch (System.IO.IOException) { }
-                bridge = new AndroidJavaClass("com.openfusion.dualscreen.PocketDualScreen");
-                using (var player = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
-                using (var activity = player.GetStatic<AndroidJavaObject>("currentActivity")) bridge.CallStatic("start", activity);
+                bridge = PocketDualScreenBridge.Start();
             }
             catch (Exception e) { Fail(e); }
 #endif
@@ -122,6 +120,7 @@ namespace OpenFusion.World
                 if (c.action != "nanoScroll") Debug.Log("[DS input] rejected=" + c.action + " active=" + Active + " revision=" + c.revision + "/" + Capabilities.revision + " window=" + GameMenu.Current + " station=" + InventoryWindow.Machine + " npc=" + NpcUI.Active);
                 return;
             }
+            if (c.action == "cameraZoom") { if (c.value == "in" || c.value == "out") GameClient.FindSelf?.ZoomWorldCamera(c.value == "in"); return; }
             var inventory = InventoryWindow.Instance;
             if ((c.action == "nano" || c.action == "nanoCard" || c.action == "nanoEquip" || c.action == "nanoUnequip" || c.action == "nanoTune") &&
                 (GameClient.FindSelf == null || !GameClient.FindSelf.WorldConnected))

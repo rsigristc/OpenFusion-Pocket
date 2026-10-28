@@ -72,6 +72,7 @@ namespace OpenFusion.Unity25
         public float[] Pos, Rot, Scale; public SceneNode25 Parent; public List<SceneNode25> Children = new List<SceneNode25>();
         public List<string> ComponentTypes = new List<string>(); public List<KeyValuePair<string, long>> Components = new List<KeyValuePair<string, long>>();
         public PPtr25 Mesh; public List<PPtr25> Materials = new List<PPtr25>(); public PPtr25 ColliderMesh;
+        public bool ColliderEnabled = true, ColliderTrigger, ColliderConvex;
         public long ParentTransformId;
         public SkinInfo25 Skin; public AnimInfo25 Anim;
         /// matriz 4x4 local->mundo, fila-major (columna vector). Unity: T*R*S, mano izquierda.
@@ -120,7 +121,12 @@ namespace OpenFusion.Unity25
                     foreach (var c in D.A(go["m_Component"])) { var cp = PPtr25.From(D.O(c)["second"]); if (cp.FileId == 0 && byId.TryGetValue(cp.PathId, out var co)) {
                         var ty = f.TypeOf(co)?.Type; n.ComponentTypes.Add(ty); n.Components.Add(new KeyValuePair<string, long>(ty, cp.PathId));
                         if (ty == "MeshFilter") n.Mesh = PPtr25.From(f.ReadObject(co, out _)["m_Mesh"]);
-                        else if (ty == "MeshCollider") n.ColliderMesh = PPtr25.From(f.ReadObject(co, out _)["m_Mesh"]);
+                        else if (ty == "MeshCollider") {
+                            var collider = f.ReadObject(co, out _); n.ColliderMesh = PPtr25.From(collider["m_Mesh"]);
+                            n.ColliderEnabled = !collider.ContainsKey("m_Enabled") || D.I(collider["m_Enabled"]) != 0;
+                            n.ColliderTrigger = collider.ContainsKey("m_IsTrigger") && D.I(collider["m_IsTrigger"]) != 0;
+                            n.ColliderConvex = collider.ContainsKey("m_Convex") && D.I(collider["m_Convex"]) != 0;
+                        }
                         else if (ty == "Renderer" || ty == "MeshRenderer" || ty == "SkinnedMeshRenderer")
                         {
                             var rv = f.ReadObject(co, out _);

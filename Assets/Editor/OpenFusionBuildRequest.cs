@@ -29,6 +29,8 @@ namespace OpenFusion.EditorTools
             {
                 InputRegressionChecks.Run();
                 Launcher232RegressionChecks.Run();
+                DiagnosticsRegressionChecks.Run();
+                CommunityRegressionChecks.Run();
                 PlatformInputRegressionChecks.Run();
                 DualScreenRegressionChecks.Run();
                 DualNanoRegressionChecks.Run();
@@ -47,8 +49,12 @@ namespace OpenFusion.EditorTools
                 TutorialAssetAudit.Run();
                 WorldRegressionChecks.Run();
                 RemotePlayerRegressionChecks.Run();
+                SocialGroupRegressionChecks.Run();
+                RecallRegressionChecks.Run();
+                BuddyNameRegressionChecks.Run();
                 RenderIsolationRegressionChecks.Run();
                 CameraGroundingRegressionChecks.Run();
+                VariableJumpRegressionChecks.Run();
                 PlatformLandingRegressionChecks.Run();
                 UpdaterRegressionChecks.Run();
                 WeaponAudioRegressionChecks.Run();

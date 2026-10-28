@@ -185,7 +185,7 @@ namespace OpenFusion.World
         public static float CameraX { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); float v = Sum(K.CameraRight, K.CameraLeft); return Mathf.Clamp(FlipCameraY ? v : v, -1f, 1f); } }
         public static float CameraY { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); float v = Sum(K.CameraUp, K.CameraDown, true, -1f); if (FlipCameraY) v = -v; return Mathf.Clamp(v, -1f, 1f); } }
         /// Zoom (+1 acercar): teclas ZoomIn/ZoomOut (GetAxisZoom no incluye el mando).
-        public static float Zoom { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); return Mathf.Clamp(Sum(K.ZoomIn, K.ZoomOut, false), -1f, 1f); } }
+        public static float Zoom { get { if (GamepadPointer.SuppressWorld) return 0; Tick(); return Mathf.Clamp(Sum(K.ZoomIn, K.ZoomOut, false) + (TouchControls.Held(K.ZoomIn) ? 1f : 0f) - (TouchControls.Held(K.ZoomOut) ? 1f : 0f), -1f, 1f); } }
 
         // ---------------------------------------------------------------- botones
         static readonly bool[] axCur = new bool[N], axPrev = new bool[N]; static int tickFrame = -1; static bool auto;

@@ -90,7 +90,10 @@ namespace OpenFusion.World
         }
         public static float Ambience(ref Color fog, ref Color sky, ref Color light, ref Color rim, float depth, bool paid)
         {
-            if (Instance == null || !Instance.Halloween) return depth * .005f;
+            if (Instance == null || !Instance.Halloween) {
+                light = light * .6f + Color.white * .4f; // cnPlayerCamera.DefaultAmbience
+                return depth * .005f;
+            }
             fog = new Color((.01f + 120f * .00035f) * .8f, .01f * .8f, (.01f + 255f * .00035f) * .8f, .95f);
             sky.a = 0f; light = new Color(.5f, .5f, .6f, 1f); rim = HalloweenRim;
             return depth * (paid ? .007f : .0165f);

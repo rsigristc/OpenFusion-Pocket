@@ -70,7 +70,7 @@ namespace OpenFusion
         {
             try { await Run(); }
             catch (LoginException e) { StartupFailed(e.Message); }
-            catch (Exception e) { Debug.LogError("GameClient: " + e); StartupFailed(e is TaskCanceledException ? "The server request timed out. Check your connection and try again." : e.Message); }
+            catch (Exception e) { PocketDiagnostics.Caught(e); Debug.LogError("GameClient: " + e); StartupFailed(e is TaskCanceledException ? "The server request timed out. Check your connection and try again." : e.Message); }
         }
         void StartupFailed(string message)
         {
@@ -291,6 +291,16 @@ namespace OpenFusion
         // rueda: Distance += Mouse ScrollWheel (±0.1 por muesca) * fMouseSensivity (6) = 0.6 por muesca, sin suavizado; colisión: Physics.Raycast(pivote -> posición deseada, máscara 112641)
         [Header("Cámara (límites del original)")] public float CamMinDist = 1f, CamMaxDist = 15f, CamMinPitch = -60f, CamMaxPitch = 75f, CamDefaultDist = 7f, CamDefaultPitch = 11.5f, CamPivotHeight = 2f, ZoomPerNotch = 6f;
         [Tooltip("Capas contra las que choca la cámara: 112641 = capas 0, 11, 12, 13, 15, 16 (máscara del original). Las capas de DongBuilder son las del original. La capa 2 (agua) queda fuera.")] public int CameraCollisionMask = 112641; public bool CameraCollision = true;
+        public bool CanZoomWorldCamera => WorldConnected && Bootstrap?.Player != null && TutorialTraining.CameraAllowed &&
+            !ChatHud.Typing && !GameMenu.Blocking && !NpcUI.Active && !WelcomePopup.Active && !PlayerLife.Active &&
+            !(LoadingScreen.I != null && LoadingScreen.I.Visible && !LoadingScreen.I.Mini);
+        // Companion buttons use the same distance and limits as one mouse-wheel notch.
+        public void ZoomWorldCamera(bool closer)
+        {
+            if (!CanZoomWorldCamera) return;
+            if (!camInit) { camInit = true; camDist = CamDefaultDist; camPitch = CamDefaultPitch; camYaw = 0f; }
+            camDist = Mathf.Clamp(camDist + (closer ? -1 : 1) * .1f * ZoomPerNotch, CamMinDist, CamMaxDist);
+        }
         float nextDiag; int diagCount;
         void Diag()
         {
@@ -338,29 +348,37 @@ namespace OpenFusion
                 camPitch = Mathf.Clamp(camPitch - OpenFusion.World.ControlMap.CameraY * PadLookSpeed * camSens * ck, CamMinPitch, CamMaxPitch);
                 float zk = OpenFusion.World.ControlMap.Zoom; if (Mathf.Abs(zk) > 0.01f) camDist = Mathf.Clamp(camDist - zk * ZoomKeySpeed * ck, CamMinDist, CamMaxDist);
             }
-            float wheel = GamepadPointer.Active ? 0f : Input.GetAxis("Mouse ScrollWheel"); if (Mathf.Abs(wheel) > 0.0001f) camDist = Mathf.Clamp(camDist - wheel * ZoomPerNotch, CamMinDist, CamMaxDist);   // arriba = acercar (el signo del original depende del InputManager, no verificable)
+            float wheel = !CanZoomWorldCamera || GamepadPointer.Active ? 0f : Input.GetAxis("Mouse ScrollWheel"); if (Mathf.Abs(wheel) > 0.0001f) camDist = Mathf.Clamp(camDist - wheel * ZoomPerNotch, CamMinDist, CamMaxDist);   // arriba = acercar (el signo del original depende del InputManager, no verificable)
             var rotC = Quaternion.Euler(camPitch, camYaw, 0f); var pivot0 = p.position + Vector3.up * CamPivotHeight; var pivot = pivot0 + rotC * new Vector3(aimOffX, 0f, 0f);
-            if (Mathf.Abs(aimOffX) > 0.01f) { RaycastHit ph; var po = pivot - pivot0; if (Physics.Raycast(pivot0, po, out ph, po.magnitude, CameraCollisionMask, QueryTriggerInteraction.Ignore)) pivot = pivot0 + po.normalized * Mathf.Max(0f, ph.distance - 0.1f); }   // el hombro no atraviesa paredes
+            if (Mathf.Abs(aimOffX) > 0.01f) { RaycastHit ph; var po = pivot - pivot0; if (Ground.CameraObstacle(pivot0, po.normalized, po.magnitude, p, CameraCollisionMask, out ph)) pivot = pivot0 + po.normalized * Mathf.Max(0f, ph.distance - 0.1f); }
             var want = pivot + rotC * new Vector3(0f, 0f, -camDist); float camLimit = camDist;
             if (CameraCollision)
             {   // cnPlayerCamera.PositionUpdate: rayo pivote -> cámara; si choca, la cámara va al punto de impacto + (pivote-impacto).normalizado * clamp(1 - dot(normal, dir), 0, dist - 0.1)
                 var dirBack = (want - pivot).normalized; RaycastHit ch;
-                if (camDist > 0.01f && Physics.Raycast(pivot, dirBack, out ch, camDist, CameraCollisionMask, QueryTriggerInteraction.Ignore))
+                if (camDist > 0.01f && Ground.CameraObstacle(pivot, dirBack, camDist, p, CameraCollisionMask, out ch))
                 {
                     var toPivot = (pivot - ch.point).normalized; float push = Mathf.Clamp(1f - Vector3.Dot(ch.normal, toPivot), 0f, Mathf.Max(0f, ch.distance - 0.1f));
                     want = ch.point + toPivot * push; camLimit = (want - pivot).magnitude;
                 }
             }
-            float gy = Ground.Y(want, 40f) + 0.5f; if (want.y < gy) want.y = gy;   // la cámara no entra en el suelo
+            // Terrain correction also works when its physical collider is absent.
+            float terrainFloor = TerrainTop(want); if (want.y < terrainFloor + .5f) want.y = terrainFloor + .5f;
+            // Never choose a roof/actor above the camera from a 40 m column.
+            if (Ground.TrySupport(want, p, .5f, 40f, 89f, out float cameraFloor) && want.y < cameraFloor + .5f) want.y = cameraFloor + .5f;
             var camNew = (cam.transform.position - want).sqrMagnitude < 0.000004f ? want : Vector3.Lerp(cam.transform.position, want, 1f - Mathf.Exp(-CameraSmooth * Time.deltaTime));
             var camOff = camNew - pivot; if (camOff.magnitude > camLimit + 0.01f) camNew = pivot + camOff.normalized * camLimit;   // el suavizado no deja la cámara detrás de una pared
             cam.transform.position = camNew;
             var aim = pivot + Vector3.up * Mathf.Max(0f, -camPitch) * 0.25f;   // al bajar la cámara se apunta más arriba: se ve el cielo
-            cam.transform.rotation = Quaternion.LookRotation(aim - cam.transform.position, Vector3.up);
+            cam.transform.rotation = CameraOrientation(aim - cam.transform.position, rotC);
             AuditCamera(cam, p);
             if (AimActive && !PlayerLife.Active) p.rotation = Quaternion.Euler(0f, camYaw, 0f);   // SetAngle(RotationY): el avatar mira hacia donde apunta la cámara
         }
 
+        public static Quaternion CameraOrientation(Vector3 view, Quaternion orbit)
+        {
+            if (view.sqrMagnitude < .01f || Mathf.Abs(Vector3.Dot(view.normalized,Vector3.up)) > .999f) return orbit;
+            return Quaternion.LookRotation(view,Vector3.up);
+        }
         public float PadLookSpeed = 140f, TurnSpeed = 100f, ZoomKeySpeed = 8f;   // grados/s con sensibilidad 5; giro por teclas Q/E; zoom por teclas en m/s
         public float StepHeight = 0.5f; public bool BlockOnObjects = true;
         void Update()
@@ -604,7 +622,7 @@ namespace OpenFusion
             bool controllerEnabled=cc!=null && cc.enabled;if(controllerEnabled)cc.enabled=false;
             player.position = tpPos;
             if(controllerEnabled)cc.enabled=true;Physics.SyncTransforms();
-            lastPos = tpPos; moving = airborne = false; vy = 0; dashT = 0;ccGrounded=false;relocationSupportPending=true;relocationSupportAttempts=0;
+            lastPos = tpPos; moving = airborne = false; vy = 0; dashT = 0; ResetJumpControl();ccGrounded=false;relocationSupportPending=true;relocationSupportAttempts=0;
             lastSendT = Time.time; nextSend = Time.time + SendInterval;
             GetComponent<TouchControls>()?.CancelForSurfaceChange();
             Report("[warp] applied authoritative position before movement: " + tpPos); return true;
@@ -631,7 +649,6 @@ namespace OpenFusion
         bool airborne; float vy, jumpT, landUntil, fidgetAt, fidgetEnd;
         // ---- habilidades de nano de movimiento (cnAvatarAttack.NanoSkillUse -> cnAvatarThirdPersonMove.Jump / RocketDash) ----
         float dashT, dashSpeed; public bool Dashing { get { return dashT > 0f; } }
-        /// Skill 29/40: Jump(iDefaultJumpHeight*0.01 + valueA*0.01). En el cliente 2.5 el 'extra de gravedad' sólo existe con el salto variable (opción), que aquí no hay, así que TempDisableExtraG no hace nada.
         // ---- buffs de velocidad / salto (Status.UpdateBuff: eCSTB 3 = salto, 1 = velocidad positiva, 8 = negativa; eTBU 1/3 alta o cambio, 2 baja) ----
         float baseJump, buffJump; int baseRun, buffPos, buffNeg; bool buffBase;
         /// <summary>sP_FE2CL_PC_BUFF_UPDATE propio. iValue en unidades del servidor (cm / cm/s), igual que BaseAttrib.iJumpHeight / iRunSpeed.</summary>
@@ -672,18 +689,29 @@ namespace OpenFusion
             }
             catch (Exception) { }
         }
-        public void SkillJump(float extra) { if (swimming || Dashing) return; airborne = true; vy = JumpVelocity + extra; jumpT = Time.time; nextJumpPkt = Time.time + 0.3f; PlayOnce("jumpstart"); }
+        public void SkillJump(float extra, float extraGravityDisableSeconds = 0f)
+        {
+            if (swimming || Dashing) return;
+            airborne = true; vy = JumpVelocity + extra; jumpT = Time.time;
+            // Direct rope/zipline Jump calls do not arm the Nano/jump-pad protection.
+            if (extraGravityDisableSeconds > 0) jumpExtraGravityUntil = Time.time + extraGravityDisableSeconds;
+            jumpFirstFrame = true; nextJumpPkt = Time.time + .3f; PlayOnce("jumpstart");
+        }
         /// RocketDash(35): 0,5556 s hacia delante de la cámara, velocidad 35 m/s menos 60 m/s², sin gravedad (fVelocityZ = 0).
         public void SkillDash(float speed) { dashSpeed = speed; dashT = 0.5555555f; airborne = false; vy = 0f; landUntil = 0f; pClip = null; }
         void DashStep(Transform p)
+        { AdvanceDash(p, Time.deltaTime); }
+        void AdvanceDash(Transform p, float dt)
         {   // Do3DDashMovement
-            float dt = Time.deltaTime; var f = Quaternion.Euler(0f, camYaw, 0f) * Vector3.forward;
-            var np = p.position + f * Mathf.Max(0f, dashSpeed) * dt; if (BlockOnObjects) np = ResolveHorizontal(p, p.position, np);
-            float g = GroundOrWater(np, 20f, out bool wet); if (g > np.y) np.y = g;
-            p.position = np; Physics.SyncTransforms(); p.rotation = Quaternion.Euler(0f, camYaw, 0f); lastMoveT = Time.time;
+            var f = Quaternion.Euler(0f, camYaw, 0f) * Vector3.forward;
+            dt = Mathf.Min(dt, dashT);
+            var displacement = f * Mathf.Max(0f, dashSpeed) * dt;
+            if (UseCharacterController) { var controller = EnsureCC(p); if (!controller.enabled) controller.enabled = true; controller.Move(displacement); ccGrounded = (controller.collisionFlags & CollisionFlags.Below) != 0; }
+            else { var np = p.position + displacement; p.position = BlockOnObjects ? ResolveHorizontal(p, p.position, np) : np; }
+            Physics.SyncTransforms(); p.rotation = Quaternion.Euler(0f, camYaw, 0f); lastMoveT = Time.time;
             dashSpeed -= 60f * dt; dashT -= dt;
             if (pAnim != null && pAnim["dash"] != null) SetAnim(p, "dash"); else SetAnim(p, "run");
-            if (dashT <= 0f) { dashT = 0f; if (p.position.y > GroundOrWater(p.position, 40f, out bool w2) + 0.15f) { airborne = true; vy = 0f; jumpT = Time.time; } pClip = null; }
+            if (dashT <= 0f) { dashT = 0f; airborne = !Ground.TrySupport(p.position, p, .1f, .15f, CcSlope, out var support); vy = 0f; if (airborne) jumpT = Time.time; pClip = null; }
         }
         void PlayOnce(string clip, float fade = 0.08f)
         {
@@ -757,9 +785,9 @@ namespace OpenFusion
             if (pAnim == null) SetAnim(p, "stand1");   // inicializa pAnim
             if (dashT > 0f) { DashStep(p); return; }
             Vector3 mdir = dir; if (Vehicle > 0) mdir = VehicleDir(dir, raw, p); else lastWalkVel = dir * DebugWalkSpeed * WalkScale;
-            if (TutorialTraining.ActionAllowed(ControlMap.K.Jump) && !airborne && !swimming && !OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking && (OpenFusion.World.ControlMap.Down(OpenFusion.World.ControlMap.K.Jump, false) || OpenFusion.World.TouchControls.ConsumeJump()))
+            if (TutorialTraining.ActionAllowed(ControlMap.K.Jump) && Time.time >= nextManualJumpAt && !airborne && !swimming && !OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking && (OpenFusion.World.ControlMap.Down(OpenFusion.World.ControlMap.K.Jump, false) || OpenFusion.World.TouchControls.ConsumeJump()))
             {
-                airborne = true; vy = (Vehicle > 0 && buffBase) ? baseJump : JumpVelocity; jumpT = Time.time; nextJumpPkt = Time.time + 0.3f; PlayOnce("jumpstart");
+                StartManualJump(Time.time);
                 if (SendJump && SendMovement)
                 {
                     int ang = (int)p.eulerAngles.y - 180; byte key = DirNum(raw.x, raw.z);
@@ -773,7 +801,7 @@ namespace OpenFusion
             if (BlockOnObjects && mdir.sqrMagnitude > 0f) np = ResolveHorizontal(p, p.position, np);   // paredes, troncos, estructuras: colisionadores del mapa
             if (airborne)
             {
-                vy -= Gravity * Time.deltaTime; if (vy < -Gravity) vy = -Gravity; np.y += vy * Time.deltaTime;
+                StepJumpVelocity(Time.deltaTime, ControlMap.Held(ControlMap.K.Jump, false), Time.time); np.y += vy * Time.deltaTime;
                 if (SendJump && SendMovement && Time.time >= nextJumpPkt) { nextJumpPkt = Time.time + 0.3f; int ang2 = (int)p.eulerAngles.y - 180; _ = Send(PlayerMotionPackets.Jump(Now(), p.position, new Vector3(dir.x * DebugWalkSpeed, vy, dir.z * DebugWalkSpeed), ang2, DirNum(raw.x, raw.z), RunSpeed)); } float g = GroundOrWater(new Vector3(np.x, np.y, np.z), 40f, out bool wetLand);
                 if (np.y <= g && vy < 0f)
                 {
@@ -844,7 +872,7 @@ namespace OpenFusion
             Physics.IgnoreLayerCollision(p.gameObject.layer, 30, true);
             return cc;
         }
-        static float TerrainTop(Vector3 q)
+        public static float TerrainTop(Vector3 q)
         {
             float best = float.NegativeInfinity;
             foreach (var t in Terrain.activeTerrains)
@@ -861,10 +889,13 @@ namespace OpenFusion
             var c = EnsureCC(p); if (!c.enabled) c.enabled = true;
             Physics.SyncTransforms();   // teletransportes / ajustes de posición hechos por otros sistemas
             float dt = Time.deltaTime;
-            if (airborne) { vy -= Gravity * dt; if (vy < -Gravity) vy = -Gravity; }
+            if (airborne) StepJumpVelocity(dt, ControlMap.Held(ControlMap.K.Jump, false), Time.time);
             else if (!ccGrounded) { vy -= Gravity * dt; if (vy < -Gravity) vy = -Gravity; }
             else vy = 0f;
-            var mv = dir * DebugWalkSpeed * WalkScale * dt; mv.y = ccGrounded && !airborne ? -0.01f : vy * dt;
+            var velocity = dir * DebugWalkSpeed * WalkScale; velocity.y = ccGrounded && !airborne ? -0.01f / Mathf.Max(dt, .0001f) : vy;
+            // Do not turn a legitimate jumping ascent into a surface slide.
+            if (!airborne || vy <= 0f) Ground.SlideVelocity(p.position, p, CcSlope, ref velocity);
+            var mv = velocity * dt;
             var before = p.position;
             c.Move(mv);
             ccGrounded = (c.collisionFlags & CollisionFlags.Below) != 0;

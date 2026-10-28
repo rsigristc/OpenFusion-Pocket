@@ -378,10 +378,10 @@ namespace OpenFusion.World
 
         void FireLauncher(Transform self)
         {
-            Vector3 dir = AimDir(); Vector3 pos = aimCamPos + dir * 10f; Vector3 v = dir * aimPower; float rotate = aimStart.y + aimRot.y + 180f;
+            Vector3 dir = AimDir(); Vector3 pos = FlightSafety.LaunchPosition(aimCamPos, dir, 10f, self, rNode?.T, rcc); Vector3 v = dir * aimPower; float rotate = aimStart.y + aimRot.y + 180f;
             Sfx.Ui("Launcher_StopPower");
             var g = rgc; RestoreAim(); SetCamYaw(g, rotate);
-            self.position = pos; Physics.SyncTransforms(); self.rotation = Quaternion.Euler(0f, rotate, 0f);
+            FlightSafety.Relocate(rcc, self, pos); self.rotation = Quaternion.Euler(0f, rotate, 0f);
             flyV = v.y; Vector3 hv = v; hv.y = 0f; flyDirH = hv; flyH = hv.magnitude; flyAngle = rotate;
             ride = Ride.LaunchFly; rLastSend = Time.time;
             Send(BuildLauncher(pos, v, (int)rotate - 180, (int)(v.y * 100f)));
@@ -404,11 +404,13 @@ namespace OpenFusion.World
         void TickFly(Transform self, float dt)
         {
             if (rcc == null) { FinishRide(0); return; }
+            dt = Mathf.Clamp(dt, 0f, .1f);
             float g = rgc != null ? rgc.Gravity : 10f;
             Vector3 fwd = self.forward; fwd.y = 0f; if (fwd.sqrMagnitude > 1e-8f) fwd.Normalize();
             flyV -= g * dt; if (flyV < -g) flyV = -g;
             Vector3 mv = fwd * flyH; mv.y = flyV;
             var fl = rcc.enabled ? rcc.Move(mv * dt - Vector3.one * 1E-06f) : CollisionFlags.None;
+            if (FlightSafety.CorrectTerrain(rcc, self)) fl |= CollisionFlags.Below;
             EnsureClip(flyClip, false, 0.1f);
             if ((fl & CollisionFlags.Below) != 0 || (fl & CollisionFlags.Sides) != 0)
             {

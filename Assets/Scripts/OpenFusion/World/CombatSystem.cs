@@ -88,7 +88,10 @@ namespace OpenFusion.World
                 {
                     bulletType = it.m_iEffect1 > 0 ? it.m_iEffect1 : 1; targetMode = it.m_iTargetMode; if (it.m_iDelayTime > 0) AttackInterval = it.m_iDelayTime * 0.1f;
                     if (it.m_iAtkRange > 0) range = it.m_iAtkRange; if (it.m_iAtkAngle > 0) angle = it.m_iAtkAngle; if (it.m_iTargetNumber > 0) maxTargets = it.m_iTargetNumber;
-                    switch (it.m_iEquipType) { case 1: case 2: aniStyle = 1; break; case 3: aniStyle = 2; break; case 4: aniStyle = 3; break; case 10: aniStyle = 6; break; case 11: aniStyle = 4; break; default: aniStyle = 0; break; }
+                    var animationItem = it;
+                    int appearanceId = PcAppearance.VisibleWeaponId(w, avatars == null || avatars.CombineEquip);
+                    if (appearanceId != w.Id) foreach (var candidate in tables.m_pWeaponItemTable.m_pItemData) if (candidate != null && candidate.m_iItemNumber == appearanceId) { animationItem = candidate; break; }
+                    aniStyle = WeaponAnimationStyle(animationItem.m_iEquipType);
                     Debug.Log("[atk] arma id=" + w.Id + " equipType=" + it.m_iEquipType + " modo=" + it.m_iTargetMode + " rango=" + range + " ángulo=" + angle + " objetivos=" + maxTargets + " inicial=" + it.m_iInitalTime + " entrega=" + it.m_iDeliverTime + " retardo=" + it.m_iDelayTime + " duración=" + it.m_iDurationTime + " estilo=" + aniStyle);
                 }
                 else Debug.Log("[atk] sin arma equipada (Equip[0].Id=" + w.Id + "): puños rango=" + range + " ángulo=" + angle);
@@ -97,6 +100,8 @@ namespace OpenFusion.World
             if (gc == null) gc = FindObjectOfType<GameClient>();
             if (gc != null) { gc.AniStyle = aniStyle; gc.ResetAnimClip(); }
         }
+        public static int WeaponAnimationStyle(int equipType)
+        { switch (equipType) { case 1: case 2: return 1; case 3: return 2; case 4: return 3; case 10: return 6; case 11: return 4; default: return 0; } }
 
         // ---- red (hilo de red -> cola) ----
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
@@ -112,7 +117,8 @@ namespace OpenFusion.World
             if (type == PacketIds.P_FE2CL_NANO_SKILL_USE && b.Length >= 36 && I(b, 28) == 28)
             {   // W24: eST_Recall_Group (28) de OTRO jugador: GameFrame.SkillResultDistributor case 28 -> Status.ProcessSkillResult evento 28 sobre el avatar propio -> caja "<nombre> is trying to recall you. Accept?"
                 //   NANO_SKILL_USE {iPC_ID@0 (lanzador), ..., eST@28, iTargetCnt@32} + sSkillResult_Move[24 B] {eCT@0, iID@4, iMapNum, iMoveX, iMoveY, iMoveZ}
-                var rb = b; int caster = I(b, 0), rn = Mathf.Clamp(I(b, 32), 0, 64);
+                var rb = b; int caster = I(b, 0), rn = I(b, 32);
+                if (rn < 0 || rn > 64 || rn > (b.Length - 36) / 24) return;
                 q.Enqueue(() =>
                 {
                     if (ents == null || ents.SelfId == 0 || caster == ents.SelfId || SocialMenu.Instance == null) return;

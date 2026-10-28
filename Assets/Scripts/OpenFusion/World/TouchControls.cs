@@ -70,7 +70,7 @@ namespace OpenFusion.World
         static float ViewHeight => Screen.height > 0 ? Screen.height : 720f;
         static Rect SafeArea { get { var r = Screen.safeArea; return r.width > 0 && r.height > 0 ? r : new Rect(0, 0, ViewWidth, ViewHeight); } }
         public static Rect LayoutArea { get { var r=SafeArea;return new Rect(r.x,ViewHeight-r.yMax,r.width,r.height); } }
-        public Rect LayoutRect(int index) => index==TouchLayout.Joystick ? JoyRect : index==TouchLayout.CameraStick ? CameraStickRect : ActionRect(index);
+        public Rect LayoutRect(int index) => index==TouchLayout.Joystick ? JoyRect : index==TouchLayout.CameraStick ? CameraStickRect : ActionRect(TouchLayout.ActionIndex(index));
         float Dp { get { if (dpScale <= 0f) { float dpi = Screen.dpi > 1f ? Screen.dpi : 160f; dpScale = Mathf.Min(dpi / 160f, ViewHeight / 540f, ViewWidth / 960f); } return dpScale; } }
         Vector2 ToGui(Vector2 p) { return new Vector2(p.x, ViewHeight - p.y); }   // Input (abajo-izq) -> GUI (arriba-izq)
         Rect ActionRect(int index)
@@ -79,7 +79,7 @@ namespace OpenFusion.World
             var safe = SafeArea; float d = Mathf.Min(Dp * TouchLayout.Scale, (safe.height - 185f * Dp) / 325f), size = 58f * d, gap = 7f * d;
             float right = safe.xMax - 12f * Dp, bottom = ViewHeight - safe.yMin - 125f * Dp;
             var fallback = new Rect(right - (index % 3 + 1) * (size + gap), bottom - (index / 3 + 1) * (size + gap), size, size);
-            return TouchLayout.ActionRect(index, new Rect(safe.x, ViewHeight - safe.yMax, safe.width, safe.height), fallback);
+            return TouchLayout.ActionRect(TouchLayout.GeometryIndex(index), new Rect(safe.x, ViewHeight - safe.yMax, safe.width, safe.height), fallback);
         }
         Rect ChatRect { get { return new Rect(SafeArea.xMax - 62f * Dp, 210f * Dp, 52f * Dp, 42f * Dp); } }
         int HitAction(Vector2 g)
@@ -214,12 +214,12 @@ namespace OpenFusion.World
                 {
                     if (!ActionVisible(i)) continue;
                     var r = ActionRect(i); bool pressed = held.Contains(TouchLayout.Actions[i]);
-                    GUI.color = new Color(1f, 1f, 1f, (pressed ? .8f : .35f) * TouchLayout.Opacity(i)); GUI.DrawTexture(r, disc);
-                    GUI.color = new Color(1f, 1f, 1f, TouchLayout.Opacity(i)); GUI.DrawTexture(r, ring);
+                    GUI.color = new Color(1f, 1f, 1f, (pressed ? .8f : .35f) * TouchLayout.Opacity(TouchLayout.GeometryIndex(i))); GUI.DrawTexture(r, disc);
+                    GUI.color = new Color(1f, 1f, 1f, TouchLayout.Opacity(TouchLayout.GeometryIndex(i))); GUI.DrawTexture(r, ring);
                     if(TouchLayout.ControllerStyle && i<4) {
-                        var color=ControllerColors[i];color.a=TouchLayout.Opacity(i);GUI.color=color;GUI.DrawTexture(r,ring);
+                        var color=ControllerColors[i];color.a=TouchLayout.Opacity(TouchLayout.GeometryIndex(i));GUI.color=color;GUI.DrawTexture(r,ring);
                     }
-                    GUI.color = new Color(1,1,1,TouchLayout.Opacity(i)); GUI.Label(r, TouchLayout.ControllerStyle && i<4 ? ControllerLabels[i] : TouchLayout.Labels[i], st);
+                    GUI.color = new Color(1,1,1,TouchLayout.Opacity(TouchLayout.GeometryIndex(i))); GUI.Label(r, TouchLayout.ControllerStyle && i<4 ? ControllerLabels[i] : TouchLayout.Labels[i], st);
                 }
                 if(TouchLayout.CameraStickEnabled) {
                     var r=CameraStickRect;GUI.color=new Color(1,1,1,TouchLayout.Opacity(TouchLayout.CameraStick));GUI.DrawTexture(r,ring);

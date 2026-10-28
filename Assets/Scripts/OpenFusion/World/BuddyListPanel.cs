@@ -27,7 +27,7 @@ namespace OpenFusion.World
         PacketDispatcher disp;
         readonly ConcurrentQueue<Action> q = new ConcurrentQueue<Action>();
         int selSlot = -1, lastDraw = -100, stateVer; float refreshT, coolChk, focusAt; Vector2 scroll;
-        int cooltime; bool warpToGroup;
+        int cooltime; bool warpToGroup, warpPending;
         public int Cooltime { get { return cooltime; } }
 
         public void Init(PacketDispatcher d)
@@ -44,6 +44,7 @@ namespace OpenFusion.World
         // ---------------- red (hilo de red: solo encolar) ----------------
         void OnEnterRaw(byte[] b)
         {   // GameFrame ENTER_SUCC: m_iBuddyWarpCooltime = PCLoadData2CL.iBuddyWarpTime (@4+2524) - (int)(uiSvrTime (@2556) / 1000), minimo 0
+            q.Enqueue(() => { warpPending = warpToGroup = false; SysMessageBox.FocusOut = false; Select(null); });
             if (b == null || b.Length < 2564) return;
             int t = I(b, 2528) - (int)(BitConverter.ToUInt64(b, 2556) / 1000UL);
             q.Enqueue(() => { cooltime = t < 0 ? 0 : t; coolChk = Time.realtimeSinceStartup; });
@@ -53,12 +54,14 @@ namespace OpenFusion.World
             if (type == PacketIds.P_FE2CL_REP_PC_BUDDY_WARP_FAIL)
             {
                 long uid = b != null && b.Length >= 8 ? BitConverter.ToInt64(b, 0) : 0L; int err = b != null && b.Length >= 12 ? I(b, 8) : 0;
-                q.Enqueue(() => { SysMessageBox.FocusOut = false; Sfx.Ui("Action_Failure01"); warpToGroup = false; WarpFail(err, FindByUid(uid)); });
+                q.Enqueue(() => { if (!warpPending) return; warpPending = false; SysMessageBox.FocusOut = false; Sfx.Ui("Action_Failure01"); warpToGroup = false; WarpFail(err, FindByUid(uid)); });
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_BUDDY_WARP_SAME_SHARD_SUCC)
             {
                 q.Enqueue(() =>
                 {
+                    if (!warpPending) return;
+                    warpPending = false;
                     SysMessageBox.FocusOut = false;
                     if (warpToGroup) { warpToGroup = false; return; }
                     Send(ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_GROUP_LEAVE, 1));   // func_P_FE2CL_REP_PC_BUDDY_WARP_SAME_SHARD_SUCC: sale del grupo
@@ -66,7 +69,7 @@ namespace OpenFusion.World
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_BUDDY_WARP_OTHER_SHARD_SUCC)
             {
-                q.Enqueue(() => { SysMessageBox.FocusOut = false; warpToGroup = false; });
+                q.Enqueue(() => { SysMessageBox.FocusOut = false; warpToGroup = warpPending = false; });
             }
         }
 
@@ -103,6 +106,8 @@ namespace OpenFusion.World
         }
         void DoWarp(SocialMenu.Buddy b)
         {
+            if (b == null || b.Uid <= 0 || NpcUI.Sender == null || warpPending) return;
+            warpPending = true;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_BUDDY_WARP, 12); BitConverter.GetBytes(b.Uid).CopyTo(p, 4); p[12] = (byte)b.Slot; Send(p);
             cooltime = 60; coolChk = Time.realtimeSinceStartup;
             SysMessageBox.FocusOut = true; focusAt = Time.realtimeSinceStartup; Sfx.Ui("Buddy_Warp");
@@ -124,7 +129,7 @@ namespace OpenFusion.World
             Action a; int n = 0; while (n++ < 16 && q.TryDequeue(out a)) { try { a(); } catch (Exception ex) { Debug.LogWarning("[buddy] " + ex.Message); } }
             float now = Time.realtimeSinceStartup;
             if (cooltime > 0 && now - coolChk > 1f) { cooltime--; coolChk = now; }
-            if (SysMessageBox.FocusOut && now - focusAt > 10f) SysMessageBox.FocusOut = false;   // seguridad: sin respuesta del servidor
+            if (warpPending && now - focusAt > 10f) { warpPending = warpToGroup = false; SysMessageBox.FocusOut = false; }   // seguridad: sin respuesta del servidor
             var soc = SocialMenu.Instance;
             if (soc != null && Time.frameCount - lastDraw <= 2)
             {
@@ -150,12 +155,12 @@ namespace OpenFusion.World
             {
                 Skin.Box(BuddyRect, winSt, " " + Loc.T("BUDDY LIST"));
                 Skin.Box(ContentRect, contSt);
-                var cur = soc.BuddyAt(selSlot); if (cur != null && (cur.Uid == 0 || cur.Blocked)) { cur = null; selSlot = -1; }
+                var cur = soc.BuddyAt(selSlot); if (cur != null && (cur.Uid == 0 || cur.Blocked)) { cur = null; Select(null); }
                 bool has = cur != null;
                 if (Skin.Button(RemoveR, Loc.T("DELETE"), red, has && !pop)) DeleteClicked(cur);
                 bool canWarp = has && cur.State != 0 && OnFoot();
                 if (Skin.Button(WarpR, Loc.T("WARP"), blue, canWarp && !pop)) WarpClicked(cur);
-                Skin.Button(AddR, Loc.T("ADD"), blue, false);   // ADD (FIND_NAME_MAKE_BUDDY) pendiente de portar
+                if (Skin.Button(AddR, Loc.T("ADD"), blue, !pop && !SocialMenu.Active)) soc.OpenAddBuddy();
                 // lista
                 var lr = new Rect(ContentRect.x + 5f, ContentRect.y + 5f, ContentRect.width - 10f, ContentRect.height - 10f);
                 int count = 0; for (int i = 0; i < SocialMenu.BuddySlots; i++) { var x = soc.BuddyAt(i); if (x != null && x.Uid != 0 && !x.Blocked) count++; }

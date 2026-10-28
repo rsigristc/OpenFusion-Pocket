@@ -981,7 +981,7 @@ namespace OpenFusion.Screens
                 UiKit.Fill(cb, Color.black); UiKit.Outline(cb, CInput, 1.5f); if (remember) Lbl(cb, "X", 18, COk, TextAnchor.MiddleCenter, true);
                 Lbl(new Rect(x0 + 38f, y, 170f, 40f), "Remember Me", 16, CModalText);
                 if (Tap(new Rect(x0, y, 210f, 40f))) { remember = !remember; if (!remember) { rememberPassword = false; PocketPlatform.Forget(credentialIdentity); } }
-                if (PocketPlatform.Available) {
+                if (PocketPlatform.CredentialsAvailable) {
                     var saved = new Rect(x0 + 220f, y + 7f, 23f, 23f); UiKit.Outline(saved, CInput, 1.5f);
                     if (rememberPassword) Lbl(saved, "X", 16, COk, TextAnchor.MiddleCenter, true);
                     Lbl(new Rect(saved.xMax + 6f, y, 210f, 40f), "Save password (encrypted)", 13, CModalText);
@@ -1087,8 +1087,9 @@ namespace OpenFusion.Screens
             LblM(new Rect(x0, y, iw, 22f), "Android adaptation: Rodrigo Sigrist / rsigristc", 14, CModalText); y += 28f;
             LblM(new Rect(x0, y, iw, 22f), "©2020-2026 OpenFusion Contributors", 15, CModalText); y += 22f;
             LblM(new Rect(x0, y, iw, 22f), "OpenFusion is licensed under MIT.", 15, CModalText);
+            LblM(new Rect(x0, y + 26f, iw, 22f), "Export errors + device info. No account data. Nothing uploads automatically.", 12, CGray);
             float by = body.yMax - 48f;
-            if (Btn(new Rect(x0, by - 92f, iw, 38f), "Collect diagnostics / Share", Kind.Primary, true, 15)) CollectDiagnostics();
+            if (Btn(new Rect(x0, by - 92f, iw, 38f), "Export Logs (private diagnostics)", Kind.Primary, true, 15)) CollectDiagnostics();
             if (Btn(new Rect(x0, by - 46f, iw, 38f), "GitHub: rsigristc/OpenFusion-Pocket", Kind.Primary, true, 15, "github")) Application.OpenURL(PocketRelease.Repository);
             if (Btn(new Rect(x0, by, 170f, 38f), "Check for updates", Kind.Primary, true, 15)) OpenUpdates();
             if (Btn(new Rect(x0 + 178f, by, 56f, 38f), null, Kind.Primary, true, 18, "discord")) Application.OpenURL("https://discord.gg/DYavckB");

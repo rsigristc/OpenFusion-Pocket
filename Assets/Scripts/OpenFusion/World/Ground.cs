@@ -5,16 +5,58 @@ namespace OpenFusion.World
 {
     public static class Ground
     {
+        static readonly RaycastHit[] cameraHits = new RaycastHit[64], supportHits = new RaycastHit[64];
+        // Legacy EnvironmentCollision.HandleSurfaceSliding replaces horizontal
+        // input with the surface's downhill direction at 2 m/s, doubling gravity.
+        public static bool SlideVelocity(Vector3 feet, Transform actor, float slopeLimit, ref Vector3 velocity)
+        {
+            Vector3 normal = Vector3.up; float surface = float.NegativeInfinity;
+            if (CameraObstacle(feet + Vector3.up * .15f, Vector3.down, .4f, actor, ~((1 << 2) | (1 << 30)), out var hit))
+            { normal = hit.normal; surface = hit.point.y; }
+            foreach (var terrain in Terrain.activeTerrains)
+            {
+                if (terrain == null || terrain.terrainData == null) continue;
+                var origin = terrain.transform.position; var size = terrain.terrainData.size;
+                float x = (feet.x - origin.x) / size.x, z = (feet.z - origin.z) / size.z;
+                if (x < 0 || x > 1 || z < 0 || z > 1) continue;
+                float height = terrain.SampleHeight(feet) + origin.y;
+                if (height > surface && height <= feet.y + .15f && height >= feet.y - .25f)
+                { surface = height; normal = terrain.terrainData.GetInterpolatedNormal(x, z); }
+            }
+            if (surface == float.NegativeInfinity || normal.y <= .001f || Vector3.Angle(normal, Vector3.up) <= slopeLimit) return false;
+            var downhill = new Vector3(normal.x, 0, normal.z).normalized * 2f;
+            velocity = new Vector3(downhill.x, Mathf.Min(velocity.y, 0) * 2f, downhill.z);
+            return true;
+        }
+        public static bool CameraObstacle(Vector3 origin, Vector3 direction, float distance, Transform actor, int mask, out RaycastHit nearest)
+        {
+            nearest = default; bool found = false; float closest = distance;
+            int count = Physics.RaycastNonAlloc(origin, direction, cameraHits, distance, mask, QueryTriggerInteraction.Ignore);
+            var hits = count == cameraHits.Length ? Physics.RaycastAll(origin, direction, distance, mask, QueryTriggerInteraction.Ignore) : cameraHits;
+            if (hits != cameraHits) count = hits.Length;
+            for (int i = 0; i < count; i++)
+            {
+                var hit = hits[i];
+                if (hit.collider == null || hit.collider is CharacterController || hit.collider.GetComponentInParent<NpcInfo>() != null || hit.collider.GetComponentInParent<RemotePc>() != null ||
+                    actor != null && hit.transform.IsChildOf(actor) || hit.distance >= closest) continue;
+                closest = hit.distance; nearest = hit; found = true;
+            }
+            return found;
+        }
         /// A bounded, upward-facing physical support near the avatar's feet.
         /// Unlike Y(), exclude actors/triggers and choose the closest surface, not
         /// the highest roof. Useful when warp coordinates begin inside a platform.
         public static bool TrySupport(Vector3 feet, Transform actor, float rise, float drop, float slope, out float height)
         {
             height=feet.y;float nearest=float.PositiveInfinity;bool found=false;
-            var hits=Physics.RaycastAll(feet+Vector3.up*(rise+.02f),Vector3.down,rise+drop+.04f,~((1<<2)|(1<<30)),QueryTriggerInteraction.Ignore);
-            foreach(var hit in hits)
+            var origin=feet+Vector3.up*(rise+.02f); float length=rise+drop+.04f; int mask=~((1<<2)|(1<<30));
+            int count=Physics.RaycastNonAlloc(origin,Vector3.down,supportHits,length,mask,QueryTriggerInteraction.Ignore);
+            var hits=count==supportHits.Length?Physics.RaycastAll(origin,Vector3.down,length,mask,QueryTriggerInteraction.Ignore):supportHits;
+            if(hits!=supportHits)count=hits.Length;
+            for(int i=0;i<count;i++)
             {
-                if(hit.collider==null || hit.collider is CharacterController || actor!=null && (hit.transform==actor || hit.transform.IsChildOf(actor)))continue;
+                var hit=hits[i];
+                if(hit.collider==null || hit.collider is CharacterController || hit.collider.GetComponentInParent<NpcInfo>()!=null || hit.collider.GetComponentInParent<RemotePc>()!=null || actor!=null && (hit.transform==actor || hit.transform.IsChildOf(actor)))continue;
                 if(hit.normal.y<Mathf.Cos(slope*Mathf.Deg2Rad))continue;
                 float delta=hit.point.y-feet.y;if(delta>rise+.001f || delta < -drop-.001f)continue;
                 float distance=Mathf.Abs(delta);if(distance>=nearest)continue;

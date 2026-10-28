@@ -54,7 +54,14 @@ namespace OpenFusion.World
         public static void CloseWindow() { if (Current == Win.None) return; Current = Win.None; Sfx.Ui("Close_Screen"); }
 
         WorldEntities ents; PacketDispatcher disp; XdtTableScript tables; PcAppearance selfApp;
-        public static volatile bool Riding; volatile bool inGroup, riding; volatile int regenTeleX, regenTeleY, regenTeleZ; volatile bool regenPending;
+        public static volatile bool Riding; volatile bool riding; volatile float leaveRetry; volatile int regenTeleX, regenTeleY, regenTeleZ; volatile bool regenPending;
+        public bool CanLeaveGroup => GroupState.Size > 0;
+        public bool RequestLeaveGroup()
+        {
+            if (!CanLeaveGroup || NpcUI.Sender == null || Time.unscaledTime < leaveRetry) return false;
+            leaveRetry = Time.unscaledTime + 2f;
+            Net(ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_GROUP_LEAVE, 1)); return true;
+        }
         bool busyPrev; float warpT, warpCool; bool warping; Win pressedHud = Win.None;
         Texture2D tBox; bool texTried;
 
@@ -71,8 +78,7 @@ namespace OpenFusion.World
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
         void OnPacket(uint type, byte[] b)   // hilo de red
         {
-            if (type == PacketIds.P_FE2CL_PC_GROUP_JOIN_SUCC || type == PacketIds.P_FE2CL_PC_GROUP_JOIN) inGroup = true;
-            else if (type == PacketIds.P_FE2CL_PC_GROUP_LEAVE_SUCC) inGroup = false;
+            if (type == PacketIds.P_FE2CL_PC_GROUP_LEAVE_SUCC || type == PacketIds.P_FE2CL_PC_GROUP_LEAVE_FAIL) leaveRetry = 0;
             else if (type == PacketIds.P_FE2CL_PC_VEHICLE_ON_SUCC) { riding = true; Riding = true; }
             else if (type == PacketIds.P_FE2CL_PC_VEHICLE_OFF_SUCC) { riding = false; Riding = false; }
             else if (type == PacketIds.P_FE2CL_REP_PC_REGEN_SUCC && b != null && b.Length >= 48) {
@@ -103,7 +109,7 @@ namespace OpenFusion.World
                 else if (Open) SetOpen(false);
                 else SetOpen(true);
             }
-            if (!busyPrev && !ChatHud.Typing && !NpcUI.Active && !WelcomePopup.Active && !EmailWindow.Typing && !InventoryWindow.Busy && !InventoryWindow.Typing && !ControlMap.Capturing)
+            if (!busyPrev && !SocialMenu.Active && !ChatHud.Typing && !NpcUI.Active && !WelcomePopup.Active && !EmailWindow.Typing && !InventoryWindow.Busy && !InventoryWindow.Typing && !ControlMap.Capturing)
             {   // teclas de ventana (ConfigurableInput: Inventory/Journal/QEmailBox/WorldMap/Help/Option)
                 Hotkey(ControlMap.K.Inventory, Win.MyStuff); Hotkey(ControlMap.K.Journal, Win.Journal); Hotkey(ControlMap.K.QEmailBox, Win.EMail);
                 Hotkey(ControlMap.K.WorldMap, Win.Map); Hotkey(ControlMap.K.Help, Win.Guide); Hotkey(ControlMap.K.Option, Win.Settings);
@@ -209,7 +215,7 @@ namespace OpenFusion.World
             Skin.Box(new Rect(0f, 1f, 170f, 127f), box);
             bool ready = Slide <= 0f && Open && !TutorialTraining.Active;
             bool cool = warpCool > 0f || warping;
-            if (Skin.Button(new Rect(10f, 22f, 155f, 25f), "LEAVE GROUP", red, ready && inGroup, true)) { Sfx.Button(); Net(ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_GROUP_LEAVE, 1)); inGroup = false; }
+            if (Skin.Button(new Rect(10f, 22f, 155f, 25f), "LEAVE GROUP", red, ready && CanLeaveGroup, true)) { Sfx.Button(); RequestLeaveGroup(); }
             if (Skin.Button(new Rect(10f, 52f, 155f, 25f), "WARP AWAY", red, ready && !cool, true)) { Sfx.Button(); warping = true; warpT = RaceSystem.InsMap ? 20f : 10f; }
             bool hasVeh = selfApp != null && selfApp.Equip != null && selfApp.Equip.Length > 8 && selfApp.Equip[8].Id > 0;
             if (Skin.Button(new Rect(10f, 82f, 155f, 25f), riding ? "HOP OFF VEHICLE" : "HOP ON VEHICLE", blue, ready && hasVeh && !RaceSystem.InsMap, true))

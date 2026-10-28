@@ -78,6 +78,18 @@ namespace OpenFusion.World
             var go = Terrain.CreateTerrainGameObject(td); go.name = t.Name;
             var owned = go.AddComponent<OwnedWorldResources>();
             owned.Track(td); foreach (var layer in layers) owned.Track(layer);
+            Texture2D legacyLightmap = t.Lightmap.PathId != 0 ? resolveTexture(t.Lightmap) : null;
+            bool bakedLighting = false;
+            if (terrainMaterial == null && LightmapOverlay && legacyLightmap != null)
+            {
+                var shader = Shader.Find("OpenFusion/TerrainBaked");
+                if (shader == null) throw new InvalidOperationException("Original baked terrain shader is missing.");
+                terrainMaterial = new Material(shader) { name = "OF_Terrain_Baked", enableInstancing = true };
+                terrainMaterial.EnableKeyword("_TERRAIN_INSTANCED_PERPIXEL_NORMAL");
+                legacyLightmap.wrapMode = TextureWrapMode.Clamp; legacyLightmap.filterMode = FilterMode.Bilinear;
+                terrainMaterial.SetTexture("_LegacyLightmap", legacyLightmap);
+                owned.Track(terrainMaterial); bakedLighting = true;
+            }
             if (terrainMaterial != null) go.GetComponent<Terrain>().materialTemplate = terrainMaterial;
             else
             {
@@ -88,7 +100,7 @@ namespace OpenFusion.World
             }
             var tc = go.GetComponent<Terrain>(); tc.detailObjectDistance = GrassField.Custom && grass != null ? 0f : 80f; tc.detailObjectDensity = 1f; tc.heightmapPixelError = 1f; tc.basemapDistance = 1500f; tc.drawInstanced = true;   tc.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;   // sin reflejo del cielo/sol (disco blanco con el Sun direccional)   // gráficos al máximo como el cliente original configurado al máximo
             if (grass != null && GrassField.Custom) go.AddComponent<GrassField>().Init(go, td, grass);
-            if (LightmapOverlay && t.Lightmap.PathId != 0) { try { var lm = resolveTexture(t.Lightmap); if (lm != null) AddLightmapOverlay(go, td, lm); else Debug.LogWarning("[lightmap] " + t.Name + ": textura no resuelta"); } catch (Exception ex) { Debug.LogWarning("[lightmap] " + ex.Message); } }
+            if (LightmapOverlay && !bakedLighting && t.Lightmap.PathId != 0) { try { var lm = resolveTexture(t.Lightmap); if (lm != null) AddLightmapOverlay(go, td, lm); else Debug.LogWarning("[lightmap] " + t.Name + ": textura no resuelta"); } catch (Exception ex) { Debug.LogWarning("[lightmap] " + ex.Message); } }
             return go;
         }
 

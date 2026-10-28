@@ -35,3 +35,7 @@ Version 2.0 uses Android build code **4** and retains the package/signing identi
 ## v2.1
 
 Version 2.1 uses Android build code **5** and retains the package/signing identity. It includes the mission, teleport, NPC-model recovery and Nano acquisition changes described in [the bilingual release notes](releases/v2.1.md), including the remaining live initial-power acknowledgement check. Normal release builds exclude the `POCKET_INPUT_PREVIEW` diagnostic replay hook. The APK, update manifest and checksums are published together; the release body supplies the in-app changelog.
+
+## v3.0
+
+Version 3.0 uses Android build code **6**, preserving the package and signing identity. The Android release excludes diagnostic replay defines and includes private Export Logs, movement/lighting/DS fixes and community-report corrections described in [the bilingual release notes](releases/v3.0.md). The APK, update manifest and checksums are published together. Install over the existing app to retain data and cached resources.

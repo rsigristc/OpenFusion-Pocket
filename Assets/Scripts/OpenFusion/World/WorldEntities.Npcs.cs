@@ -13,6 +13,8 @@ namespace OpenFusion.World
     {
         readonly Dictionary<int,float> missingNpcVisuals=new Dictionary<int,float>();
         float nextNpcRepair;
+        public static bool IsEffectOnlyNpcVisual(GameObject visual, int type)
+        { return visual != null && (type == 17 || type >= 100) && visual.GetComponentInChildren<Animation>(true) != null; }
         GameObject BuildNpcVisual(GameObject holder,ModelRef model,int type)
         {
             GameObject visual=null;
@@ -21,7 +23,9 @@ namespace OpenFusion.World
             else if(models!=null)visual=models.Instantiate(model,holder.transform);
             if(visual==null)return null;
             ActivateAll(visual);
-            if(!HasNpcGeometry(visual)){ReleaseNpcVisual(visual);return null;}
+            // RXCOM and invisible object NPCs are animated anchors for service FX,
+            // not failed character meshes. A capsule would replace a valid prefab.
+            if(!HasNpcGeometry(visual) && !IsEffectOnlyNpcVisual(visual,model.NpcType)){ReleaseNpcVisual(visual);return null;}
             HideIfLocation(visual);visual.transform.localPosition=Vector3.zero;visual.transform.localRotation=Quaternion.identity;
             var row=NpcRow(type);string[] paths=null;
             if(row!=null && row.m_iHNpc!=0 && row.m_iMesh>0 && NpcTable?.m_pNpcMeshData!=null && row.m_iMesh<NpcTable.m_pNpcMeshData.Length)

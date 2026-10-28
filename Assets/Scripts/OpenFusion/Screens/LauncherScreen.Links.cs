@@ -38,15 +38,15 @@ namespace OpenFusion.Screens
             try
             {
                 string report = PocketDiagnostics.Report();
-                if (PocketPlatform.Available) PocketPlatform.ShareDiagnostics(report);
+                if (PocketPlatform.CanShareDiagnostics) PocketPlatform.ShareDiagnostics(report);
                 else
                 {
-                    string path = System.IO.Path.Combine(Application.persistentDataPath, "Pocket-diagnostics.txt");
+                    string path = System.IO.Path.Combine(Application.persistentDataPath, "OpenFusion-Pocket-Logs.txt");
                     System.IO.File.WriteAllText(path, report);
                     Toast("success", "Diagnostics saved: " + path);
                 }
             }
-            catch (Exception) { Toast("error", "Could not prepare diagnostics."); }
+            catch (Exception) { Toast("error", "Could not export logs. Please try again."); }
         }
     }
 }

@@ -22,6 +22,9 @@ namespace OpenFusion.World
         readonly Dictionary<string, Texture2D> tex = new Dictionary<string, Texture2D>();
         public Func<string, Texture> IconProvider;
         BitmapFont font; bool fontTried;
+        bool inventoryFull; float inventoryFullAt;
+        public static bool InventoryIsFull(ItemBase[] items)
+        { if (items == null || items.Length != 50) return false; foreach (var item in items) if (item.Id <= 0) return false; return true; }
 
         public static RewardHud Ensure(GameObject host) { if (Instance != null) return Instance; Instance = host.GetComponent<RewardHud>(); if (Instance == null) Instance = host.AddComponent<RewardHud>(); return Instance; }
 
@@ -106,6 +109,9 @@ namespace OpenFusion.World
         void Update()
         {
             Action a; while (q.TryDequeue(out a)) a();
+            bool full = hud != null && hud.Data.Hp > 0 && InventoryIsFull(InventoryWindow.Items);
+            if (full && !inventoryFull) inventoryFullAt = Time.time;
+            inventoryFull = full;
             Tick(crate, false); Tick(boost, false); Tick(potion, false); Tick(shiny, false);
             bool ch = false;
             if (Time.time - lastUp > 0.1f)
@@ -154,12 +160,24 @@ namespace OpenFusion.World
         {
             if (GameMenu.HudHidden) return;
             if (Event.current == null || Event.current.type != EventType.Repaint || Screen.height <= 0) return;
-            if (crate.Count + boost.Count + potion.Count + shiny.Count == 0 && curFm == tgtFm && curTaros == tgtTaros && fmTimer <= 0f && tarosTimer <= 0f) return;
+            if (!inventoryFull && crate.Count + boost.Count + potion.Count + shiny.Count == 0 && curFm == tgtFm && curTaros == tgtTaros && fmTimer <= 0f && tarosTimer <= 0f) return;
             if (!fontTried) { fontTried = true; font = BitmapFontLoader.Load("JEFFE___14__903"); }
             S = GameOptions.UiScale; Cx = Screen.width * 0.5f; H = Screen.height; int od = GUI.depth; GUI.depth = 12;
             // Retrobution: pociones y boosts suben junto a sus contadores (abajo a la derecha); caja y huevo al centro como en el cliente 2.5
             float W = Screen.width; Func<float, float> RightX = o => Cx + (W - o * S - Cx) / S;   // o = distancia al borde derecho en unidades de diseno
             Bounce(crate, T("crate"), Cx - 150f - 75f, 0);
+            if (inventoryFull && crate.Count == 0)
+            {
+                var frame = T("crate"); var fullIcon = T("full_inven");
+                if (frame != null && fullIcon != null)
+                {
+                    float f = Mathf.Clamp01(1 - (Time.time - inventoryFullAt) / IconTime), k = 2 - f;
+                    float y = H - 170 + Mathf.Abs(Mathf.Sin(Mathf.PI * .5f + Mathf.PI * k * k * k)) * f * f * 170;
+                    float x = Cx - 225;
+                    GUI.DrawTexture(R(x, y, frame.width, frame.height), frame, ScaleMode.StretchToFill, true);
+                    GUI.DrawTexture(R(x + (frame.width - fullIcon.width) * .5f - 5, y + (frame.height - fullIcon.height) * .5f + 15, fullIcon.width, fullIcon.height), fullIcon, ScaleMode.StretchToFill, true);
+                }
+            }
             Bounce(potion, T("potion__548"), RightX(448f + 60f + 130f), 1);
             Bounce(boost, T("boost"), RightX(448f + 60f), 2);
             { var sb = T("shiny_back"); if (sb != null) Bounce(shiny, sb, Cx - sb.width * 0.5f, 3); }

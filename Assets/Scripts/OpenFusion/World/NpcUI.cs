@@ -68,6 +68,7 @@ namespace OpenFusion.World
         void Begin(NpcInfo i, bool greet = true)
         {
             if (TutorialTraining.TryInteract(i)) return;
+            Restore();
             Debug.Log("[npcui] abrir diálogo con " + i.Name + " tipo " + i.Type + " id " + i.Id + " team " + i.Team + " npc# " + i.NpcNumber); talking = i; note = null; hidden.Clear();
             if (ents.Self != null) foreach (var r in ents.Self.GetComponentsInChildren<Renderer>()) if (r.enabled) { hidden.Add(r); r.enabled = false; }
             fadeAt = Time.unscaledTime;   // SetCameraAngle -> eFadeType.In
@@ -213,7 +214,7 @@ namespace OpenFusion.World
             }
             else if (whiteHold && ((ents != null && ents.LastWarpFail != 0) || Time.unscaledTime - whiteStart > 5f)) { whiteHold = false; whiteAt = Time.unscaledTime; }
         }
-        void OnTeleported(int x, int y, int z) { if (!whiteHold) return; whiteHold = false; whiteAt = Time.unscaledTime; }
+        void OnTeleported(int x, int y, int z) { End(false); if (!whiteHold) return; whiteHold = false; whiteAt = Time.unscaledTime; }
 
         float errAt;
         void Err(string where, System.Exception e) { if (Time.time - errAt > 2f) { errAt = Time.time; Debug.LogError("[npcui] " + where + ": " + e); } }
@@ -242,6 +243,9 @@ namespace OpenFusion.World
         void Tick()
         {
             Watchdog.At("NpcUI.Tick");
+            // A streamed-out NPC compares equal to null in Unity. Release only
+            // the renderers this dialogue hid, even when its owner was destroyed.
+            if (talking == null && hidden.Count > 0) Restore();
             var self = ents != null ? ents.Self : null; if (self == null) { near = null; return; }
             TickWarp(); UpdateMarkers(self.transform);
             if (talking != null)
@@ -400,6 +404,12 @@ namespace OpenFusion.World
             var tex = PortraitAny(n); if (tex != null) GUI.DrawTexture(R(5, -3, 64, 64), tex, ScaleMode.StretchToFill, true);
             if (eff != null) GUI.DrawTexture(R(6, -13, 58, 72), eff, ScaleMode.StretchToFill, true);
             var ic = U(new[] { "a_icon", "b_icon", "c_icon" }[st]); if (ic != null) GUI.DrawTexture(R(25, 55, 21, 21), ic, ScaleMode.ScaleToFit, true);
+            var player = GetComponent<PlayerHud>(); var wheel = GetComponent<NanoWheelHud>();
+            if (player != null && player.Data.HasActiveNano)
+            {
+                var nano = wheel?.NanoRow(player.Data.NanoSlots[player.Data.ActiveNanoSlot]);
+                if (nano != null) { var relation = U(NanoRelationTexture(st, nano.m_iStyle)); if (relation != null) GUI.DrawTexture(R(0, 0, relation.width, relation.height), relation, ScaleMode.StretchToFill, true); }
+            }
             float v = Mathf.Clamp01(n.Hp / (float)Mathf.Max(1, n.MaxHp));
             if (shownId != n.Id) { shownId = n.Id; shownHp = v; } else if (shownHp > v) shownHp = Mathf.MoveTowards(shownHp, v, Time.deltaTime * 0.6f); else shownHp = v;
             var bar = U("HP_BAR"); var r = R(58, 22, 199, 4); var oc = GUI.color;
@@ -411,6 +421,8 @@ namespace OpenFusion.World
             Txt(fChalet, new Rect(gx + 90f, gy + 23f, 60f, 20f), n.Level.ToString("00"), TextAnchor.MiddleLeft, false, HudLabelCol, null, xf);
             GUI.EndGroup();
         }
+        public static string NanoRelationTexture(int mobStyle, int nanoStyle)
+        { return mobStyle == nanoStyle ? "nano_draw" : mobStyle - nanoStyle == 1 || mobStyle - nanoStyle == -2 ? "nano_win" : "nano_lose"; }
         void TargetPanel(NpcInfo n, float s)
         {
             float k = s * 1.5f; float gx = Screen.width / 2f - 255f * k / 2f, gy = 5f * k;

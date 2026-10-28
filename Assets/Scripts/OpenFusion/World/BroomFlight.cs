@@ -1,5 +1,5 @@
 // Vuelo en escoba/Monkey (eTT 2). Original: cnOwnAvatarStatus/Broomstick: REP_PC_RIDING_SUCC {iPC_ID, eRT}, PC_RIDING {iPC_ID, eRT}, PC_BROOMSTICK_MOVE {iPC_ID, iToX, iToY, iToZ, iSpeed}.
-// Sin compilar. Falta el modelo de la escoba y la animación de montar (se vuela en la pose normal).
+// Original Monkey attachment, embedded animation and mount poses; movement follows server waypoints.
 using System;
 using System.Collections.Concurrent;
 using UnityEngine;
@@ -16,9 +16,13 @@ namespace OpenFusion.World
         public Func<ModelFactory> GetModels;
         readonly System.Collections.Generic.Dictionary<int, GameObject> brooms = new System.Collections.Generic.Dictionary<int, GameObject>(); readonly System.Collections.Generic.Dictionary<int, float> retry = new System.Collections.Generic.Dictionary<int, float>();
         readonly System.Collections.Generic.HashSet<int> mounted = new System.Collections.Generic.HashSet<int>();
+        readonly System.Collections.Generic.Dictionary<int,string> mountClips = new System.Collections.Generic.Dictionary<int,string>();
         static Transform FindDeep(Transform root, string name) { if (root.name == name) return root; for (int i = 0; i < root.childCount; i++) { var f = FindDeep(root.GetChild(i), name); if (f != null) return f; } return null; }
         void SetMounted(int id, bool on)
         {
+            var tr = ents?.TransformOfPlayer(id); var animator = tr != null ? tr.GetComponent<NpcAnimator>() : null;
+            if (animator != null) animator.External = on;
+            if (!on) mountClips.Remove(id);
             if (on) mounted.Add(id); else { mounted.Remove(id); GameObject g; if (brooms.TryGetValue(id, out g)) { if (g != null) Destroy(g); brooms.Remove(id); } retry.Remove(id); }
         }
         /// LoadBroomMonkey: wear/item_broom_01.nif en el hueso "Bip01 Broomstick" (rotado 90 en X) y animacion mount1/mount2 del jugador.
@@ -29,27 +33,42 @@ namespace OpenFusion.World
             {
                 var tr = ents.TransformOfPlayer(id); if (tr == null) continue;
                 var an = tr.GetComponentInChildren<Animation>(true);
-                if (an != null) { string clip = an["mount1"] != null ? "mount1" : null; if (clip != null && !an.IsPlaying(clip)) { an[clip].wrapMode = WrapMode.Loop; an.CrossFade(clip, 0.3f); } }
+                if (an != null)
+                {
+                    var animator = tr.GetComponent<NpcAnimator>(); if (animator != null) animator.External = true;
+                    mountClips.TryGetValue(id, out var current);
+                    if (current == null || an[current] == null || !an.IsPlaying(current) || an[current].normalizedTime >= 1)
+                    {
+                        string clip = current != null && an["mount2"] != null && UnityEngine.Random.Range(0,2)==1 ? "mount2" : an["mount1"] != null ? "mount1" : null;
+                        if (clip != null) { an[clip].wrapMode = WrapMode.Once; an[clip].time = 0; an.CrossFade(clip,.3f); mountClips[id] = clip; }
+                    }
+                }
                 GameObject g; brooms.TryGetValue(id, out g); if (g != null) continue;
                 float nr; if (retry.TryGetValue(id, out nr) && Time.unscaledTime < nr) continue; retry[id] = Time.unscaledTime + 2f;
                 try
                 {
                     var mf = GetModels != null ? GetModels() : null; if (mf == null) continue; var rf = mf.Locate("wear/item_broom_01.nif"); if (!rf.Ok) continue;
-                    var go = mf.Builder.BuildPrefabAt(rf, null); if (go == null) continue; go.SetActive(true);
+                    var go = mf.Builder.BuildPrefabAt(rf, null); if (go == null) continue; WorldEntities.ActivateAll(go);
                     var bone = FindDeep(tr, "Bip01 Broomstick"); go.transform.SetParent(bone != null ? bone : tr, false);
                     go.transform.localPosition = Vector3.zero; go.transform.localRotation = bone != null ? Quaternion.Euler(90f, 0f, 0f) : Quaternion.identity; go.transform.localScale = Vector3.one;
+                    // Legacy instantiates at world scale before parenting. The
+                    // actual Broomstick bone is scaled to .36, so local scale 1
+                    // shrank the Monkey into the rider. Maintain world scale
+                    // after animated bone transforms, just as for hoverboards.
+                    if (bone != null) go.AddComponent<VehicleWorldScale>().ApplyScale();
                     foreach (var t in go.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = tr.gameObject.layer;
                     foreach (var rd in go.GetComponentsInChildren<Renderer>(true)) rd.enabled = true;
-                    foreach (var a2 in go.GetComponentsInChildren<Animation>(true)) { a2.cullingType = AnimationCullingType.AlwaysAnimate; foreach (AnimationState st in a2) st.wrapMode = WrapMode.Loop; a2.Play(); }
-                    brooms[id] = go; Debug.Log("[monkey] modelo montado en " + (bone != null ? bone.name : "raiz") + " (jugador " + id + ")");
+                    foreach (var a2 in go.GetComponentsInChildren<Animation>(true)) { a2.cullingType = AnimationCullingType.AlwaysAnimate; string first = null; foreach (AnimationState st in a2) { st.wrapMode = WrapMode.Loop; if(first==null)first=st.name; } if(first!=null)a2.Play(first); }
+                    brooms[id] = go; Debug.Log("[monkey] modelo montado en " + (bone != null ? bone.name : "raiz") + " scale=" + go.transform.lossyScale + " renderers=" + go.GetComponentsInChildren<Renderer>(true).Length);
                 }
                 catch (Exception ex) { Debug.LogWarning("[monkey] " + ex.Message); }
             }
         }
 
         public static BroomFlight Ensure(GameObject host) { var b = host.GetComponent<BroomFlight>(); if (b == null) b = host.AddComponent<BroomFlight>(); return b; }
-        public void Init(WorldEntities e, PacketDispatcher d) { ents = e; disp = d; if (disp != null) disp.Unhandled += OnPacket; }
-        void OnDestroy() { if (disp != null) disp.Unhandled -= OnPacket; Active = false; }
+        void ClearMounts() { foreach(int id in new System.Collections.Generic.List<int>(mounted))SetMounted(id,false); retry.Clear(); mountClips.Clear(); while(queue.TryDequeue(out _)){} Active=false; moving=false; }
+        public void Init(WorldEntities e, PacketDispatcher d) { if(disp!=null)disp.Unhandled-=OnPacket; ClearMounts(); ents = e; disp = d; if (disp != null) disp.Unhandled += OnPacket; }
+        void OnDestroy() { if (disp != null) disp.Unhandled -= OnPacket; ClearMounts(); }
         static int I(byte[] b, int o) => b.Length >= o + 4 ? BitConverter.ToInt32(b, o) : 0;
         void OnPacket(uint type, byte[] b)
         {

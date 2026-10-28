@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.openfusion.dualscreen">
     <application>
         <activity android:name="com.unity3d.player.UnityPlayerActivity" android:resizeableActivity="true" />
+        <provider android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.diagnostics" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/pocket_diagnostics_paths" />
+        </provider>
     </application>
 </manifest>

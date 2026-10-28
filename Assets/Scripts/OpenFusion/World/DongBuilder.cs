@@ -163,6 +163,7 @@ namespace OpenFusion.World
         void AddPrimitiveCollider(string file, string type, long pathId, GameObject go)
         {
             var v = store.Read(store.Resolve(file, 0, pathId)); if (v.ContainsKey("m_IsTrigger") && D.I(v["m_IsTrigger"]) != 0) return;
+            if (v.ContainsKey("m_Enabled") && D.I(v["m_Enabled"]) == 0) return;
             var c = v.ContainsKey("m_Center") ? D.V3(v["m_Center"]) : new float[3]; var ctr = new Vector3(c[0], c[1], c[2]);
             if (type == "BoxCollider") { var sz = D.V3(v["m_Size"]); var b = go.AddComponent<BoxCollider>(); b.center = ctr; b.size = new Vector3(sz[0], sz[1], sz[2]); }
             else if (type == "SphereCollider") { var sc = go.AddComponent<SphereCollider>(); sc.center = ctr; sc.radius = D.F(v["m_Radius"]); }
@@ -198,13 +199,13 @@ namespace OpenFusion.World
                             var mr = go.AddComponent<MeshRenderer>(); var mats = n.Materials.Select(p => MaterialOf(sceneFileName, p)).ToArray();
                             for (int i = 0; i < mats.Length; i++) if (mats[i] == null) mats[i] = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
                             mr.sharedMaterials = mats;
-                            if (n.ColliderMesh.PathId == 0 && HasTriangles(mesh) && mats.Length > 0 && mats.All(m => m != null && m.name.StartsWith("collision_", StringComparison.OrdinalIgnoreCase))) { go.AddComponent<MeshCollider>().sharedMesh = mesh; primColliders++; }   // geometría de colisión del original: malla con material collision_*
+                            if (n.ColliderMesh.PathId == 0 && !n.ComponentTypes.Any(type => type != null && type.EndsWith("Collider", StringComparison.Ordinal)) && HasTriangles(mesh) && mats.Length > 0 && mats.All(m => m != null && m.name.StartsWith("collision_", StringComparison.OrdinalIgnoreCase))) { go.AddComponent<MeshCollider>().sharedMesh = mesh; primColliders++; } // Only synthesize legacy collision geometry when no explicit collider was serialized.
                             bool allHidden = mats.Length > 0 && mats.All(m => m != null && ((HideCollisionVolumes && m.name.StartsWith("collision_", StringComparison.OrdinalIgnoreCase)) || (HideIndoorRoofs && m.name.StartsWith("indun_roof", StringComparison.OrdinalIgnoreCase))));
                             if (allHidden) mr.enabled = false;
                         }
                     }
                 }
-                if (n.ColliderMesh.PathId != 0) { var cm = MeshOf(sceneFileName, n.ColliderMesh); if (cm != null && HasTriangles(cm)) { go.AddComponent<MeshCollider>().sharedMesh = cm; meshColliders++; } }
+                if (n.ColliderMesh.PathId != 0 && n.ColliderEnabled && !n.ColliderTrigger) { var cm = MeshOf(sceneFileName, n.ColliderMesh); if (cm != null && HasTriangles(cm)) { var collider = go.AddComponent<MeshCollider>(); collider.sharedMesh = cm; collider.convex = n.ColliderConvex; meshColliders++; } }
                 foreach (var pc in n.Components) { if (pc.Key != "BoxCollider" && pc.Key != "SphereCollider" && pc.Key != "CapsuleCollider") continue; try { AddPrimitiveCollider(sceneFileName, pc.Key, pc.Value, go); } catch (Exception ex) { UnityEngine.Debug.LogWarning("[dong] collider " + pc.Key + ": " + ex.Message); } }
                 WaterSurface.TryRegister(go);   // ffWater / OpenFusion/Water: colisionador de agua en la capa 2 (ver WaterSurface.cs); sustituye al MeshCollider propio del nodo
                 foreach (var c in n.Components.Where(c => c.Key == "MonoBehaviour")) ApplyScript(sceneFileName, c.Value, n, go, res);

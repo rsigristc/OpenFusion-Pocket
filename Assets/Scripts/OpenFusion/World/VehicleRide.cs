@@ -31,6 +31,8 @@ namespace OpenFusion.World
     public sealed class VehicleWorldScale : MonoBehaviour
     {
         void LateUpdate()
+        { ApplyScale(); }
+        public void ApplyScale()
         {
             var p = transform.parent; if (p == null) return; var ps = p.lossyScale;
             if (Mathf.Abs(ps.x) < 1e-4f || Mathf.Abs(ps.y) < 1e-4f || Mathf.Abs(ps.z) < 1e-4f) return;
