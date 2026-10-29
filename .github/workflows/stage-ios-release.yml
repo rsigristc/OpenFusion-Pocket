@@ -1,0 +1,41 @@
+name: Stage verified iOS release asset
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true
+        type: string
+      artifact_url:
+        description: Short-lived download URL for the IPA-only build artifact
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Verify destination is a draft and read manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          [[ "$TAG" =~ ^ios-v[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]
+          test "$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+          mkdir -p work
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern update-ios.json --dir work
+      - name: Fetch and verify intended public IPA
+        env:
+          ARTIFACT_URL: ${{ inputs.artifact_url }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: python3 tools/stage-ios-asset.py
+      - name: Upload IPA to existing draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: gh release upload "$TAG" work/*.ipa --repo "$GITHUB_REPOSITORY" --clobber
