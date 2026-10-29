@@ -30,6 +30,29 @@ namespace OpenFusion.World
         readonly List<Pop> pops = new List<Pop>();
         readonly List<NpcInfo> view = new List<NpcInfo>(), atk = new List<NpcInfo>();
 
+        // Shared by gamepad, touch HUD and the native DS companion. Never simulate a key.
+        public bool ActivateBoost(bool nano)
+        {
+            var data = GetComponent<PlayerHud>()?.Data;
+            if (!Enabled || gc == null || !gc.WorldConnected || ents == null || ents.SelfId == 0 || data == null ||
+                data.Hp <= 0 || PlayerLife.Active || ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking ||
+                TutorialTraining.Active || NpcUI.Sender == null || Time.unscaledTime < nextBoostInput) return false;
+            if (nano)
+            {
+                if (data.BatteryNano <= 0 || !data.HasActiveNano) return false;
+                NpcUI.Sender(ClientPackets.ChargeNano(ents.SelfId));
+            }
+            else
+            {
+                if (data.BatteryWpn <= 0) return false;
+                NpcUI.Sender(ClientPackets.ToggleWeaponBoost(ents.SelfId));
+                data.UseWeaponBattery = !data.UseWeaponBattery;
+                Sfx.Ui("Tab_Click01");
+            }
+            nextBoostInput = Time.unscaledTime + .3f;
+            return true;
+        }
+
         public void Init(WorldEntities e, PacketDispatcher d, XdtTableScript t, ModelFactory models = null, PlayerAvatarFactory av = null)
         {
             avatars = av; { rockets = GetComponent<RocketSystem>(); if (rockets == null) rockets = gameObject.AddComponent<RocketSystem>(); rockets.Init(e, d, t, GetComponent<PlayerHud>()); }
@@ -352,15 +375,9 @@ namespace OpenFusion.World
             if (atk.Count > maxTargets) atk.RemoveRange(maxTargets, atk.Count - maxTargets);
             NpcUI.MobTarget = atk.Count > 0 ? atk[0] : (view.Count > 0 ? view[0] : null);
             bool blocked = PlayerLife.Active || GetComponent<PlayerHud>()?.Data.Hp <= 0 || ChatHud.Typing || NpcUI.Active || WelcomePopup.Active || GameMenu.Blocking;
-            bool pointerOverUi = ChatHud.MouseOver || MenuChatPanel.MouseOver || GameMenu.MouseOverHud || FirstUse.MouseOver;
-            if (!blocked && NpcUI.Sender != null && Time.unscaledTime >= nextBoostInput)
-            {
-                var hud = GetComponent<PlayerHud>(); var data = hud != null ? hud.Data : null;
-                if (data != null && data.BatteryWpn > 0 && ControlMap.Down(ControlMap.K.WpnCharge, false))
-                { data.UseWeaponBattery = !data.UseWeaponBattery; NpcUI.Sender(ClientPackets.ToggleWeaponBoost(ents.SelfId)); nextBoostInput = Time.unscaledTime + .3f; Sfx.Ui("Tab_Click01"); }
-                else if (data != null && data.BatteryNano > 0 && data.ActiveNanoSlot >= 0 && ControlMap.Down(ControlMap.K.NanoCharge, false))
-                { NpcUI.Sender(ClientPackets.ChargeNano(ents.SelfId)); nextBoostInput = Time.unscaledTime + .3f; }
-            }
+            bool pointerOverUi = GetComponent<PlayerHud>()?.HitBoost(new Vector2(Input.mousePosition.x, Screen.height-Input.mousePosition.y), out _) == true || ChatHud.MouseOver || MenuChatPanel.MouseOver || GameMenu.MouseOverHud || FirstUse.MouseOver;
+            if (ControlMap.Down(ControlMap.K.WpnCharge, false)) ActivateBoost(false);
+            else if (ControlMap.Down(ControlMap.K.NanoCharge, false)) ActivateBoost(true);
             if (!blocked && !VehicleRide.SelfRiding && ControlMap.Down(ControlMap.K.WpnChange, false)) SwitchWeapon();   // WeaponChange: iVehicle > 0 -> no
             if (gc != null && NpcUI.Sender != null && ents.SelfId != 0) { bool c = Time.time < gc.CombatUntil; if (c != inCombat) { inCombat = c; NpcUI.Sender(c ? ClientPackets.CombatBegin(ents.SelfId) : ClientPackets.CombatEnd(ents.SelfId)); } }
             bool mouseHeld = Input.touchCount == 0 && !TouchControls.Active && (Input.GetMouseButton(0) || ControlMap.HeldPointer(ControlMap.K.Fire1));

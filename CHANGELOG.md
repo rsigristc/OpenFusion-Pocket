@@ -1,5 +1,67 @@
 # Changelog
 
+# OpenFusion:Pocket — Android v3.1
+
+## Español — Cambios desde v3.0
+
+- Corregido **Warp to the Past** después de elegir un guía, incluida la recuperación del viaje si el guía ya quedó guardado.
+- Los **Nanos agotados** se retiran y recargan sin permanecer activos ni mostrar energía negativa.
+- Al asignar el primer poder de un Nano nuevo, se solicita equiparlo en el primer slot libre, siguiendo las confirmaciones del servidor y el comportamiento de Legacy.
+- **Accesos de boost:** toca los contadores Nano Boost / Attack Boost en el HUD o DS Companion. Un borde amarillo indica Attack Boost activo.
+- **Zoom táctil con pellizco** sobre el mundo, con seguimiento estable de dedos y sin interferir con ataque o joystick.
+- Menos asignaciones temporales al leer assets Legacy. Canales de actualización separados para Android e iOS.
+
+Instala **OpenFusion-Pocket-v3.1.apk** encima de tu versión actual para conservar datos y caché. Android 6.0+, ARMv7/ARM64; versión 3.1 / build 7.
+
+Los ajustes de viaje al pasado, agotamiento/auto-equipo de Nanos y accesos de boost/pellizco fueron confirmados por el usuario en AynThor durante las pruebas previas. No se afirma equivalencia completa con Legacy ni cobertura de todas las misiones/dispositivos.
+
+## English — Changes since v3.0
+
+- Fixed **Warp to the Past** after choosing a guide, including recovery when the guide choice was already saved.
+- **Exhausted Nanos** withdraw and recharge without staying active or displaying negative energy.
+- After a new Nano's first power is confirmed, it is requested into the first empty equipment slot, following server acknowledgements and Legacy behavior.
+- **Boost shortcuts:** tap Nano Boost / Attack Boost counters in the HUD or DS Companion. A yellow outline indicates active Attack Boost.
+- **Pinch camera zoom** over the world, with stable finger tracking and no interference with attack or joystick input.
+- Reduced temporary allocations when reading Legacy assets. Separate Android and iOS update channels.
+
+Install **OpenFusion-Pocket-v3.1.apk** over your current version to keep data and caches. Android 6.0+, ARMv7/ARM64; version 3.1 / build 7.
+
+Past travel, Nano exhaustion/auto-equipment and boost/pinch controls were confirmed by the user on AynThor during preview testing. This is not a claim of complete Legacy parity or coverage of every mission/device.
+
+---
+Unofficial community project. Thanks to the original FusionFall developers, OpenFusion, Retrobution and community contributors. [Credits](https://github.com/rsigristc/OpenFusion-Pocket/blob/main/CREDITS.md) · [Support Me on Ko-fi](https://ko-fi.com/rodrigosigrist)
+
+# OpenFusion:Pocket — iOS v0.5 (experimental)
+
+## Español
+
+- Primera versión pública **nativa de iOS**, ARM64 y Metal, sin Husk ni JIT externo.
+- Launcher, conexión, selección de personaje y entrada al mundo; controles táctiles en una sola pantalla.
+- Contraseñas opcionales en el Keychain del dispositivo y exportación de diagnósticos mediante la hoja de compartir de iOS.
+- Comprobación automática de actualizaciones de iOS con changelog de GitHub, validación de versión/bundle, tamaño y SHA-256 de la IPA. La descarga se vuelve a verificar antes de compartirla.
+- Fuente de **AltStore Classic** para detectar futuras versiones. La firma e instalación se realizan mediante AltStore o la herramienta elegida por el usuario; no hay instalación silenciosa.
+- Limpieza en los límites de carga y menos buffers temporales al leer assets. Incluye las correcciones de Nanos, viaje al pasado y accesos de boost/zoom descritas en Android v3.1.
+
+**Instalación:** iOS 16.0+, dispositivo ARM64. Descarga **OpenFusion-Pocket-iOS-v0.5.ipa** y fírmala con AltStore u otra herramienta compatible. Versión 0.5 / build 8. [Guía y fuente AltStore](https://github.com/rsigristc/OpenFusion-Pocket/blob/main/docs/IOS_INSTALL.md).
+
+**Estado experimental:** una compilación nativa anterior entró al mundo en un iPhone SE de tercera generación con iOS 18.5. También hubo un cierre inicial sin causa confirmada y una advertencia de memoria; la validación repetida de carga y la hoja de compartir del actualizador siguen pendientes. No incluye DS Companion para iOS ni se garantiza estabilidad, rendimiento o equivalencia completa con Android/Legacy. Las previews privadas identificadas como 3.0 deben actualizarse manualmente a esta nueva numeración 0.5.
+
+## English
+
+- First public **native iOS** build, using ARM64 and Metal without Husk or external JIT.
+- Launcher, connection, character selection and world entry; single-screen touch controls.
+- Optional device-local Keychain password storage and diagnostic export through the iOS share sheet.
+- Automatic iOS update checks with GitHub changelogs and IPA version/bundle, size and SHA-256 validation. Downloads are rechecked before sharing.
+- **AltStore Classic source** for detecting future versions. Signing and installation use AltStore or the user's chosen tool; silent installation is not supported.
+- Loading-boundary cleanup and fewer temporary asset-reading buffers. Includes the Nano, past-travel and boost/zoom fixes listed for Android v3.1.
+
+**Installation:** iOS 16.0+, ARM64 device. Download **OpenFusion-Pocket-iOS-v0.5.ipa** and sign it with AltStore or another compatible tool. Version 0.5 / build 8. [Installation and AltStore source](https://github.com/rsigristc/OpenFusion-Pocket/blob/main/docs/IOS_INSTALL.md).
+
+**Experimental status:** an earlier native build entered the world on an iPhone SE (3rd generation), iOS 18.5. An initial unexplained close and a memory warning also occurred; repeated-load validation and the updater's file-sharing path remain pending. No iOS DS Companion support or guarantee of stability, performance or full Android/Legacy parity. Private previews labeled 3.0 need a manual update to the new 0.5 version series.
+
+---
+Unofficial community project. Thanks to the original FusionFall developers, OpenFusion, Retrobution and community contributors. [Credits](https://github.com/rsigristc/OpenFusion-Pocket/blob/main/CREDITS.md) · [Support Me on Ko-fi](https://ko-fi.com/rodrigosigrist)
+
 # OpenFusion:Pocket v3.0
 
 ## Español — Cambios desde v2.1

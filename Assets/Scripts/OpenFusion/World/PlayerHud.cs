@@ -66,9 +66,9 @@ namespace OpenFusion.World
                 int slot = data.ActiveNanoSlot;
                 if (slot >= 0 && slot < data.NanoSlots.Length && slot < data.NanoStamina.Length)
                 {
-                    short stamina = S(b, 32); data.NanoStamina[slot] = stamina;
+                    short stamina = SkillResults.NonNegativeStamina(S(b, 32)); data.NanoStamina[slot] = stamina;
                     int id = data.NanoSlots[slot];
-                    if (data.NanoBankStamina != null && id >= 0 && id < data.NanoBankStamina.Length) data.NanoBankStamina[id] = stamina;
+                    SkillResults.SetBankStamina(data, id, stamina);
                 }
                 if (I(b, 36) != 0) data.ActiveNanoSlot = -1;
                 conditions = I(b, 40);
@@ -90,9 +90,10 @@ namespace OpenFusion.World
             d.Level = S(body, L + 84); d.Hp = I(body, L + 92); d.BatteryWpn = I(body, L + 96); d.BatteryNano = I(body, L + 100); d.Taros = I(body, L + 104); d.FusionMatter = I(body, L + 108);
             d.UseWeaponBattery = true;
             d.FreeChat = ((sbyte)body[L + 112] & 64) == 0;
-            var bank = new short[37]; for (int i = 0; i < 37; i++) bank[i] = S(body, L + 1444 + i * 6 + 4); d.NanoBankStamina = bank;
+            var bank = new short[37]; for (int i = 0; i < 37; i++) bank[i] = SkillResults.NonNegativeStamina(S(body, L + 1444 + i * 6 + 4)); d.NanoBankStamina = bank;
             for (int i = 0; i < 3; i++) { d.NanoSlots[i] = S(body, L + 1666 + i * 2); int id = d.NanoSlots[i]; d.NanoStamina[i] = id >= 0 && id < 37 ? bank[id] : (short)0; }
             d.ActiveNanoSlot = S(body, L + 1672);
+            if (d.HasActiveNano && d.NanoStamina[d.ActiveNanoSlot] <= 0) d.ActiveNanoSlot = -1;
         }
 
         /// <summary>REP_PC_TICK (32 B): iHP @0, aNano[3] @4 (iStamina en +4 de cada sNano), iBatteryN @24. Llega periodicamente (~cada 2 s) y es la fuente de HP "de regeneracion".</summary>
@@ -118,7 +119,7 @@ namespace OpenFusion.World
         {
             if (b == null || offset < 0 || offset > b.Length - 18) return false;
             for (int i = 0; i < 3; i++) {
-                d.NanoStamina[i] = S(b, offset + i * 6 + 4);
+                d.NanoStamina[i] = SkillResults.NonNegativeStamina(S(b, offset + i * 6 + 4));
                 if (d.NanoSlots[i] > 0) SkillResults.SetBankStamina(d, d.NanoSlots[i], d.NanoStamina[i]);
             }
             return true;
@@ -131,6 +132,7 @@ namespace OpenFusion.World
             ApplySlotStamina(b, 22, d);
             int slot = S(b, 20);
             d.ActiveNanoSlot = slot >= 0 && slot < 3 && d.NanoSlots[slot] > 0 ? slot : -1;
+            if (d.HasActiveNano && d.NanoStamina[d.ActiveNanoSlot] <= 0) d.ActiveNanoSlot = -1;
             if (applyFusionMatter) d.FusionMatter = I(b, 44); return true;
         }
 
@@ -152,7 +154,7 @@ namespace OpenFusion.World
         public static bool ApplyChargeNano(byte[] b, HudData d)
         {
             if (b == null || b.Length < 8) return false; d.BatteryNano = I(b, 0); short id = S(b, 4), st = S(b, 6);
-            for (int i = 0; i < 3; i++) if (d.NanoSlots[i] == id) d.NanoStamina[i] = st; return true;
+            SkillResults.SetBankStamina(d, id, st); return true;
         }
 
         /// <summary>PC_ATTACK_NPCs_SUCC (8 B): iBatteryW @0 (boosts restantes tras atacar).</summary>
@@ -391,10 +393,30 @@ namespace OpenFusion.World
         struct Xf { public Vector2 P; public float S; public Rect R(Rect r) { return new Rect(P.x + (r.x - P.x) * S, P.y + (r.y - P.y) * S, r.width * S, r.height * S); } }
         static Rect Off(Rect r, float dx, float dy) { return new Rect(r.x + dx, r.y + dy, r.width, r.height); }
 
+        public Rect BoostCounterRect(bool nano)
+        {
+            float w=Screen.width,h=Screen.height;
+            return new Xf { P=new Vector2(w,h), S=GameOptions.UiScale }.R(new Rect(w-324f,h-85f+(nano?0:35f),76f,29f));
+        }
+        public bool HitBoost(Vector2 gui, out bool nano)
+        {
+            nano=false;
+            if (!Visible || !ShowBatteryCounters || GameMenu.HudHidden || DualScreenController.ShowSecondaryNanos) return false;
+            if (BoostCounterRect(true).Contains(gui)) { nano=true; return true; }
+            return BoostCounterRect(false).Contains(gui);
+        }
+
         void OnGUI()
         {
             if (GameMenu.HudHidden) return;
-            if (!Visible || Event.current == null || Event.current.type != EventType.Repaint) return;
+            if (!Visible || Event.current == null) return;
+            GUI.depth=10;
+            if (Input.touchCount == 0 && ShowBatteryCounters && !DualScreenController.ShowSecondaryNanos)
+            {
+                if (GUI.Button(BoostCounterRect(true),GUIContent.none,GUIStyle.none)) GetComponent<CombatSystem>()?.ActivateBoost(true);
+                if (GUI.Button(BoostCounterRect(false),GUIContent.none,GUIStyle.none)) GetComponent<CombatSystem>()?.ActivateBoost(false);
+            }
+            if (Event.current.type != EventType.Repaint) return;
             if (self == null && Data.Name.Length == 0) return;                // aun no hay jugador (GameFrame.IsReadyForPlay)
             Fonts(); float s = GameOptions.UiScale; var old = GUI.color; GUI.depth = 10;
             // --- ventana de estado, pivote TopLeft ---
@@ -425,6 +447,14 @@ namespace OpenFusion.World
                 if (Data.BatteryNano > 0) { GUI.color = bc; Draw(xb, rr, "potion_counter"); GUI.color = Color.white; Label(jeffe14, xb, rr2, Data.BatteryNano.ToString("0000"), TextAnchor.UpperCenter, CounterCol, bc); }
                 rr.y += 35f; rr2.y += 35f;
                 if (Data.BatteryWpn > 0) { GUI.color = bc; Draw(xb, rr, "boost_counter"); GUI.color = Color.white; Label(jeffe14, xb, rr2, Data.BatteryWpn.ToString("0000"), TextAnchor.UpperCenter, CounterCol, bc); }
+            }
+            if (ShowBatteryCounters && !DualScreenController.ShowSecondaryNanos && Data.UseWeaponBattery && Data.BatteryWpn > 0)
+            {
+                var r=BoostCounterRect(false); GUI.color=Color.yellow;
+                GUI.DrawTexture(new Rect(r.x,r.y,r.width,2),Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(r.x,r.yMax-2,r.width,2),Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(r.x,r.y,2,r.height),Texture2D.whiteTexture);
+                GUI.DrawTexture(new Rect(r.xMax-2,r.y,2,r.height),Texture2D.whiteTexture);
             }
             GUI.color = old;
         }

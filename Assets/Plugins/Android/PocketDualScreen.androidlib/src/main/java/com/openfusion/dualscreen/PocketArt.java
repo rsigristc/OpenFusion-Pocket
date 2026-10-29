@@ -156,17 +156,30 @@ final class MapPage extends android.widget.LinearLayout {
 }
 
 final class BoostStrip extends View {
-    private int nano,attack,taros; private boolean connected, connectionKnown;
+    private int nano,attack,taros; private boolean connected, connectionKnown, attackActive; private int pressedCell=-1; private float downX,downY;
     private String coin=""; private final NanoPane.Images images;
     private final Paint p=new Paint(Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG); private final Path path=new Path(); private final RectF r=new RectF();
     private final float d;
-    BoostStrip(Context c,NanoPane.Images source) { super(c); images=source; d=c.getResources().getDisplayMetrics().density; }
-    void update(JSONObject data) { nano=data.optInt("nanoBoost"); attack=data.optInt("attackBoost"); taros=data.optInt("taros"); coin=data.optString("tarosImage"); connectionKnown=data.has("connected"); connected=data.optBoolean("connected"); setContentDescription(connected?"Nano boost "+nano+", attack boost "+attack+", Taros "+taros:connectionKnown?"Game server disconnected. Return to the launcher to reconnect.":"Waiting for live game data…"); invalidate(); }
+    BoostStrip(Context c,NanoPane.Images source) { super(c); images=source; d=c.getResources().getDisplayMetrics().density; setClickable(true); }
+    void update(JSONObject data) { attackActive=data.optBoolean("attackBoostActive"); nano=data.optInt("nanoBoost"); attack=data.optInt("attackBoost"); taros=data.optInt("taros"); coin=data.optString("tarosImage"); connectionKnown=data.has("connected"); connected=data.optBoolean("connected"); setContentDescription(connected?"Nano boost "+nano+", attack boost "+attack+", Taros "+taros:connectionKnown?"Game server disconnected. Return to the launcher to reconnect.":"Waiting for live game data…"); invalidate(); }
+    private int cellAt(float x) { float cell=Math.min(getWidth()/3f,235*d); return cell>0 && x>=0 && x<cell*2 ? (int)(x/cell) : -1; }
+    @Override public boolean onTouchEvent(android.view.MotionEvent e) {
+        if(!connected) return false;
+        if(e.getActionMasked()==android.view.MotionEvent.ACTION_DOWN) { pressedCell=cellAt(e.getX()); downX=e.getX();downY=e.getY();return pressedCell>=0; }
+        if(e.getActionMasked()==android.view.MotionEvent.ACTION_CANCEL || e.getPointerCount()>1) { pressedCell=-1; return true; }
+        if(e.getActionMasked()==android.view.MotionEvent.ACTION_MOVE && Math.hypot(e.getX()-downX,e.getY()-downY)>android.view.ViewConfiguration.get(getContext()).getScaledTouchSlop()) pressedCell=-1;
+        if(e.getActionMasked()==android.view.MotionEvent.ACTION_UP) {
+            int hit=cellAt(e.getX()); if(pressedCell>=0 && hit==pressedCell && e.getY()>=0 && e.getY()<getHeight()) { performClick(); PocketDualScreen.send("boost",hit==0?"nano":"attack",0,0); } pressedCell=-1;
+        }
+        return true;
+    }
+    @Override public boolean performClick() { super.performClick(); return true; }
     protected void onDraw(Canvas c) {
         if(!connected) { PocketArt.text(c,connectionKnown?"Game server disconnected. Return to the launcher to reconnect.":"Waiting for live game data…",8*d,25*d,getWidth()-16*d,13*d,Color.YELLOW,p); return; }
         float cell=Math.min(getWidth()/3f,235*d),h=getHeight();
         for(int i=0;i<3;i++) {
             float x=i*cell; r.set(x+2*d,2*d,x+cell-4*d,h-2*d); PocketArt.frame(c,r,false,p,path,d);
+            if(i==1 && attackActive) { p.setStyle(Paint.Style.STROKE); p.setStrokeWidth(2*d); p.setColor(Color.YELLOW); c.drawRect(r,p); }
             p.setColor(PocketArt.CYAN); p.setStrokeWidth(2*d); p.setStyle(Paint.Style.STROKE);
             if(i==0) { c.drawCircle(x+21*d,h-16*d,9*d,p); c.drawLine(x+18*d,h-25*d,x+18*d,9*d,p); c.drawLine(x+24*d,h-25*d,x+24*d,9*d,p); c.drawLine(x+17*d,9*d,x+25*d,9*d,p); }
             else if(i==1) { p.setStyle(Paint.Style.FILL); path.reset(); path.moveTo(x+22*d,7*d); path.lineTo(x+12*d,24*d); path.lineTo(x+20*d,24*d); path.lineTo(x+16*d,h-6*d); path.lineTo(x+31*d,18*d); path.lineTo(x+23*d,18*d); path.close(); c.drawPath(path,p); }

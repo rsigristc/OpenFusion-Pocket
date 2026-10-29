@@ -31,7 +31,10 @@ namespace OpenFusion.EditorTools
                 Launcher232RegressionChecks.Run();
                 DiagnosticsRegressionChecks.Run();
                 CommunityRegressionChecks.Run();
+                GuidePastRegressionChecks.Run();
+                NanoLifecycleRegressionChecks.Run();
                 PlatformInputRegressionChecks.Run();
+                IosPreparationChecks.Run();
                 DualScreenRegressionChecks.Run();
                 DualNanoRegressionChecks.Run();
                 NanoAcquisitionRegressionChecks.Run();
@@ -57,6 +60,7 @@ namespace OpenFusion.EditorTools
                 VariableJumpRegressionChecks.Run();
                 PlatformLandingRegressionChecks.Run();
                 UpdaterRegressionChecks.Run();
+                SerializedReaderRegressionChecks.Run();
                 WeaponAudioRegressionChecks.Run();
                 await Retrobution303RegressionChecks.Run();
                 await MissionObjectiveRegressionChecks.Run();

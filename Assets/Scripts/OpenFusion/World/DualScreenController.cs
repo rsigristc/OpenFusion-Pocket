@@ -53,6 +53,10 @@ namespace OpenFusion.World
             }
             catch (Exception e) { Fail(e); }
 #endif
+            if (OpenFusion.Screens.PocketIos.Available) {
+                Preference = DualScreenPreference.SingleScreen;
+                Capabilities = new DualScreenCapabilities { reason = "This iOS preview uses the full screen. Dual Screen is not available in this build." };
+            }
         }
         void Fail(Exception e)
         {
@@ -120,6 +124,7 @@ namespace OpenFusion.World
                 if (c.action != "nanoScroll") Debug.Log("[DS input] rejected=" + c.action + " active=" + Active + " revision=" + c.revision + "/" + Capabilities.revision + " window=" + GameMenu.Current + " station=" + InventoryWindow.Machine + " npc=" + NpcUI.Active);
                 return;
             }
+            if (c.action == "boost") { if (c.value == "nano" || c.value == "attack") GameClient.FindSelf?.GetComponent<CombatSystem>()?.ActivateBoost(c.value == "nano"); nextPanel = 0; return; }
             if (c.action == "cameraZoom") { if (c.value == "in" || c.value == "out") GameClient.FindSelf?.ZoomWorldCamera(c.value == "in"); return; }
             var inventory = InventoryWindow.Instance;
             if ((c.action == "nano" || c.action == "nanoCard" || c.action == "nanoEquip" || c.action == "nanoUnequip" || c.action == "nanoTune") &&

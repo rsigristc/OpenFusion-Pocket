@@ -35,12 +35,13 @@ namespace OpenFusion.World
             float cv = name == "Horizontal" ? ControlMap.Strafe : ControlMap.Forward; return Mathf.Abs(cv) < 0.4f ? 0f : Mathf.Sign(cv);
         }
 
-        enum Role { None, Joy, Look, LookStick, Action, Chat }
+        enum Role { None, Joy, Look, LookStick, Action, Chat, Boost }
         static readonly Color[] ControllerColors = { new Color(1,.3f,.3f), new Color(.3f,1,.4f), new Color(.3f,.6f,1), Color.yellow };
         static readonly string[] ControllerLabels = { "B\nATK", "A\nJUMP", "X\nWEAPON", "Y\nVEHICLE" };
-        sealed class Tch { public Role Role; public ControlMap.K Action; public Vector2 Start, Pos, Prev; public float T0; public float Moved; }
+        sealed class Tch { public Role Role; public ControlMap.K Action; public Vector2 Start, Pos, Prev; public float T0; public float Moved; public bool Gesture, NanoBoost; }
         readonly Dictionary<int, Tch> tch = new Dictionary<int, Tch>();
         bool on; int joyId = -1; Vector2 joyCenter, joyThumb; Texture2D disc, ring;
+        int pinchA=-1,pinchB=-1; float pinchDistance;
         float dpScale;   // píxeles por dp (160 dpi = 1)
         public float TapMaxSeconds = 0.35f, TapMaxDp = 12f, LookDegPerDp = 0.3f;
 
@@ -56,7 +57,7 @@ namespace OpenFusion.World
         }
         void ResetTouches()
         {
-            tch.Clear(); joyId = -1; Move = Look = Vector2.zero; Pinch = 0f;
+            tch.Clear(); joyId = -1; pinchA=pinchB=-1; pinchDistance=0; Move = Look = Vector2.zero; Pinch = 0f;
             held.Clear(); down.Clear(); up.Clear(); jumpFlag = tapFlag = false;
         }
         // Surface resizing invalidates held fingers and the cached pixel/dp geometry.
@@ -125,7 +126,10 @@ namespace OpenFusion.World
                 {
                     var c = new Tch { Start = t.position, Pos = t.position, Prev = t.position, T0 = Time.unscaledTime };
                     int action = HitAction(g);
-                    if (action >= 0) { c.Role = Role.Action; c.Action = TouchLayout.Actions[action]; }
+                    var hud=GameClient.FindSelf?.GetComponent<PlayerHud>();
+                    bool boostNano=false;
+                    if (hud != null && hud.HitBoost(g,out boostNano)) { c.Role=Role.Boost;c.NanoBoost=boostNano; }
+                    else if (action >= 0) { c.Role = Role.Action; c.Action = TouchLayout.Actions[action]; }
                     else if (ChatRect.Contains(g)) c.Role = Role.Chat;
                     else if (InJoyZone(g) && joyId < 0 && !blocked) { c.Role = Role.Joy; joyId = t.fingerId; joyCenter = TouchLayout.FixedJoystick ? new Vector2(JoyRect.center.x, ViewHeight-JoyRect.center.y) : t.position; joyThumb = t.position; }
                     else if (TouchLayout.CameraStickEnabled && CameraStickRect.Contains(g)) c.Role = Role.LookStick;
@@ -138,7 +142,8 @@ namespace OpenFusion.World
                 s.Prev = s.Pos; s.Pos = t.position; s.Moved += (s.Pos - s.Prev).magnitude;
                 if (t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled)
                 {
-                    if (s.Role == Role.Look && t.phase == TouchPhase.Ended && Time.unscaledTime - s.T0 <= TapMaxSeconds && s.Moved <= TapMaxDp * Dp) { tapFlag = true; tapPos = t.position; }
+                    if (s.Role == Role.Boost && t.phase == TouchPhase.Ended && s.Moved <= TapMaxDp*Dp) GameClient.FindSelf?.GetComponent<CombatSystem>()?.ActivateBoost(s.NanoBoost);
+                    if (s.Role == Role.Look && !s.Gesture && t.phase == TouchPhase.Ended && Time.unscaledTime - s.T0 <= TapMaxSeconds && s.Moved <= TapMaxDp * Dp) { tapFlag = true; tapPos = t.position; }
                     if (s.Role == Role.Joy) joyId = -1;
                     tch.Remove(t.fingerId); continue;
                 }
@@ -161,10 +166,21 @@ namespace OpenFusion.World
 
             // cámara: un dedo = girar; dos dedos de cámara = pellizco (zoom)
             var looks = new List<Tch>(); foreach (var s in tch.Values) if (s.Role == Role.Look) looks.Add(s);
-            if (looks.Count == 1) { var d = looks[0].Pos - looks[0].Prev; if (looks[0].Moved > TapMaxDp * Dp) Look = d / Dp * LookDegPerDp; }
-            else if (looks.Count >= 2)
+            // A stable pair owns zoom until release. A newly added finger establishes a
+            // baseline; lifting it never turns the remaining finger into a tap/rotation jump.
+            if (looks.Count >= 2)
             {
-                float now = (looks[0].Pos - looks[1].Pos).magnitude, before = (looks[0].Prev - looks[1].Prev).magnitude; Pinch = (now - before) / Dp;
+                int a=-1,b=-1;
+                foreach(var pair in tch) if(pair.Value.Role==Role.Look) { if(a<0 || pair.Key<a) { b=a;a=pair.Key; } else if(b<0 || pair.Key<b) b=pair.Key; }
+                var first=tch[a];var second=tch[b]; first.Gesture=second.Gesture=true;
+                float distance=(first.Pos-second.Pos).magnitude;
+                if(pinchA==a && pinchB==b) Pinch=Mathf.Clamp((distance-pinchDistance)/Dp,-120f,120f);
+                pinchA=a;pinchB=b;pinchDistance=distance;
+            }
+            else
+            {
+                bool wasPinching=pinchA>=0;pinchA=pinchB=-1;
+                if (looks.Count == 1 && !wasPinching) { var delta=looks[0].Pos-looks[0].Prev; if(looks[0].Moved>TapMaxDp*Dp) Look=delta/Dp*LookDegPerDp; }
             }
             foreach(var stick in tch.Values) if(stick.Role==Role.LookStick) {
                 var center=CameraStickRect.center;center.y=ViewHeight-center.y;

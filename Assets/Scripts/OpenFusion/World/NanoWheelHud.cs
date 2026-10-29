@@ -62,6 +62,9 @@ namespace OpenFusion.World
         public void Init(PlayerHud hud, PacketDispatcher dispatcher, XdtTableScript tables)
         {
             Detach();
+            while (q.TryDequeue(out _)) { }
+            Array.Clear(pendingInitialEquip, 0, pendingInitialEquip.Length);
+            Array.Clear(bankSkill, 0, bankSkill.Length);
             this.hud = hud; this.dispatcher = dispatcher; this.tables = tables;
             nanoT = tables != null ? tables.m_pNanoTable : null;
             skillT = tables != null ? tables.m_pSkillTable : null;
@@ -149,6 +152,7 @@ namespace OpenFusion.World
         volatile int selfId = int.MinValue;
         float lastSummon = -100f;
         readonly short[] bankSkill = new short[NanoBankSize];   // aNanoBank[id].iSkillID (la estamina vive en hud.Data.NanoBankStamina / NanoStamina)
+        readonly int[] pendingInitialEquip = new int[SlotCount];
 
         sealed class Slot
         {
@@ -168,7 +172,7 @@ namespace OpenFusion.World
         readonly Slot[] slots = { new Slot(), new Slot(), new Slot() };
 
         // ---------------- red (hilo de red -> cola -> Update) ----------------
-        void OnSelfEnter(EnterSucc e) { selfId = e.Id; for (int i = 0; i < SlotCount; i++) { slots[i].GumEnd = 0f; slots[i].Gum = false; } }
+        void OnSelfEnter(EnterSucc e) { selfId = e.Id; Array.Clear(pendingInitialEquip,0,pendingInitialEquip.Length); for (int i = 0; i < SlotCount; i++) { slots[i].GumEnd = 0f; slots[i].Gum = false; } }
         void OnEnterRaw(byte[] body)
         {
             var c = body;
@@ -189,7 +193,7 @@ namespace OpenFusion.World
 
         static short S(byte[] b, int o) { return BitConverter.ToInt16(b, o); }
         static int I(byte[] b, int o) { return BitConverter.ToInt32(b, o); }
-        void SetBankStamina(int id, short st) { var bk = hud.Data.NanoBankStamina; if (bk != null && id >= 0 && id < bk.Length) bk[id] = st; }
+        void SetBankStamina(int id, short st) { SkillResults.SetBankStamina(hud.Data, id, st); }
         short BankStamina(int id) { var bk = hud.Data.NanoBankStamina; return bk != null && id >= 0 && id < bk.Length ? bk[id] : (short)0; }
 
         void Handle(uint type, byte[] b)
@@ -210,6 +214,7 @@ namespace OpenFusion.World
                     {   // sP_FE2CL_REP_NANO_EQUIP_SUCC (8 B): short iNanoID @0, short iNanoSlotNum @2, int bNanoDeactive @4
                         if (b.Length < 8) break; int id = S(b, 0), slot = S(b, 2);
                         if (slot < 0 || slot >= SlotCount) break;
+                        pendingInitialEquip[slot] = 0;
                         d.NanoSlots[slot] = (short)id; d.NanoStamina[slot] = BankStamina(id);
                         Sfx.Ui("Nano_Equipped");
                         if (I(b, 4) == 1) d.ActiveNanoSlot = -1;
@@ -220,6 +225,7 @@ namespace OpenFusion.World
                         if (b.Length < 8) break; int slot = S(b, 0);
                         if (slot < 0 || slot >= SlotCount) break;
                         d.NanoSlots[slot] = 0; d.NanoStamina[slot] = 0;
+                        pendingInitialEquip[slot] = 0;
                         Sfx.Ui("Nano_Unequipped");
                         if (I(b, 4) != 0) d.ActiveNanoSlot = -1;
                         break;
@@ -227,7 +233,11 @@ namespace OpenFusion.World
                     case PacketIds.P_FE2CL_REP_NANO_TUNE_SUCC:
                     {   // sP_FE2CL_REP_NANO_TUNE_SUCC (168 B): short iNanoID @0, short iSkillID @2, int iPC_FusionMatter @4 ...
                         if (b.Length < 8) break; int id = S(b, 0);
-                        if (id >= 0 && id < NanoBankSize) bankSkill[id] = S(b, 2);
+                        if (id > 0 && id < NanoBankSize) {
+                            bool initial = bankSkill[id] == 0 && S(b, 2) > 0;
+                            bankSkill[id] = S(b, 2);
+                            if (initial) EquipInitialPowerNano(id);
+                        }
                         break;
                     }
                     case PacketIds.P_FE2CL_REP_PC_NANO_CREATE_SUCC:
@@ -258,9 +268,9 @@ namespace OpenFusion.World
                     {   // 36 B (Pack 4): iPC_ID @0, sbyte iBulletID @4, short iSkillID @6, iArg1..3 @8/12/16, int bNanoDeactive @20, short iNanoID @24, short iNanoStamina @26, eST @28, iTargetCnt @32
                         if (b.Length < 36 || I(b, 0) != selfId) break;
                         int skill = S(b, 6), nid = S(b, 24); short st = S(b, 26);
+                        bool active = d.HasActiveNano && d.NanoSlots[d.ActiveNanoSlot] == nid;
                         SetBankStamina(nid, st);
-                        for (int i = 0; i < SlotCount; i++) if (d.NanoSlots[i] == nid) d.NanoStamina[i] = st;
-                        if (d.ActiveNanoSlot >= 0 && (st <= 0 || I(b, 20) != 0)) d.ActiveNanoSlot = -1;   // NanoSkillUseSucc: iNanoStamina <= 0 => se desactiva el nano
+                        if (active && I(b, 20) != 0) d.ActiveNanoSlot = -1;
                         var se = SkillAt(skill);
                         if (se != null) {
                             Refresh();
@@ -272,6 +282,23 @@ namespace OpenFusion.World
                 }
             }
             catch (Exception e) { Debug.LogWarning("[nanowheel] paquete " + type + ": " + e.Message); }
+        }
+
+        // GameFrame REP_NANO_TUNE_SUCC: after the first power is accepted, request
+        // the first empty slot. Equipment itself changes only on EQUIP_SUCC.
+        void EquipInitialPowerNano(int id)
+        {
+            if (NpcUI.Sender == null || hud == null) return;
+            for (int i=0;i<SlotCount;i++) if (hud.Data.NanoSlots[i]==id || pendingInitialEquip[i]==id) return;
+            for (int i=0;i<SlotCount;i++) if (hud.Data.NanoSlots[i]<=0 && pendingInitialEquip[i]==0)
+            {
+                var packet=ClientPackets.New(PacketIds.P_CL2FE_REQ_NANO_EQUIP,4);
+                BitConverter.GetBytes((short)id).CopyTo(packet,4);BitConverter.GetBytes((short)i).CopyTo(packet,6);
+                pendingInitialEquip[i]=id;
+                try { NpcUI.Sender(packet); }
+                catch (Exception e) { pendingInitialEquip[i]=0; Debug.LogWarning("[nanowheel] initial equip: "+e.GetType().Name); }
+                return;
+            }
         }
 
         // ---------------- tablas ----------------

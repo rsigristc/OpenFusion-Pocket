@@ -57,6 +57,7 @@ namespace OpenFusion.EditorTools
                 new object[] { "password=secret-test-token", "OpenFusion.Test.Run () (at C:/private/user/file.cs:10)", LogType.Error });
             string report = PocketDiagnostics.Report();
             Check(report.Contains("OpenFusion.Test.Run") && !report.Contains("secret-test-token") && !report.Contains("C:/private"), "Diagnostics must omit messages and filesystem paths.");
+#if UNITY_ANDROID
             // The Unity Gradle export may retain our renamed activity on incremental builds.
             string fixture = Path.GetFullPath(Path.Combine("Temp", "launcher232-" + Guid.NewGuid().ToString("N"), "unityLibrary"));
             Directory.CreateDirectory(Path.Combine(fixture, "PocketDualScreen.androidlib"));
@@ -69,6 +70,7 @@ namespace OpenFusion.EditorTools
             callback.OnPostGenerateGradleAndroidProject(fixture);
             var doc = new XmlDocument(); doc.Load(manifest);
             Check(doc.GetElementsByTagName("data").Count == 1 && File.ReadAllText(manifest).Contains("BROWSABLE"), "Incremental Gradle export must retain exactly one deep-link registration.");
+#endif
             Debug.Log("[launcher-2.3.2] PASS: upstream links, validation, deferred sessions/modals, confirmation form and diagnostics privacy.");
         }
     }

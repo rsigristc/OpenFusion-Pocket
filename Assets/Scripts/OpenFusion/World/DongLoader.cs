@@ -70,6 +70,8 @@ namespace OpenFusion.World
                 if (files == null) throw new System.IO.IOException("Missing cached bundle: " + name);
                 foreach (var kv in files) TryAdd(kv.Key, kv.Value);
                 sharedLoaded.Add(name);
+                // Initial world loading only; avoid forced collections while playing.
+                if (built.Count == 0) OpenFusion.Screens.PocketIosLoadingMemory.SharedBundleLoaded();
             }
         }
         public byte AttributeAt(Vector3 p, out bool known) => reg.AttributeAt(p.x, p.z, out known);
@@ -104,6 +106,7 @@ namespace OpenFusion.World
                 if (files == null) { OpenFusion.Screens.PocketDiagnostics.AssetFailure(name); sharedReady = false; continue; } // Reintentar cuando la descarga termine.
                 foreach (var kv in files) TryAdd(kv.Key, kv.Value);
                 sharedLoaded.Add(name);
+                if (built.Count == 0) OpenFusion.Screens.PocketIosLoadingMemory.SharedBundleLoaded();
             }
         }
         void TryAdd(string name, byte[] data) { try { store.Add(name, data); } catch (Exception e) { Debug.LogWarning("No se pudo leer " + name + ": " + e.Message); } }

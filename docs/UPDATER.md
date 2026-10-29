@@ -6,6 +6,33 @@ Users choose whether to download an update. Downloads stream to a private app-ca
 
 No GitHub token or game-account credentials are sent to GitHub. Update metadata and initial asset URLs must point to this project's HTTPS release paths. Existing app data is retained by an ordinary Android package update with the same application ID and signing certificate.
 
+## iOS channel
+
+iOS reads the published release feed and selects the highest semantic `ios-v*`
+release, ignoring Android, draft and prerelease entries. It requires
+`update-ios.json` with schema 1, `platform: ios`, `bundle`, `version`,
+`version_code`, `minimum_os`, `ipa_asset`, `size` and `sha256`. Bundle identity,
+tag/version, exact repository asset URL, length and GitHub digest must agree.
+Newer builds must not downgrade the installed marketing version; incompatible
+minimum iOS versions cannot be downloaded through the update action.
+
+The IPA streams to private cache and its SHA-256/length are checked. Sharing
+rechecks the file and the native bridge restricts sharing to IPA files within
+the app's cache/temp directories. The user saves/imports the file into AltStore
+or another signer. This verifies downloaded bytes, not an Apple distribution
+certificate; it cannot silently install a replacement app.
+
+Publish iOS under `ios-v<version>` with **latest=false**, and Android under
+`v<version>` with **latest=true** so existing Android clients keep working.
+Update `IosAppVersion` / `IosBuildCode` independently of Android. Generate iOS
+assets and the AltStore Classic source using `tools/prepare-ios-release.py`.
+The root `altstore.json` points directly to public iOS IPA assets and carries
+the actual version, build, minimum OS, size and declared permissions.
+AltStore source updates become visible when that file is pushed, so publish
+and verify the corresponding release assets before pushing the source entry.
+
+See [iOS installation](IOS_INSTALL.md) for signing and preview-version migration.
+
 ## Publish a future update
 
 1. Set `AppVersion` and increase `BuildCode` in `Assets/Scripts/OpenFusion/Api/PocketRelease.cs`. Project setup uses these values for Android's version name/code. Never reuse or lower a build code for a new APK.

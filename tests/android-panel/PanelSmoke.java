@@ -39,6 +39,7 @@ public final class PanelSmoke extends Instrumentation {
                     root.layout(0, 0, size[0], size[1]);
                     Bitmap frame = Bitmap.createBitmap(size[0], size[1], Bitmap.Config.ARGB_8888);
                     try { root.draw(new Canvas(frame)); } finally { frame.recycle(); }
+                    boostSmoke(((ViewGroup)group.getChildAt(0)).getChildAt(0));
                     if (group.getChildAt(0).getWidth() <= 0) throw new AssertionError("Header has no usable width");
                 }
             } catch (Throwable error) {
@@ -54,6 +55,40 @@ public final class PanelSmoke extends Instrumentation {
             result.putString("stream", "PASS: real Companion constructor, unique header ownership, measurement and drawing at two surface sizes; diagnostics FileProvider attachment readback and rejection of paths outside report cache. "+reportCheck+" This does not certify live gameplay or display transitions.");
             finish(Activity.RESULT_OK, result);
         }
+    }
+    private void boostSmoke(View strip) throws Exception {
+        Method update=strip.getClass().getDeclaredMethod("update",org.json.JSONObject.class);update.setAccessible(true);
+        Class<?> bridge=getTargetContext().getClassLoader().loadClass("com.openfusion.dualscreen.PocketDualScreen");
+        Method command=bridge.getMethod("command"); while(!"".equals(command.invoke(null))) {}
+        float density=strip.getResources().getDisplayMetrics().density;
+        float cell=Math.min(strip.getWidth()/3f,235*density),y=strip.getHeight()/2f;
+        org.json.JSONObject state=new org.json.JSONObject("{\"connected\":true,\"nanoBoost\":100,\"attackBoost\":100,\"attackBoostActive\":true}");
+        update.invoke(strip,state);
+        for(int hit=0;hit<3;hit++) {
+            float x=(hit+.5f)*cell; sendTouch(strip,0,x,y);sendTouch(strip,1,x,y);
+            String wire=(String)command.invoke(null);
+            if(hit<2) { org.json.JSONObject msg=new org.json.JSONObject(wire);
+                if(!"boost".equals(msg.optString("action")) || !(hit==0?"nano":"attack").equals(msg.optString("value"))) throw new AssertionError("Boost tap must route exactly one matching command");
+            } else if(!wire.isEmpty()) throw new AssertionError("Taros must not send a boost");
+            if(!"".equals(command.invoke(null))) throw new AssertionError("Boost tap duplicated");
+        }
+        sendTouch(strip,0,cell/2,y);sendTouch(strip,2,cell/2+80*density,y);sendTouch(strip,1,cell/2,y);
+        if(!"".equals(command.invoke(null))) throw new AssertionError("Dragging must cancel boost activation");
+        sendTouch(strip,0,cell/2,y);sendTouch(strip,3,cell/2,y);sendTouch(strip,1,cell/2,y);
+        if(!"".equals(command.invoke(null))) throw new AssertionError("Canceled touch must not activate boost");
+        Bitmap bitmap=Bitmap.createBitmap(strip.getWidth(),strip.getHeight(),Bitmap.Config.ARGB_8888);
+        try { strip.draw(new Canvas(bitmap)); boolean yellow=false;
+            for(int x=(int)cell;x<(int)(cell*2)&&x<bitmap.getWidth();x++) for(int py=0;py<Math.min(bitmap.getHeight(),(int)(6*density));py++) {
+                int pixel=bitmap.getPixel(x,py); if(android.graphics.Color.red(pixel)>230 && android.graphics.Color.green(pixel)>230 && android.graphics.Color.blue(pixel)<30) yellow=true;
+            }
+            if(!yellow) throw new AssertionError("Enabled Attack Boost must draw a yellow outline");
+        } finally { bitmap.recycle(); }
+        state.put("connected",false);update.invoke(strip,state);sendTouch(strip,0,cell/2,y);sendTouch(strip,1,cell/2,y);
+        if(!"".equals(command.invoke(null))) throw new AssertionError("Disconnected strip must not send commands");
+    }
+    private void sendTouch(View view,int action,float x,float y) {
+        long t=android.os.SystemClock.uptimeMillis();android.view.MotionEvent event=android.view.MotionEvent.obtain(t,t,action,x,y,0);
+        try { view.dispatchTouchEvent(event); } finally { event.recycle(); }
     }
     private void diagnosticsSmoke(Context context) throws Exception {
         String authority=context.getPackageName()+".diagnostics";

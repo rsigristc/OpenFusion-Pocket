@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using UnityEditor;
+#if UNITY_ANDROID
 using UnityEditor.Android;
+#endif
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -30,6 +32,7 @@ namespace OpenFusion.EditorTools
             var foreground = Import(Root + "FusionSpawnForeground-v1.png", true);
             var back = Import(backgroundPath, false);
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new[] { flat }, IconKind.Any);
+#if UNITY_ANDROID
             foreach (var kind in new[] { AndroidPlatformIconKind.Legacy, AndroidPlatformIconKind.Round, AndroidPlatformIconKind.Adaptive })
             {
                 var icons = PlayerSettings.GetPlatformIcons(NamedBuildTarget.Android, kind);
@@ -37,6 +40,7 @@ namespace OpenFusion.EditorTools
                     icon.SetTextures(kind == AndroidPlatformIconKind.Adaptive ? new[] { back, foreground } : new[] { flat });
                 PlayerSettings.SetPlatformIcons(NamedBuildTarget.Android, kind, icons);
             }
+#endif
             Debug.Log("[app-icon] Fusion Spawn: default, Android legacy/round and layered adaptive icons configured.");
         }
 

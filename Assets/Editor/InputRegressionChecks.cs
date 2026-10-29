@@ -81,6 +81,28 @@ namespace OpenFusion.EditorTools
                 frame(Array.Empty<Touch>(), true, true);
                 results.Add("PASS: DS resize releases held attack, rejects old moved fingers, and accepts a fresh touch.");
                 results.Add("PASS: attack + movement + camera; independent jump; cancellation; gamepad connect/disconnect; modal reset.");
+                frame(Array.Empty<Touch>(),true,true);
+                var second=look+Vector2.right*40;
+                frame(new[]{Finger(3,attack,TouchPhase.Began),Finger(11,look,TouchPhase.Began)},true,false);
+                frame(new[]{Finger(3,attack,TouchPhase.Stationary),Finger(11,look+Vector2.left*10,TouchPhase.Moved),Finger(12,second,TouchPhase.Began)},true,false);
+                Require(TouchControls.Pinch==0 && TouchControls.Look==Vector2.zero,"Adding a second camera finger must establish a baseline without jumping.");
+                frame(new[]{Finger(12,second+Vector2.right*20,TouchPhase.Moved),Finger(3,attack,TouchPhase.Stationary),Finger(11,look+Vector2.left*30,TouchPhase.Moved)},true,false);
+                Require(TouchControls.Pinch>0 && TouchControls.Look==Vector2.zero && TouchControls.Held(ControlMap.K.Fire1),"Spreading fingers must zoom without rotating or releasing attack, independent of touch ordering.");
+                frame(new[]{Finger(12,second,TouchPhase.Moved),Finger(3,attack,TouchPhase.Stationary),Finger(11,look,TouchPhase.Moved)},true,false);
+                Require(TouchControls.Pinch<0,"Closing fingers must zoom out.");
+                frame(new[]{Finger(12,second,TouchPhase.Ended),Finger(11,look+Vector2.right*20,TouchPhase.Moved)},true,false);
+                Vector2 tap;
+                Require(TouchControls.Look==Vector2.zero && TouchControls.Pinch==0 && !TouchControls.TryTap(out tap),"Lifting a pinch finger must not rotate or select a target.");
+                frame(new[]{Finger(11,look,TouchPhase.Ended)},true,false);
+                Require(!TouchControls.TryTap(out tap),"The remaining pinch finger must not become a tap.");
+                frame(new[]{Finger(11,look,TouchPhase.Began),Finger(12,second,TouchPhase.Began)},true,false);
+                frame(Array.Empty<Touch>(),true,true);
+                Require(TouchControls.Pinch==0 && TouchControls.Look==Vector2.zero,"A modal must clear a pending pinch.");
+                results.Add("PASS: stable pinch baseline, spread/close, independent attack, release without tap or rotation, modal cancellation.");
+                var boostHost=new GameObject("Boost guard fixture");
+                try { var combat=boostHost.AddComponent<CombatSystem>();var boostHud=boostHost.AddComponent<PlayerHud>();boostHud.Data.BatteryWpn=10;boostHud.Data.UseWeaponBattery=false;
+                    Require(!combat.ActivateBoost(false) && !combat.ActivateBoost(true) && !boostHud.Data.UseWeaponBattery,"Disconnected boost shortcuts must not change state or send packets.");
+                } finally { UnityEngine.Object.DestroyImmediate(boostHost); }
                 var nano = ClientPackets.ChargeNano(123); var weapon = ClientPackets.ToggleWeaponBoost(123);
                 Require(nano.Length == 8 && BitConverter.ToInt32(nano, 4) == 123 && weapon.Length == 16 && BitConverter.ToInt32(weapon, 8) == 8, "Boost packet layout changed.");
                 results.Add("PASS: nano charge and weapon boost packet layouts match original client.");

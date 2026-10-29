@@ -78,8 +78,25 @@ namespace OpenFusion.Unity25
         {
             readonly byte[] d; readonly bool be; public int Pos;
             public Reader(byte[] data, int pos, bool bigEndian) { d = data; Pos = pos; be = bigEndian; }
-            byte[] Take(int n) { var r = new byte[n]; Array.Copy(d, Pos, r, 0, n); if (be && n > 1) Array.Reverse(r); Pos += n; return r; }
-            public int I32() { var v = BitConverter.ToInt32(Take(4), 0); return v; }
+            // Scalar reads must not allocate a temporary byte[] for every vertex,
+            // animation key and terrain sample. Preserve unaligned/packed reads.
+            ulong Bits(int size)
+            {
+                if (Pos < 0 || Pos > d.Length - size) throw new FormatException("Truncated scalar");
+                ulong value = 0;
+                if (be) for (int i = 0; i < size; i++) value = (value << 8) | d[Pos + i];
+                else for (int i = 0; i < size; i++) value |= (ulong)d[Pos + i] << (8 * i);
+                Pos += size; return value;
+            }
+            [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Explicit)]
+            struct NumberBits
+            {
+                [System.Runtime.InteropServices.FieldOffset(0)] public uint U32;
+                [System.Runtime.InteropServices.FieldOffset(0)] public float Float;
+                [System.Runtime.InteropServices.FieldOffset(0)] public ulong U64;
+                [System.Runtime.InteropServices.FieldOffset(0)] public double Double;
+            }
+            public int I32() => unchecked((int)Bits(4));
             public bool Packed; public void Align() { if (!Packed) Pos = (Pos + 3) & ~3; }
 
             public object Read(TypeNode n)
@@ -90,14 +107,14 @@ namespace OpenFusion.Unity25
                     case "SInt8": v = (sbyte)d[Pos++]; break;
                     case "UInt8": case "char": v = d[Pos++]; break;
                     case "bool": v = d[Pos++] != 0; break;
-                    case "short": case "SInt16": v = BitConverter.ToInt16(Take(2), 0); break;
-                    case "unsigned short": case "UInt16": v = BitConverter.ToUInt16(Take(2), 0); break;
-                    case "int": case "SInt32": v = BitConverter.ToInt32(Take(4), 0); break;
-                    case "unsigned int": case "UInt32": v = BitConverter.ToUInt32(Take(4), 0); break;
-                    case "long long": case "SInt64": v = BitConverter.ToInt64(Take(8), 0); break;
-                    case "unsigned long long": case "UInt64": v = BitConverter.ToUInt64(Take(8), 0); break;
-                    case "float": v = BitConverter.ToSingle(Take(4), 0); break;
-                    case "double": v = BitConverter.ToDouble(Take(8), 0); break;
+                    case "short": case "SInt16": v = unchecked((short)Bits(2)); break;
+                    case "unsigned short": case "UInt16": v = (ushort)Bits(2); break;
+                    case "int": case "SInt32": v = I32(); break;
+                    case "unsigned int": case "UInt32": v = (uint)Bits(4); break;
+                    case "long long": case "SInt64": v = unchecked((long)Bits(8)); break;
+                    case "unsigned long long": case "UInt64": v = Bits(8); break;
+                    case "float": v = new NumberBits { U32 = (uint)Bits(4) }.Float; break;
+                    case "double": v = new NumberBits { U64 = Bits(8) }.Double; break;
                     case "string": { int len = I32(); if (len < 0 || len > d.Length - Pos) throw new FormatException("string " + len); v = Encoding.UTF8.GetString(d, Pos, len); Pos += len; Align(); break; }
                     case "TypelessData": { int len = I32(); if (len < 0 || len > d.Length - Pos) throw new FormatException("data " + len); var b = new byte[len]; Array.Copy(d, Pos, b, 0, len); Pos += len; v = b; break; }
                     default:

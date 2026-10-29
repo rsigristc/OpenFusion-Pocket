@@ -5,8 +5,8 @@ namespace OpenFusion.Screens
     public static class PocketPlatform
     {
         public static bool Available => Application.platform == RuntimePlatform.Android;
-        public static bool CredentialsAvailable => Available;
-        public static bool CanShareDiagnostics => Available;
+        public static bool CredentialsAvailable => Available || PocketIos.Available;
+        public static bool CanShareDiagnostics => Available || PocketIos.Available;
         public static string Identity(string server, string endpoint, string username)
         {
             if (Uri.TryCreate(endpoint, UriKind.Absolute, out var uri)) endpoint = uri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.UriEscaped).TrimEnd('/');
@@ -26,10 +26,10 @@ namespace OpenFusion.Screens
             return default;
 #endif
         }
-        public static bool Save(string identity,string password)=>Call<bool>("save",identity,password);
-        public static string Load(string identity)=>Call<string>("load",identity) ?? "";
-        public static void Forget(string identity) { Call<int>("forget",identity); }
-        public static void ForgetAll() { Call<int>("forgetAll"); }
+        public static bool Save(string identity,string password)=>PocketIos.Available ? PocketIos.Save(identity,password) : Call<bool>("save",identity,password);
+        public static string Load(string identity)=>PocketIos.Available ? PocketIos.Load(identity) : Call<string>("load",identity) ?? "";
+        public static void Forget(string identity) { if(PocketIos.Available) PocketIos.Forget(identity); else Call<int>("forget",identity); }
+        public static void ForgetAll() { if(PocketIos.Available) PocketIos.ForgetAll(); else Call<int>("forgetAll"); }
         public static void RendererSettings()=>Call<int>("rendererSettings");
         public static bool SelfTest()=>Call<bool>("selfTest");
         public static void Ready()=>Call<int>("ready");
@@ -46,6 +46,6 @@ namespace OpenFusion.Screens
         }
         public static void Back()=>Call<int>("back");
         public static string DiagnosticsExitInfo()=>Available ? Call<string>("diagnosticsExitInfo") ?? "Android exit history: unavailable" : "Native exit history: unavailable";
-        public static void ShareDiagnostics(string report) { Call<int>("shareDiagnostics", report); }
+        public static void ShareDiagnostics(string report) { if(PocketIos.Available) PocketIos.Share(report); else Call<int>("shareDiagnostics", report); }
     }
 }

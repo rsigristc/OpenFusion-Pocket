@@ -44,15 +44,16 @@ namespace OpenFusion.Screens
             }
             else if (updater.Ready)
             {
-                if (Btn(new Rect(x, by, 150, 36), "Install update", Kind.Success, !updater.Checking, 14)) updater.Install();
+                if (Btn(new Rect(x, by, 150, 36), PocketIos.Available ? "Share IPA" : "Install update", Kind.Success, !updater.Checking, 14)) updater.Install();
             }
             else if (updater.Available)
             {
-                Lbl(new Rect(x, by - 28, w, 22), "APK: " + (release.Size / 1048576f).ToString("F1") + " MB", 14, CModalText);
+                Lbl(new Rect(x, by - 28, w, 22), (PocketIos.Available ? "IPA: " : "APK: ") + (release.Size / 1048576f).ToString("F1") + " MB", 14, CModalText);
                 if (Btn(new Rect(x, by, 150, 36), "Download update", Kind.Success, !updater.Checking, 14)) _ = updater.DownloadAsync();
             }
             else if (Btn(new Rect(x, by, 150, 36), "Check again", Kind.Primary, !updater.Checking, 14)) _ = updater.CheckAsync();
             if (Btn(new Rect(x + 158, by, 110, 36), "GitHub", Kind.Primary, true, 14)) Application.OpenURL(release != null ? release.Page : PocketRelease.Repository + "/releases");
+            if (PocketIos.Available && Btn(new Rect(x + 276, by, 130, 36), "iOS install help", Kind.Primary, true, 14)) Application.OpenURL(PocketRelease.IosInstallHelp);
             if (Btn(new Rect(body.xMax - 92, by, 78, 36), "Close", Kind.Primary, true, 14)) CloseModal();
         }
     }

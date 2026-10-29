@@ -40,6 +40,8 @@ namespace OpenFusion.World
         readonly ConcurrentQueue<Action> q = new ConcurrentQueue<Action>();
         bool open, bSelect, bSend, bConfirm; float sendUntil;
         int iGuide, iOwnGuide, ownSelectGuide, guideChangeFM, changeCount, npcId;
+        const int PastWarpNpcNumber = 1425;
+        bool timeMachine, pastWarpPending, mentorPending; float pastWarpDeadline;
         Texture selectBack, changeBack, guideBack; bool texTried; float texRetry;
         string msg; string[] msgBtns = { "OK" }; Action msgYes, msgAny;
 
@@ -58,9 +60,11 @@ namespace OpenFusion.World
         {
             if (open) return;
             if (iconIndex == 18 && PaymentFlag == 0) { Debug.Log("[guia] cuenta gratuita: el original abre el Cash Mall"); if (OnNeedPayment != null) OnNeedPayment(); return; }
+            timeMachine = npcType == 23; pastWarpPending = mentorPending = false;
             this.npcId = npcId; int arg = npcType == 23 ? 0 : npcType - 18 + 1; if (arg < 0 || arg > 5) arg = 0;   // NPC "Guide Changer" con tipo fuera de 18..22: sin guia preseleccionada
             bSend = false; iGuide = arg; iOwnGuide = InventoryWindow.Guide;
             if (iOwnGuide != 5) iGuide = iOwnGuide;
+            if (timeMachine) iGuide = 0; // Resume a previously acknowledged first choice without changing/paying for a guide again.
             ownSelectGuide = 0; guideChangeFM = 0; bConfirm = false; bSelect = false;
             if (iGuide == 0) bSelect = false; else guideChangeFM = ComputeCost(iGuide);
             if (iOwnGuide == 5) { iOwnGuide = 0; ownSelectGuide = 0; }
@@ -70,6 +74,7 @@ namespace OpenFusion.World
 
         void Exit(bool sound = false)
         {
+            pastWarpPending = mentorPending = false;
             if (!open) return; open = false; bConfirm = false; bSend = false; selectBack = changeBack = guideBack = null; texTried = false;
             if (sound) Sfx.Ui("Close_Screen");
         }
@@ -124,7 +129,7 @@ namespace OpenFusion.World
         void SendSelectGuide(int i)
         {
             if (i == iOwnGuide) { Msg(155); return; }
-            bSend = true; sendUntil = Time.unscaledTime + 10f;
+            bSend = mentorPending = true; sendUntil = Time.unscaledTime + 10f;
             var p = ClientPackets.New(PacketIds.P_CL2FE_REQ_PC_CHANGE_MENTOR, 2); BitConverter.GetBytes((short)i).CopyTo(p, 4); Send(p);
         }
         static void Send(byte[] p) { if (NpcUI.Sender != null) { try { NpcUI.Sender(p); } catch (Exception ex) { Debug.LogWarning("[guia] envio: " + ex.Message); } } }
@@ -137,17 +142,43 @@ namespace OpenFusion.World
                 short mentor = BitConverter.ToInt16(b, 0), cnt = BitConverter.ToInt16(b, 2); int fm = BitConverter.ToInt32(b, 4);
                 q.Enqueue(() =>
                 {
+                    bool requested = mentorPending; mentorPending = false;
                     if (hud != null && hud.Data != null) hud.Data.FusionMatter = fm;
                     changeCount = cnt; InventoryWindow.Guide = mentor; if (ents != null && ents.QuestData != null) ents.QuestData.Mentor = mentor;
+                    if (!requested) return; // Synchronize a late acknowledgement, but never initiate travel after cancellation.
                     bSend = false;
-                    if (cnt == 1) { Exit(); MsgThen(1425, null); }   // primera eleccion: vuelve al dialogo del NPC con el mensaje 1425
+                    if (cnt == 1 || timeMachine) { iOwnGuide = mentor; iGuide = 0; bSelect = false; RequestPastWarp(); }
                     else { StopGuideMissions(mentor); Exit(true); }  // evento (12,30) ChangeGuide
                 });
             }
             else if (type == PacketIds.P_FE2CL_REP_PC_CHANGE_MENTOR_FAIL)
             {
-                q.Enqueue(() => { bSend = false; MsgThen(154, () => Exit()); });   // SendSystemMessageBox(154, "Exit")
+                q.Enqueue(() => { if (!mentorPending) return; mentorPending = false; bSend = false; MsgThen(154, () => Exit()); });   // SendSystemMessageBox(154, "Exit")
             }
+        }
+
+        void RequestPastWarp()
+        {
+            pastWarpPending = true; pastWarpDeadline = Time.unscaledTime + 10f;
+            bSend = true; sendUntil = pastWarpDeadline + 1f;
+            ContinuePastWarp();
+        }
+        void ContinuePastWarp()
+        {
+            if (!pastWarpPending) return;
+            int reason = -1;
+            if (NpcUI.Instance != null && NpcUI.Instance.TryWarpNpcNumber(PastWarpNpcNumber, out reason))
+            { Debug.Log("[guia] first-choice continuation: original past warp requested"); Exit(); return; }
+            if (reason < 0 && Time.unscaledTime < pastWarpDeadline) return; // NPC list may still be streaming.
+            pastWarpPending = false; bSend = false;
+            if (reason > 0) { Msg(reason); return; }
+            msg = "The time-travel destination is not available yet. Stay near the Time Machine and try again.";
+            msgBtns = new[] { "OK" }; msgYes = msgAny = null;
+        }
+        void ChoosePast()
+        {
+            if (iOwnGuide >= 1 && iOwnGuide <= 4) RequestPastWarp();
+            else bSelect = true;
         }
 
         /// <summary>cnMissionManager.ChangeGuide: detiene las misiones activas de guia (m_iHMissionType == 1) cuyo guia requerido ya no es el actual.</summary>
@@ -189,6 +220,7 @@ namespace OpenFusion.World
         {
             Action a; int guard = 0; while (guard++ < 64 && q.TryDequeue(out a)) { try { a(); } catch (Exception ex) { Debug.LogWarning("[guia] " + ex.Message); } }
             if (!open) return;
+            ContinuePastWarp();
             if (bSend && Time.unscaledTime > sendUntil) bSend = false;
             if (changeBack == null || selectBack == null || guideBack == null) LoadTextures();
             if (!HelpOpen && !bSend && msg == null && Input.GetKeyDown(KeyCode.Escape)) { Exit(true); }
@@ -238,7 +270,7 @@ namespace OpenFusion.World
             GUI.BeginGroup(rect);
             Skin.Box(new Rect(0, 0, 520, 164), St("box"), "");
             Pic(new Rect(60, 27, 62, 62), Tx("messicon_timeMachine"));
-            if (Skin.Button(new Rect(280, 124, 200, 25), Loc.T("WARP TO THE PAST"), St("button"), en, true)) { Sfx.Ui("Yes_Button"); bSelect = true; }
+            if (Skin.Button(new Rect(280, 124, 200, 25), Loc.T("WARP TO THE PAST"), St("button"), en, true)) { Sfx.Ui("Yes_Button"); ChoosePast(); }
             else if (Skin.Button(new Rect(44, 124, 150, 25), Loc.T("CANCEL"), St("CancelButton"), en, true)) { Sfx.Ui("No_Button"); Exit(); }
             GUI.EndGroup();
             DialogText(rect, "READY TO FIGHT FUSE?", "Once you warp to the past, you will be unable to return to this area. Any active mission you have now will be removed from your journal.");

@@ -329,7 +329,7 @@ namespace OpenFusion
             if (TutorialTraining.CameraAllowed && OpenFusion.World.TouchControls.Active)
             {   // táctil: un dedo gira la cámara, pellizco = zoom
                 var lk = OpenFusion.World.TouchControls.Look; camYaw += lk.x; camPitch = Mathf.Clamp(camPitch - lk.y, CamMinPitch, CamMaxPitch);
-                float pz = OpenFusion.World.TouchControls.Pinch; if (Mathf.Abs(pz) > 0.0001f) camDist = Mathf.Clamp(camDist - pz * 0.04f, CamMinDist, CamMaxDist);
+                float pz = CanZoomWorldCamera ? OpenFusion.World.TouchControls.Pinch : 0f; if (Mathf.Abs(pz) > 0.0001f) camDist = Mathf.Clamp(camDist - pz * 0.04f, CamMinDist, CamMaxDist);
             }
             if (!aimLoaded) { aimLoaded = true; aimOn = PlayerPrefs.GetInt("cameraActive", 1) != 0; aimSide = PlayerPrefs.GetInt("cameraSide", 0) == 1 ? -1 : 1; }
             if (AimValid && !OpenFusion.World.ChatHud.Typing && !OpenFusion.World.GameMenu.Blocking)

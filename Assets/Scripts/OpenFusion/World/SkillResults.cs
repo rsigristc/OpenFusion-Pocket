@@ -27,9 +27,12 @@ namespace OpenFusion.World
         public static void SetBankStamina(HudData d, int id, short stamina)
         {
             if (id <= 0) return;
+            stamina = NonNegativeStamina(stamina);
             for (int i = 0; i < 3; i++) if (d.NanoSlots[i] == id) d.NanoStamina[i] = stamina;
             if (d.NanoBankStamina != null && id < d.NanoBankStamina.Length) d.NanoBankStamina[id] = stamina;
+            if (stamina == 0 && d.HasActiveNano && d.NanoSlots[d.ActiveNanoSlot] == id) d.ActiveNanoSlot = -1;
         }
+        public static short NonNegativeStamina(short stamina) => (short)Math.Max(0, (int)stamina);
         static void ActiveStamina(HudData d, short stamina, bool inactive)
         {
             int slot = d.ActiveNanoSlot;
@@ -64,7 +67,7 @@ namespace OpenFusion.World
                 else if (est == 2 || est == 34 || est == 7) d.Hp = I(b, o + 12);
                 if (est == 3 || est == 4 || est == 5 || est == 8) { ActiveStamina(d, S(b, o + 20), I(b, o + 24) != 0); flags = I(b, o + 28); }
                 else if (est == 21) { d.BatteryWpn = I(b, o + 16); d.BatteryNano = I(b, o + 24); ActiveStamina(d, S(b, o + 28), I(b, o + 32) != 0); flags = I(b, o + 36); }
-                else if (est == 22) { SetBankStamina(d, S(b, o + 28), S(b, o + 30)); d.ActiveNanoSlot = I(b, o + 24) != 0 ? -1 : S(b, o + 22); flags = I(b, o + 32); }
+                else if (est == 22) { SetBankStamina(d, S(b, o + 28), S(b, o + 30)); int slot=S(b,o+22); d.ActiveNanoSlot = I(b, o + 24) != 0 || slot<0 || slot>=3 || d.NanoSlots[slot]<=0 || d.NanoStamina[slot]<=0 ? -1 : slot; flags = I(b, o + 32); }
                 else if (est == 6) SetBankStamina(d, S(b, o + 10), S(b, o + 14));
                 else if (est == 7) SetBankStamina(d, S(b, o + 18), S(b, o + 22));
                 else if (stride == 16 && est != 2 && est != 6 && est != 34) flags = I(b, o + 12);

@@ -20,7 +20,7 @@ namespace OpenFusion.World
             public float x, y, width, height;
             public int nanoBoost, attackBoost, taros, equipmentScroll;
             public string tarosImage;
-            public bool local, filtersEnabled;
+            public bool local, filtersEnabled, attackBoostActive;
             public List<DualFilter> filters = new List<DualFilter>();
             public bool missions, shops, services, zoomIn, zoomOut;
             public List<DualMarker> markers = new List<DualMarker>();
@@ -113,7 +113,7 @@ namespace OpenFusion.World
             var hud = GetComponent<PlayerHud>();
             if (hud != null)
             {
-                var d = hud.Data; data.nanoBoost = d.BatteryNano; data.attackBoost = d.BatteryWpn; data.taros = d.Taros;
+                var d = hud.Data; data.attackBoostActive = d.UseWeaponBattery && d.BatteryWpn > 0; data.nanoBoost = d.BatteryNano; data.attackBoost = d.BatteryWpn; data.taros = d.Taros;
                 for (int i = 0; i < 3; i++)
                 {
                     int id = d.NanoSlots[i];

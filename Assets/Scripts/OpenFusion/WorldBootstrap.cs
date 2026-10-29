@@ -144,6 +144,7 @@ namespace OpenFusion
         }
         public async Task LoadWorldAsync(Vector3 position)
         {
+            await OpenFusion.Screens.PocketIosLoadingMemory.BeforeWorldAsync();
             StartPosition = position;
             DongGrid.Cell(position.x, position.z, out int x, out int y);
             var manifest = Models.GameData.Manifest;
@@ -156,6 +157,7 @@ namespace OpenFusion
                 if (n >= 480) throw new TimeoutException("The initial map could not be loaded. Please try again.");
                 await Task.Delay(250);
             }
+            OpenFusion.Screens.PocketIosLoadingMemory.WorldReady();
         }
 
         void OnTeleport(int x, int y, int z) { PrepareWarp(PlayerAvatarFactory.ToClient(x, y, z)); }

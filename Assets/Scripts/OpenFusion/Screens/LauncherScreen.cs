@@ -1081,7 +1081,7 @@ namespace OpenFusion.Screens
         {
             var body = ModalFrame(a, Mathf.Min(a.width - 16f, 620f), 410f, "About OpenFusion:Pocket");
             float x0 = body.x + 16f, iw = body.width - 32f, y = body.y + 14f;
-            LblM(new Rect(x0, y, iw, 22f), "Version " + Application.version + " (build " + PocketRelease.BuildCode + ")", 15, CModalText); y += 30f;
+            LblM(new Rect(x0, y, iw, 22f), "Version " + Application.version + " (build " + (PocketIos.Available ? PocketIos.InstalledBuild : PocketRelease.BuildCode) + ")", 15, CModalText); y += 30f;
             LblM(new Rect(x0, y, iw, 22f), "Unity " + Application.unityVersion + " / " + (IntPtr.Size * 8) + "-bit / " + SystemInfo.graphicsDeviceType, 14, CModalText); y += 26f;
             LblM(new Rect(x0, y, iw, 22f), "Launcher feature reference: OpenFusionLauncher " + LauncherServerLink.UpstreamVersion, 13, CGray); y += 26f;
             LblM(new Rect(x0, y, iw, 22f), "Android adaptation: Rodrigo Sigrist / rsigristc", 14, CModalText); y += 28f;
@@ -1214,7 +1214,8 @@ namespace OpenFusion.Screens
             if (stab == 1) {
                 if (Btn(new Rect(16f, 350f, vw - 32f, 42f), "Dual Screen settings", Kind.Primary, true, 16)) OpenFusion.World.DualScreenController.ShowSettings();
                 if (Btn(new Rect(16f, 402f, vw - 32f, 42f), "Touch layout editor / profiles", Kind.Primary, true, 16)) OpenFusion.World.TouchProfileEditor.Show(true);
-                if (Btn(new Rect(16f, 454f, vw - 32f, 42f), "Graphics API (experimental Vulkan; restart required)", Kind.Primary, PocketPlatform.Available, 15)) PocketPlatform.RendererSettings();
+                if (PocketIos.Available) Lbl(new Rect(16f, 454f, vw - 32f, 42f), "Graphics API: Metal", 15, CModalText);
+                else if (Btn(new Rect(16f, 454f, vw - 32f, 42f), "Graphics API (experimental Vulkan; restart required)", Kind.Primary, PocketPlatform.Available, 15)) PocketPlatform.RendererSettings();
                 Lbl(new Rect(16f, 505f, vw - 32f, 44f), "Launcher: D-pad / stick selects, A opens, B returns, L1 / R1 changes Settings tabs. In-game: L3 + R3 toggles cursor; LB switches DS surface.", 13, CModalText);
             }
             if (prefsEdit == null) { prefsApplied = LoadPrefs(); prefsEdit = prefsApplied.Clone(); }

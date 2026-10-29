@@ -9,6 +9,9 @@
 /*.sln
 *.apk
 *.aab
+*.ipa
+*.mobileprovision
+*.mobiledevicepairing
 tests/**/bin/
 tests/**/obj/
 /.codex-remote-attachments/

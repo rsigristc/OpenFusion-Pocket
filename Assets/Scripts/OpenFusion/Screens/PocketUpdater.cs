@@ -13,7 +13,7 @@ namespace OpenFusion.Screens
         public bool Checking { get; private set; }
         public bool Downloading { get; private set; }
         public bool Ready { get; private set; }
-        public bool Available => Latest != null && Latest.NewerThan(Application.version, InstalledCode);
+        public bool Available => Latest != null && Latest.IsIos == PocketIos.Available && Latest.NewerThan(Application.version, InstalledCode) && (!PocketIos.Available || PocketIos.SupportsOs(Latest.MinimumOs));
         public string Status { get; private set; } = "Updates have not been checked yet.";
         public float Progress => active == null ? 0f : Mathf.Clamp01(active.downloadProgress);
         public long InstalledCode { get; private set; } = PocketRelease.BuildCode;
@@ -22,6 +22,7 @@ namespace OpenFusion.Screens
         void Awake()
         {
             apkPath = Path.Combine(Application.temporaryCachePath, "updates", "OpenFusion-Pocket.apk");
+            if (PocketIos.Available) { InstalledCode = PocketIos.InstalledBuild; apkPath = Path.Combine(Application.temporaryCachePath, "updates", "OpenFusion-Pocket.ipa"); }
 #if UNITY_ANDROID && !UNITY_EDITOR
             try { using (var helper = new AndroidJavaClass("com.openfusion.updater.PocketInstaller")) using (var unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) using (var activity = unity.GetStatic<AndroidJavaObject>("currentActivity")) { InstalledCode = helper.CallStatic<long>("installedCode", activity); apkPath = helper.CallStatic<string>("updatePath", activity); } }
             catch (Exception e) { Debug.LogWarning("[updater] build code: " + e.Message); }
@@ -50,12 +51,13 @@ namespace OpenFusion.Screens
             Checking = true; Status = "Checking GitHub releases…";
             try
             {
-                string json = await Text(PocketRelease.LatestApi); var release = PocketRelease.Read(json);
+                string json = await Text(PocketIos.Available ? PocketRelease.IosApi : PocketRelease.LatestApi);
+                var release = PocketIos.Available ? PocketRelease.ReadIosFeed(json) : PocketRelease.Read(json);
                 string manifest = await Text(release.ManifestUrl); release.ApplyManifest(manifest, json);
                 if (destroyed) return;
                 if (Latest == null || Latest.Sha256 != release.Sha256) { Ready = false; verifiedHash = null; }
                 Latest = release;
-                Status = Available ? "Update available: " + release.Title : "You are up to date.";
+                Status = PocketIos.Available && !PocketIos.SupportsOs(release.MinimumOs) ? "This update requires iOS " + release.MinimumOs + " or later." : Available ? "Update available: " + release.Title : "You are up to date.";
             }
             catch (Exception e) { if (!destroyed) Status = e.Message; }
             finally { active = null; Checking = false; }
@@ -76,18 +78,19 @@ namespace OpenFusion.Screens
                     var operation = req.SendWebRequest();
                     while (!operation.isDone)
                     {
-                        if (req.downloadedBytes > (ulong)release.Size) { req.Abort(); throw new IOException("Download exceeds the expected APK size."); }
+                        if (req.downloadedBytes > (ulong)release.Size) { req.Abort(); throw new IOException("Download exceeds the expected application size."); }
                         await Task.Delay(100);
                     }
                     if (cancelRequested) throw new OperationCanceledException("Download cancelled.");
                     if (req.result != UnityWebRequest.Result.Success) throw new IOException("Download failed. Check your connection and retry.");
                 }
                 active = null; Status = "Verifying download…";
-                if (!await Task.Run(() => release.Verify(part))) throw new IOException("Update verification failed. The APK will not be installed.");
+                if (!await Task.Run(() => release.Verify(part))) throw new IOException("Update verification failed. The download will not be used.");
                 if (cancelRequested) throw new OperationCanceledException("Download cancelled.");
                 if (destroyed) return;
                 if (File.Exists(apkPath)) File.Delete(apkPath); File.Move(part, apkPath);
-                verifiedHash = release.Sha256; Ready = true; Status = "Download verified. Tap Install update to continue.";
+                verifiedHash = release.Sha256; Ready = true;
+                Status = PocketIos.Available ? "IPA verified. Tap Share IPA, save to Files and re-sign/install with AltStore or your original installer." : "Download verified. Tap Install update to continue.";
             }
             catch (Exception e) { if (!destroyed) Status = e.Message; }
             finally { active = null; Downloading = false; if (File.Exists(part)) File.Delete(part); }
@@ -96,8 +99,16 @@ namespace OpenFusion.Screens
         public void Install()
         {
             if (!Ready || Latest == null || verifiedHash != Latest.Sha256 || !File.Exists(apkPath)) return;
+            if (Latest.IsIos != PocketIos.Available) { Ready = false; return; }
             try
             {
+                if (PocketIos.Available)
+                {
+                    if (!Latest.Verify(apkPath)) { Ready = false; Status = "IPA changed after verification. Download it again."; return; }
+                    PocketIos.ShareFile(apkPath);
+                    Status = "Save the verified IPA to Files, then re-sign/install using AltStore or your original installer. Pocket cannot silently replace its signed app.";
+                    return;
+                }
 #if UNITY_ANDROID && !UNITY_EDITOR
                 using (var helper = new AndroidJavaClass("com.openfusion.updater.PocketInstaller"))
                 using (var unity = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))

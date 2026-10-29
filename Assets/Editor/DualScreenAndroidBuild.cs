@@ -1,3 +1,4 @@
+#if UNITY_ANDROID
 using System.IO;
 using System.Xml;
 using UnityEditor.Android;
@@ -69,3 +70,4 @@ public class PocketActivity extends com.unity3d.player.UnityPlayerActivity {
         }
     }
 }
+#endif

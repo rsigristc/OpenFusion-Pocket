@@ -125,3 +125,79 @@ Skyway trip on the AynThor. ADB confirmed world scale (1,1,1) with five renderer
 no matching Unity null/missing-reference exceptions appeared in the inspected
 buffer. Installed preview SHA256:
 `EFEE7B9E4A8FAE33ECB4259C52E7B098FB63838C738A865A72BB35EBC3145AE9`.
+
+## Follow-up: initial guide selection and travel to the past
+
+Legacy cnGuideMode.ReceivePacket handles the first mentor success by switching
+to NpcIconMode and dispatching NpcWarpOK with NPC table number 1425. It is not a
+system-message ID: the actual MessageTable contains only 265 rows. The port
+incorrectly called MsgThen(1425), displaying a numeric fallback and omitting
+the teleport request. Actual Retrobution tables identify NPC 1425 as "To the
+Past!", warp 76, with no item, task, level or currency restriction in that row.
+
+The continuation now finds the real server NPC by table number and follows the
+ordinary checked NPC warp sequence using its runtime ID, original effect/sound,
+1.5-second delay and server-authoritative relocation. It waits briefly for a
+streamed destination and provides readable retry instructions on timeout.
+Reopening the Time Machine after a previously acknowledged choice resumes the
+warp without purchasing/changing the guide again. No position, quest completion
+or payment is invented locally. Duplicate acknowledgements cannot repeat travel;
+rejected guide changes cannot start it. Live past travel is left to the user
+because it can permanently leave the Future and remove active Future missions.
+
+GuidePastRegressionChecks covers the handshake, actual runtime-vs-table IDs,
+request rejection, duplicate acknowledgement, saved-guide recovery and delayed
+or absent NPCs with an intercepted sender; it sends no real account operations.
+
+## Follow-up: Nano exhaustion and initial equipment
+
+Legacy cnOwnAvatarStatus.PCTick withdraws the current Nano and sets its active
+slot to -1 when the server reports stamina <= 0. Pocket updated the stamina but
+left that slot active, so passive Nanos could remain visible through negative
+energy and their subsequent recharge. Server stamina now shares a nonnegative
+slot/bank update path that retires only the matching active Nano at exhaustion.
+Regeneration does not resummon it. Tick/respawn, skill results, charge and timed
+drain updates use this state consistently. Late skill results for another Nano
+cannot dismiss the replacement. Buff values remain server-authoritative; this
+does not indiscriminately remove group or external buffs.
+
+Legacy GameFrame's NANO_TUNE_SUCC handler equips the first empty slot when the
+Nano previously had skill 0. It does not equip an untuned Nano at CREATE_SUCC.
+Pocket now sends that equipment request after initial power acknowledgement,
+without updating the equipped slot until EQUIP_SUCC. Full slots retain the Nano
+in storage; retuning does not auto-equip. Pending initial equipment reserves
+separate slots for simultaneous acknowledgements and resets on a new session.
+
+NanoLifecycleRegressionChecks covers exhaustion, negative-energy clamping,
+inactive recharge, stale responses, no pre-power equip, real equipment ACKs,
+full slots, duplicate/concurrent tuning replies and session cleanup. The user confirmed both passive-Nano exhaustion/recharge and first-power
+auto-equipment into an empty slot on the AynThor. Warp to the Past was also
+confirmed working after guide selection.
+
+
+## Follow-up: boost shortcuts and touch camera zoom
+
+The DS resource strip and the single-screen HUD route Nano Boost / Attack Boost
+taps through CombatSystem.ActivateBoost, shared with the existing mapped inputs.
+Nano Boost requests the existing server charge for the active Nano; Attack Boost
+toggles the existing weapon-battery state and packet. The 300 ms input cooldown,
+live-session/death/modal checks and available-resource checks apply to all paths.
+The attack counter gains a yellow outline while boost use is enabled and stock
+is positive. Taros remains informational.
+
+World-camera pinch now tracks a stable pair and a baseline when the second
+finger arrives. Pinch consumes neither an attack nor a joystick finger, suppresses
+rotation during zoom and suppresses tap selection when the gesture ends. Modal,
+surface and controller transitions clear its state. It uses the existing camera
+distance limits and world-camera availability checks. Optional virtual Zoom In /
+Out buttons remain available in the touch profile editor.
+
+Validation: input regressions cover spread/close, finger ordering, attack held
+through pinch, no baseline jump, no tap/rotation on release, and modal cancellation.
+Android instrumentation on the AynThor passed at two panel sizes: Nano/Attack
+taps enqueue exactly one matching command, Taros does nothing, drag/cancel
+suppresses activation, disconnected taps are rejected, and the active Attack
+Boost draws yellow pixels at the outline. No gameplay resources were consumed.
+Build Logs/boost-pinch-build.log completed with 0 errors; the installed local APK
+SHA-256 is 625AD819B7ACF1E613E4935DB7A440FD6330ED53EA2FAC67FC32511B25113E08.
+The user confirmed the boost shortcuts, active outline and pinch zoom work correctly on AynThor.

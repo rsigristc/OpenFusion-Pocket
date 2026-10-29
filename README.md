@@ -1,13 +1,14 @@
 # OpenFusion:Pocket
 
-**A native Android client for FusionFall, rebuilt in Unity 2022.3 LTS.**
+**A native FusionFall client for Android, with an experimental native iOS edition, rebuilt in Unity 2022.3 LTS.**
 
-[![Download v3.0](https://img.shields.io/badge/Download-v3.0-00bcd4)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/v3.0)
+[![Android v3.1](https://img.shields.io/badge/Android-v3.1-00bcd4)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/v3.1)
+[![iOS v0.5 experimental](https://img.shields.io/badge/iOS-v0.5_experimental-ccdd00)](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/ios-v0.5)
 [![Support Me on Ko-fi](https://img.shields.io/badge/Support_Me-Ko--fi-ff5e5b)](https://ko-fi.com/rodrigosigrist)
 
 OpenFusion:Pocket is an unofficial community preservation project focused on making FusionFall more convenient to play on Android. Development and device testing currently focus on **FusionFall Retrobution**.
 
-Version **3.0** improves Legacy-style movement, terrain lighting, DS Companion, Nano feedback, social features and resource recovery. It fixes Monkey Skyway models and time-machine avatar visibility, and adds private Export Logs. See the [bilingual release notes](docs/releases/v3.0.md) for changes, validation and remaining checks.
+Android **3.1** fixes past travel and Nano exhaustion/initial equipment, adds boost shortcuts and touch pinch zoom, and reduces asset-reader allocations. Native iOS **0.5** introduces ARM64/Metal support and an iOS update channel. See the bilingual [Android release notes](docs/releases/v3.1.md), [iOS release notes](docs/releases/ios-v0.5.md) and [iOS installation guide](docs/IOS_INSTALL.md).
 
 The project reconstructs the legacy client's resource loading, world rendering, interface, input and server communication in a newer Unity runtime. It runs as an Android application without running the Windows client through Wine or Winlator. It does not compile the original client or recompile Unity on your phone.
 
@@ -16,13 +17,15 @@ This repository contains the Unity project used for this native client. The earl
 ## Download and install
 
 1. Open [Releases](https://github.com/rsigristc/OpenFusion-Pocket/releases).
-2. Download **OpenFusion-Pocket-v3.0.apk** from **OpenFusion:Pocket v3.0**.
+2. Download **OpenFusion-Pocket-v3.1.apk** from **OpenFusion:Pocket Android v3.1**.
 3. Allow installation from your browser or file manager when Android asks, then install the APK.
 4. Open the app, choose a server and sign in with an account for that server. An internet connection is required.
 
 The build targets **Android 6.0 / API 23 or newer**, with ARMv7 and ARM64 included. These are build requirements, not a guarantee of performance or compatibility on every device. Initial game-resource downloads require additional storage and time; Wi-Fi is recommended. Server availability and account registration are managed by each server's operators.
 
 To update an existing installation signed with the same certificate, install over it to retain data. A different signing certificate requires a separate migration; do not delete app data just to troubleshoot a download or loading issue.
+
+For **iOS 16.0+ / ARM64**, download the IPA from [iOS v0.5](https://github.com/rsigristc/OpenFusion-Pocket/releases/tag/ios-v0.5) and re-sign/install using AltStore Classic or another compatible tool. No Husk or external JIT is required. The iOS edition uses a single screen; DS Companion remains Android-only. It is experimental: repeated loading/memory checks and comprehensive device coverage are still pending. [Install and update on iOS](docs/IOS_INSTALL.md).
 
 ## What is included
 
@@ -82,7 +85,7 @@ The latest asset audit found 20 unresolved target references in the source resou
 
 Use **Unity 2022.3.62f3** with Android Build Support, SDK, NDK and OpenJDK. See [Building from source](docs/BUILDING.md), [Contributing](CONTRIBUTING.md) and [Reporting security issues](SECURITY.md).
 
-The launcher's **About** screen links directly to this repository. **Updates** checks the latest stable GitHub release and shows its changelog. You choose when to download and install; Android may ask you to allow installations from this app. See [Updater and release maintenance](docs/UPDATER.md) for the update manifest and future publishing workflow. The v3.0 APK uses Android build code **6**, following v2.1 build **5**, v2.0 build **4**, v1.5 build **3** and the updater-enabled v1.0 build **2**.
+The launcher's **About** screen links directly to this repository. **Updates** checks the matching platform's published GitHub release and shows its changelog. Downloads are verified before installation (Android) or sharing for re-signing (iOS). See [Updater and release maintenance](docs/UPDATER.md). Android v3.1 uses build **7**, following v3.0 build **6**; iOS v0.5 independently uses build **8**. Android remains the repository's latest-release channel; iOS uses `ios-v*` releases and its own manifest.
 
 - `Assets/Scripts/OpenFusion/`: legacy readers, networking, launcher and gameplay systems.
 - `Assets/Shaders/`: rendering adaptations.

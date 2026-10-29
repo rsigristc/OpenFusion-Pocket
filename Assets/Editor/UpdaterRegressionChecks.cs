@@ -38,6 +38,7 @@ namespace OpenFusion.EditorTools
         { bool rejected = false; try { parse(); } catch (InvalidDataException) { rejected = true; } Check(rejected, message); }
         public static void Run()
         {
+            CheckIosChannel();
             const string root = PocketRelease.Repository + "/releases/download/v1.1/";
             byte[] bytes = { 1, 2, 3, 4, 5 }; string sha;
             using (var h = SHA256.Create()) sha = BitConverter.ToString(h.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
@@ -71,6 +72,33 @@ namespace OpenFusion.EditorTools
             finally { if (File.Exists(path)) File.Delete(path); }
             File.WriteAllText("Logs/updater-regression-results.txt", "PASS: GitHub changelog; semantic versions and same-release build revisions; downgrade/reinstall rejection; trusted origin; package/version/hash/size validation; stable-only channel; partial/tampered download rejection.\n");
             Debug.Log("[updater-regression] Passed");
+        }
+        static void CheckIosChannel()
+        {
+            string tag = "ios-v0.5", root = PocketRelease.Repository + "/releases/download/" + tag + "/";
+            string hash = new string('a', 64), name = "OpenFusion-Pocket-iOS-v0.5.ipa";
+            var ipa = new JObject { ["name"] = name, ["size"] = 10, ["state"] = "uploaded", ["digest"] = "sha256:" + hash, ["browser_download_url"] = root + name };
+            var ios = new JObject { ["tag_name"] = tag, ["name"] = "Pocket iOS 0.5", ["html_url"] = PocketRelease.Repository + "/releases/tag/" + tag, ["body"] = "iOS changelog", ["draft"] = false, ["prerelease"] = false,
+                ["assets"] = new JArray(new JObject { ["name"] = "update-ios.json", ["state"] = "uploaded", ["browser_download_url"] = root + "update-ios.json" }, ipa) };
+            var android = new JObject { ["tag_name"] = "v99.0", ["draft"] = false, ["prerelease"] = false };
+            var future = (JObject)ios.DeepClone(); future["tag_name"] = "ios-v0.6"; future["prerelease"] = true;
+            var feed = new JArray(android, future, ios);
+            var manifest = new JObject { ["schema"] = 1, ["platform"] = "ios", ["bundle"] = PocketRelease.IosBundle, ["version"] = "0.5", ["version_code"] = 8, ["minimum_os"] = "16.0", ["ipa_asset"] = name, ["size"] = 10, ["sha256"] = hash };
+            Func<PocketRelease> read = () => { var r = PocketRelease.ReadIosFeed(feed.ToString()); r.ApplyManifest(manifest.ToString(), feed.ToString()); return r; };
+            var release = read();
+            Check(release.IsIos && release.Version == "0.5" && release.Notes == "iOS changelog", "iOS selected Android, draft or wrong changelog.");
+            Check(release.NewerThan("0.4", 7) && !release.NewerThan("0.5", 8) && !release.NewerThan("0.6", 7), "iOS downgrade/reinstall guard failed.");
+            Reject(() => PocketRelease.Read(ios.ToString()), "Android accepted the iOS release.");
+            manifest["ipa_asset"] = "OpenFusion-Pocket-v3.1.apk"; Reject(() => read(), "iOS accepted APK."); manifest["ipa_asset"] = name;
+            manifest["bundle"] = PocketRelease.Package; Reject(() => read(), "iOS accepted Android package."); manifest["bundle"] = PocketRelease.IosBundle;
+            manifest["minimum_os"] = "unknown"; Reject(() => read(), "Missing OS compatibility accepted."); manifest["minimum_os"] = "16.0";
+            manifest["sha256"] = new string('b', 64); Reject(() => read(), "iOS asset/manifest digest mismatch accepted."); manifest["sha256"] = hash;
+            ipa["browser_download_url"] = "https://example.com/app.ipa"; Reject(() => read(), "iOS accepted external asset."); ipa["browser_download_url"] = root + name;
+            manifest["version"] = "0.6"; Reject(() => read(), "iOS tag/version mismatch accepted."); manifest["version"] = "0.5";
+            // GitHub order is not a semantic version guarantee.
+            var older = (JObject)ios.DeepClone(); older["tag_name"] = "ios-v0.4";
+            Check(PocketRelease.ReadIosFeed(new JArray(older, ios).ToString()).Tag == tag, "iOS feed must choose highest semantic version.");
+            Debug.Log("[updater-regression] iOS channel isolation, IPA identity, digest, minimum OS and downgrade guards passed");
         }
     }
 }

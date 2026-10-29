@@ -199,10 +199,12 @@ namespace OpenFusion.World
             End(false);   // cnPlayerCamera.EndSubTarget: la camara vuelve al jugador para ver el efecto
         }
         void TickWarp()
+        { AdvanceWarp(Time.deltaTime); }
+        void AdvanceWarp(float deltaTime)
         {
             if (warpWait > 0f)
             {
-                warpWait -= Time.deltaTime;
+                warpWait -= deltaTime;
                 if (warpWait <= 0f)
                 {
                     warpWait = 0f;
@@ -598,9 +600,27 @@ namespace OpenFusion.World
         static float UiScale() { return GameOptions.UiScale; }
 
         // NpcIconMode.WarpOK: comprobaciones en cliente antes de pedir el warp (110 taros, 111 nivel, 112/113 objetos, 114 mision, 115 grupo lejos)
-        int WarpCheck(WarpElement w)
+        // cnGuideMode's first mentor acknowledgement continues through
+        // NpcIconMode.NpcWarpOK with the NPC table number, not a message ID.
+        public bool TryWarpNpcNumber(int number, out int reason)
         {
-            if (nhud == null) nhud = FindObjectOfType<NanocomHud>(); if (nhud == null || talking == null) return 0;
+            reason = -1;
+            if (ents == null || ents.Instances?.m_pWarpData == null || warpWait > 0f || whiteHold) return false;
+            NpcInfo npc = null;
+            foreach (var go in ents.NpcObjects) { if (go == null) continue; var info = go.GetComponent<NpcInfo>(); if (info != null && info.NpcNumber == number) { npc = info; break; } }
+            if (npc == null) return false;
+            foreach (var warp in ents.Instances.m_pWarpData)
+            {
+                if (warp == null || warp.m_iNpcNumber != number) continue;
+                reason = WarpCheck(warp, npc); if (reason != 0) return false;
+                BeginWarp(npc, warp.m_iWarpNumber); return warpWait > 0f;
+            }
+            return false;
+        }
+        int WarpCheck(WarpElement w, NpcInfo source = null)
+        {
+            if (source == null) source = talking;
+            if (nhud == null) nhud = FindObjectOfType<NanocomHud>(); if (nhud == null || source == null) return 0;
             if (nhud.PlayerTaros < w.m_iCost) return 110;
             if (nhud.PlayerLevel > 0 && nhud.PlayerLevel < w.m_iLimit_Level) return 111;
             if (w.m_iLimit_ItemID != 0 && !HasWarpItem(w.m_iLimit_ItemType == 8, w.m_iLimit_ItemType, w.m_iLimit_ItemID)) return 112;
@@ -612,7 +632,7 @@ namespace OpenFusion.World
                 {
                     if (pid == ents.SelfId) continue; var pt = ents.TransformOfPlayer(pid);
                     if (pt == null) return 115;
-                    Vector3 d = talking.transform.position - pt.position; d.y = 0f; if (d.magnitude > 5f) return 115;
+                    Vector3 d = source.transform.position - pt.position; d.y = 0f; if (d.magnitude > 5f) return 115;
                 }
             }
             return 0;
